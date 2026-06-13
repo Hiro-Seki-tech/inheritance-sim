@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>宝均（ジェム・キン） - プレミアム相続シミュレータ</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: {
+              50: '#fdfbf7',
+              100: '#fbf7ed',
+              200: '#f4e9cf',
+              300: '#eddab1',
+              400: '#dfbc75',
+              500: '#d29e3a',
+              600: '#bd862f',
+              700: '#9e6724',
+              800: '#7e4f1c',
+              900: '#603914',
+            },
+            slate: {
+              850: '#1e293b',
+              950: '#0f172a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* カスタムスクロールバー */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1e293b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #d29e3a;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #bd862f;
+    }
+    /* スライダーの見た目カスタマイズ */
+    input[type="range"]::-webkit-slider-thumb {
+      background: #d29e3a;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 10px rgba(210, 158, 58, 0.5);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans flex flex-col selection:bg-gold-500 selection:text-slate-950">
+
+  <!-- ヘッダー -->
+  <header class="border-b border-gold-500/20 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="bg-gradient-to-br from-gold-400 to-gold-600 p-2.5 rounded-xl shadow-lg shadow-gold-500/10 flex items-center justify-center">
+          <i class="fa-solid fa-gem text-slate-950 text-xl animate-pulse"></i>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold tracking-wider bg-gradient-to-r from-gold-300 via-gold-500 to-amber-300 bg-clip-text text-transparent">
+            宝均 <span class="text-xs sm:text-sm text-gold-400 font-medium tracking-normal">ジェム・キン相続シミュレータ</span>
+          </h1>
+          <p class="text-[10px] sm:text-xs text-slate-400">リアルタイム遺産分割 & 相続税シミュレーション</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gold-400/10 text-gold-400 border border-gold-500/20">
+          v1.5 Premium
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+
+    <!-- トップサマリー & モード切替 -->
+    <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+      <div>
+        <h2 class="text-lg font-semibold text-gold-300 flex items-center gap-2">
+          <i class="fa-solid fa-calculator"></i> シミュレーション設定
+        </h2>
+        <p class="text-xs text-slate-400 mt-1">
+          相続税の計算ロジックを切り替えることができます。
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="btn-mode-standard" onclick="setTaxMode('standard')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 shadow-md flex items-center gap-2 bg-gold-500 text-slate-950 border-gold-400">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>日本実務電卓 (総額按分方式)</span>
+        </button>
+        <button id="btn-mode-direct" onclick="setTaxMode('direct')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 flex items-center gap-2 bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-200">
+          <i class="fa-solid fa-bolt"></i>
+          <span>仕様書v1.5 (直接課税方式)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- メイン2カラムレイアウト -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- 左カラム: 入力エリア (8カラム) -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- 1. 相続人設定 -->
+        <section class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+            <h3 class="text-base sm:text-lg font-bold text-slate-200 flex items-center gap-2">
+              <span class="text-gold-500"><i class="fa-solid fa-users"></i></span> 1. 相続人の設定
+            </h3>
+            <div class="flex gap-2">
+              <button onclick="resetToStatutoryShares()" class="text-xs text-gold-400 hover:text-gold-300 transition-colors flex items-center gap-1 bg-gold-500/10 px-2.5 py-1.5 rounded-lg border border-gold-500/20">
+                <i class="fa-solid fa-rotate"></i> 法定相続分に初期化
+              </button>
+              <button onclick="addHeir()" class="text-xs bg-gold-500 hover:bg-gold-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 shadow-md shadow-gold-500/10">
+                <i class="fa-solid fa-plus"></i> 追加
+              </button>
+            </div>
+          </div>
+
+          <!-- 相続人合計警告 -->
+          <div id="heir-share-alert" class="hidden mb-4 p-3 rounded-xl text-xs flex items-center justify-between border">
+            <!-- 動的割り当て -->
+          </div>
+
+          <!-- 相続人リスト -->
+          <div id="heirs-container" class="space-y-4 max-h-[380px] overflow-y-auto pr-1">
+            <!-- 相続人カードが動的に挿入されます -->
+          </div>
+        </section>
+
+        <!-- 2. 資産設定 -->
+        <section class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+            <h3 class="text-base sm:text-lg font-bold text-slate-200 flex items-center gap-2">
+              <span class="text-gold-500"><i class="fa-solid fa-coins"></i></span> 2. 資産の入力 & 取得者設定
+            </h3>
+            <button onclick="addAsset()" class="text-xs bg-gold-500 hover:bg-gold-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 shadow-md shadow-gold-500/10">
+              <i class="fa-solid fa-plus"></i> 資産を追加
+            </button>
+          </div>
+
+          <!-- 資産リスト -->
+          <div id="assets-container" class="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+            <!-- 資産カードが動的に挿入されます -->
+          </div>
+        </section>
+
+      </div>
+
+      <!-- 右カラム: リアルタイムシミュレーション結果 (5カラム) -->
+      <div class="lg:col-span-5 space-y-6">
+
+        <!-- 3. 相続全体サマリー -->
+        <section class="bg-gradient-to-b from-slate-900/90 to-slate-950/95 border border-gold-500/30 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-gold-500/5 rounded-full blur-3xl pointer-events-none"></div>
+          
+          <h3 class="text-base sm:text-lg font-bold text-gold-300 flex items-center gap-2 mb-4 pb-3 border-b border-slate-800/60">
+            <i class="fa-solid fa-chart-pie"></i> 相続サマリー
+          </h3>
+
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="bg-slate-800/40 border border-slate-800 p-3.5 rounded-xl">
+              <span class="text-slate-400 text-[10px] sm:text-xs block">遺産総額</span>
+              <span id="summary-total-estate" class="text-lg sm:text-xl font-bold text-slate-100">0円</span>
+            </div>
+            <div class="bg-slate-800/40 border border-slate-800 p-3.5 rounded-xl">
+              <span class="text-slate-400 text-[10px] sm:text-xs block">基礎控除額</span>
+              <span id="summary-deduction" class="text-lg sm:text-xl font-bold text-emerald-400">0円</span>
+            </div>
+            <div class="bg-slate-800/40 border border-slate-800 p-3.5 rounded-xl col-span-2">
+              <div class="flex justify-between items-center">
+                <div>
+                  <span class="text-slate-400 text-[10px] sm:text-xs block">課税対象遺産総額</span>
+                  <span id="summary-taxable-estate" class="text-xl sm:text-2xl font-black text-gold-400">0円</span>
+                </div>
+                <div class="text-right">
+                  <span class="text-slate-400 text-[10px] sm:text-xs block">相続税総額</span>
+                  <span id="summary-total-tax" class="text-xl sm:text-2xl font-black text-rose-400">0円</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- グラフ表示切替タブ -->
+          <div class="flex border-b border-slate-800 mb-4">
+            <button onclick="switchChartTab('share')" id="tab-chart-share" class="flex-1 pb-2 text-xs font-semibold border-b-2 border-gold-500 text-gold-400 transition-all text-center">
+              分配割合
+            </button>
+            <button onclick="switchChartTab('tax')" id="tab-chart-tax" class="flex-1 pb-2 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all text-center">
+              相続税
+            </button>
+            <button onclick="switchChartTab('assets')" id="tab-chart-assets" class="flex-1 pb-2 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all text-center">
+              資産構成
+            </button>
+          </div>
+
+          <!-- グラフコンテナ -->
+          <div class="relative min-h-[220px] flex items-center justify-center bg-slate-900/40 rounded-xl p-3 border border-slate-800">
+            <canvas id="summaryChart" class="max-w-full max-h-[210px]"></canvas>
+            <div id="chart-placeholder" class="hidden text-slate-500 text-xs text-center flex-col items-center gap-2">
+              <i class="fa-solid fa-chart-line text-2xl text-slate-600"></i>
+              データが不足しています
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. 各相続人の配分・税額一覧テーブル -->
+        <section class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <h3 class="text-base sm:text-lg font-bold text-slate-200 flex items-center gap-2 mb-4">
+            <span class="text-gold-500"><i class="fa-solid fa-table-list"></i></span> 4. 相続人ごとの詳細計算結果
+          </h3>
+          
+          <div class="overflow-x-auto border border-slate-800 rounded-xl bg-slate-900/80 max-h-[300px]">
+            <table class="min-w-full divide-y divide-slate-800 text-xs sm:text-sm text-left">
+              <thead class="bg-slate-800/50 sticky top-0 backdrop-blur">
+                <tr>
+                  <th class="px-3 py-3 font-semibold text-slate-300">相続人 (続柄)</th>
+                  <th class="px-3 py-3 font-semibold text-slate-300 text-right">希望割合</th>
+                  <th class="px-3 py-3 font-semibold text-slate-300 text-right">取得額</th>
+                  <th class="px-3 py-3 font-semibold text-slate-300 text-right">課税対象額</th>
+                  <th class="px-3 py-3 font-semibold text-slate-300 text-right text-rose-400">相続税額</th>
+                </tr>
+              </thead>
+              <tbody id="result-table-body" class="divide-y divide-slate-800/50">
+                <!-- 動的に集計行が挿入されます -->
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-3 text-[10px] text-slate-500 leading-relaxed space-y-1">
+            <p>※1 基礎控除額 ＝ 3,000万円 ＋ 600万円 × 法定相続人の数</p>
+            <p id="tax-mode-note">※2 日本実務電卓方式：各人の法定相続分で算出した各相続税を合算後、実際の取得額の割合で按分して最終税額を算出しています。</p>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="mt-auto border-t border-slate-800 bg-slate-950/80 py-6 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <p>© 2026 宝均 (ジェム・キン) Inheritance Simulator. All Rights Reserved.</p>
+      <p class="text-[10px] text-slate-600 max-w-2xl mx-auto">免責事項: 本シミュレータの計算結果は簡易的な概算であり、実際の相続にあたっては税理士、弁護士などの専門家にご相談ください。小規模宅地の特例や配偶者控除などは反映されていません。</p>
+    </div>
+  </footer>
+
+  <!-- カスタムダイアログ: 資産分割の％指定用モーダル -->
+  <div id="distribution-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-slate-900 border border-gold-500/30 rounded-2xl p-6 w-full max-w-lg shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h4 class="text-base sm:text-lg font-bold text-gold-300 flex items-center gap-2">
+          <i class="fa-solid fa-sliders"></i> 資産の分割（%指定）
+        </h4>
+        <button onclick="closeDistributionModal()" class="text-slate-400 hover:text-slate-200">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <p id="modal-asset-title" class="text-xs text-slate-400">資産: [資産名] の配分割合を設定してください。</p>
+      
+      <!-- 配分入力エリア -->
+      <div id="modal-heirs-list" class="space-y-3 max-h-[250px] overflow-y-auto pr-1">
+        <!-- 動的表示 -->
+      </div>
+
+      <div class="flex items-center justify-between pt-3 border-t border-slate-800 text-xs">
+        <span class="text-slate-400">合計配分割合:</span>
+        <span id="modal-total-percentage" class="font-bold text-gold-400">0%</span>
+      </div>
+      <div id="modal-warning" class="hidden text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl">
+        合計が100%になっていません。
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeDistributionModal()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all">キャンセル</button>
+        <button onclick="saveDistributionModal()" class="px-4 py-2 rounded-xl bg-gold-500 hover:bg-gold-600 text-slate-950 text-xs font-bold transition-all shadow-md">適用する</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- 初期データ構造 ---
+    let state = {
+      taxMode: 'standard', // 'standard' (日本の実務電卓方式) or 'direct' (直接課税方式)
+      heirs: [
+        { id: "h1", name: "配偶者", relation: "spouse", share: 50 },
+        { id: "h2", name: "長男", relation: "child", share: 25 },
+        { id: "h3", name: "長女", relation: "child", share: 25 }
+      ],
+      assets: [
+        { id: "a1", name: "代々木の土地", type: "land", area: 120, rosenka: 450000, value: 54000000, distributionType: "auto", distribution: {} },
+        { id: "a2", name: "定期預金", type: "cash", value: 35000000, distributionType: "auto", distribution: {} },
+        { id: "a3", name: "株式 (ジェムホールディングス)", type: "stock", nameStock: "ジェムHD", value: 18000000, distributionType: "auto", distribution: {} }
+      ],
+      activeChartTab: 'share' // 'share', 'tax', 'assets'
+    };
+
+    // リレーション日本語マップと色
+    const relationMap = {
+      spouse: "配偶者",
+      child: "子",
+      parent: "直系尊属",
+      sibling: "兄弟姉妹",
+      other: "その他"
+    };
+
+    const heirColors = [
+      '#d29e3a', // gold-500
+      '#10b981', // emerald-500
+      '#3b82f6', // blue-500
+      '#ec4899', // pink-500
+      '#8b5cf6', // purple-500
+      '#f59e0b', // amber-500
+      '#06b6d4', // cyan-500
+      '#ef4444'  // red-500
+    ];
+
+    let summaryChart = null;
+    let editingAssetId = null;
+
+    // --- 相続税速算表用計算関数 ---
+    function getTaxRateAndDeduction(taxableAmount) {
+      if (taxableAmount <= 0) return { rate: 0, deduction: 0 };
+      if (taxableAmount <= 10000000) return { rate: 0.10, deduction: 0 };
+      if (taxableAmount <= 30000000) return { rate: 0.15, deduction: 500000 };
+      if (taxableAmount <= 50000000) return { rate: 0.20, deduction: 2000000 };
+      if (taxableAmount <= 100000000) return { rate: 0.30, deduction: 7000000 };
+      if (taxableAmount <= 200000000) return { rate: 0.40, deduction: 17000000 };
+      if (taxableAmount <= 300000000) return { rate: 0.45, deduction: 27000000 };
+      if (taxableAmount <= 600000000) return { rate: 0.50, deduction: 42000000 };
+      return { rate: 0.55, deduction: 72000000 };
+    }
+
+    // フォーマット関数
+    function formatCurrency(num) {
+      return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY', maximumFractionDigits: 0 }).format(num);
+    }
+
+    // 起動時処理
+    window.onload = function() {
+      // 初期法定相続分計算
+      calculateStatutoryShares(false);
+      updateApp();
+    };
+
+    // --- ロジック計算 & UI更新コア ---
+    function updateApp() {
+      // 1. 各資産の評価額を再計算
+      state.assets.forEach(asset => {
+        if (asset.type === 'land') {
+          asset.value = asset.area * asset.rosenka;
+        }
+      });
+
+      // 2. 遺産総額の計算
+      const totalEstate = state.assets.reduce((sum, asset) => sum + asset.value, 0);
+
+      // 3. 基礎控除の計算 (法定相続人の数 = 'other'以外の人数。ここでは実務の慣習に基づき'other'を考慮。簡易的に登録されている全相続人の数とする)
+      // 民法上、その他（特別縁故者など）は基礎控除対象には含まれないため、spouse, child, parent, sibling のみをカウント
+      const statutoryHeirsCount = state.heirs.filter(h => h.relation !== 'other').length;
+      const deduction = 30000000 + (6000000 * Math.max(1, statutoryHeirsCount));
+      const taxableEstate = Math.max(0, totalEstate - deduction);
+
+      // 4. 各相続人の「実際の資産取得額」を計算
+      // まず全員のシェア合計
+      const totalShareInput = state.heirs.reduce((sum, h) => sum + h.share, 0);
+
+      // 各相続人の取得額初期化
+      state.heirs.forEach(h => {
+        h.actualAcquisition = 0;
+        h.distributionBreakdown = {}; // デバッグ・詳細用
+      });
+
+      state.assets.forEach(asset => {
+        if (asset.distributionType === 'auto') {
+          // 希望割合（スライダー）に応じて按分
+          if (totalShareInput > 0) {
+            state.heirs.forEach(h => {
+              const shareRatio = h.share / totalShareInput;
+              const acq = asset.value * shareRatio;
+              h.actualAcquisition += acq;
+              h.distributionBreakdown[asset.id] = acq;
+            });
+          }
+        } else if (asset.distributionType === 'single') {
+          // 特定の1人が100%取得
+          const singleHeirId = asset.singleHeirId;
+          const heir = state.heirs.find(h => h.id === singleHeirId);
+          if (heir) {
+            heir.actualAcquisition += asset.value;
+            heir.distributionBreakdown[asset.id] = asset.value;
+          }
+        } else if (asset.distributionType === 'custom') {
+          // カスタム割合で分割
+          state.heirs.forEach(h => {
+            const ratio = asset.distribution[h.id] || 0;
+            const acq = asset.value * ratio;
+            h.actualAcquisition += acq;
+            h.distributionBreakdown[asset.id] = acq;
+          });
+        }
+      });
+
+      // 実際の総取得額の再集計 (浮動小数誤差を考慮)
+      const totalActualAcquisition = state.heirs.reduce((sum, h) => sum + h.actualAcquisition, 0);
+
+      // 5. 相続税の計算
+      if (state.taxMode === 'direct') {
+        // --- 直接課税方式 (仕様書v1.5準拠) ---
+        // 課税対象額i = 課税遺産総額 * 相続割合i (取得割合で計算)
+        state.heirs.forEach(h => {
+          const ratio = totalActualAcquisition > 0 ? (h.actualAcquisition / totalActualAcquisition) : 0;
+          h.taxableAmount = taxableEstate * ratio;
+          const taxCalc = getTaxRateAndDeduction(h.taxableAmount);
+          h.taxRate = taxCalc.rate;
+          h.taxDeduction = taxCalc.deduction;
+          h.taxAmount = Math.max(0, h.taxableAmount * taxCalc.rate - taxCalc.deduction);
+        });
+      } else {
+        // --- 日本実務電卓方式 (日本の実際の税制) ---
+        // 1. 各相続人の法定相続分に応じた取得額を仮定して各税額を計算
+        const statutoryShares = getStatutorySharesRatio(); // 法定相続割合を取得 {heirId: ratio}
+        let totalStatutoryTax = 0;
+
+        state.heirs.forEach(h => {
+          const statRatio = statutoryShares[h.id] || 0;
+          const statTaxableAmount = taxableEstate * statRatio;
+          const taxCalc = getTaxRateAndDeduction(statTaxableAmount);
+          const statTax = Math.max(0, statTaxableAmount * taxCalc.rate - taxCalc.deduction);
+          h.statTax = statTax; // 仮の税額
+          totalStatutoryTax += statTax;
+        });
+
+        // 2. 算出した税額総額を、実際の財産取得割合に応じて按分
+        state.heirs.forEach(h => {
+          const actualRatio = totalActualAcquisition > 0 ? (h.actualAcquisition / totalActualAcquisition) : 0;
+          h.taxableAmount = taxableEstate * actualRatio;
+          
+          // 表示用の目安としての税率・控除額を取得
+          const taxCalc = getTaxRateAndDeduction(h.taxableAmount);
+          h.taxRate = taxCalc.rate;
+          h.taxDeduction = taxCalc.deduction;
+          
+          // 実際の納税額 = 相続税総額 × 実際の取得割合
+          h.taxAmount = totalStatutoryTax * actualRatio;
+        });
+      }
+
+      const totalTax = state.heirs.reduce((sum, h) => sum + h.taxAmount, 0);
+
+      // 6. UIサマリー更新
+      document.getElementById('summary-total-estate').textContent = formatCurrency(totalEstate);
+      document.getElementById('summary-deduction').textContent = formatCurrency(deduction);
+      document.getElementById('summary-taxable-estate').textContent = formatCurrency(taxableEstate);
+      document.getElementById('summary-total-tax').textContent = formatCurrency(totalTax);
+
+      // 相続割合の警告表示
+      const alertEl = document.getElementById('heir-share-alert');
+      if (totalShareInput > 100) {
+        alertEl.className = "mb-4 p-3 rounded-xl text-xs flex items-center justify-between border bg-rose-500/10 border-rose-500/30 text-rose-400";
+        alertEl.innerHTML = `<span><i class="fa-solid fa-triangle-exclamation"></i> <strong>合計割合が100%を超えています (${totalShareInput}%)</strong>。合計を100%に調整してください。</span>`;
+        alertEl.classList.remove('hidden');
+      } else if (totalShareInput < 100) {
+        alertEl.className = "mb-4 p-3 rounded-xl text-xs flex items-center justify-between border bg-amber-500/10 border-amber-500/30 text-amber-400";
+        alertEl.innerHTML = `<span><i class="fa-solid fa-circle-info"></i> <strong>未配分割合が ${100 - totalShareInput}% あります</strong>。残りの資産分割に影響します。</span>`;
+        alertEl.classList.remove('hidden');
+      } else {
+        alertEl.classList.add('hidden');
+      }
+
+      // 相続人・資産・結果テーブルの各DOM更新
+      renderHeirs();
+      renderAssets();
+      renderResultTable(totalEstate, taxableEstate, totalTax);
+      renderCharts();
+    }
+
+    // --- 税金計算モードの変更 ---
+    function setTaxMode(mode) {
+      state.taxMode = mode;
+      const btnStandard = document.getElementById('btn-mode-standard');
+      const btnDirect = document.getElementById('btn-mode-direct');
+      const noteEl = document.getElementById('tax-mode-note');
+
+      if (mode === 'standard') {
+        btnStandard.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 shadow-md flex items-center gap-2 bg-gold-500 text-slate-950 border-gold-400";
+        btnDirect.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 flex items-center gap-2 bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-200";
+        noteEl.innerHTML = "※2 日本実務電卓方式：各人の法定相続分で算出した各相続税を合算後、実際の取得額の割合で按分して最終税額を算出しています。";
+      } else {
+        btnDirect.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 shadow-md flex items-center gap-2 bg-gold-500 text-slate-950 border-gold-400";
+        btnStandard.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 flex items-center gap-2 bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-200";
+        noteEl.innerHTML = "※2 仕様書v1.5直接課税方式：各相続人の『実際の取得金額』に対して直接相続税の速算表を適用して算出した税額です。";
+      }
+      updateApp();
+    }
+
+    // --- 法定相続割合の計算 (非破壊的) ---
+    function getStatutorySharesRatio() {
+      const ratios = {};
+      const heirs = state.heirs;
+      if (heirs.length === 0) return ratios;
+
+      const spouse = heirs.find(h => h.relation === 'spouse');
+      const children = heirs.filter(h => h.relation === 'child');
+      const parents = heirs.filter(h => h.relation === 'parent');
+      const siblings = heirs.filter(h => h.relation === 'sibling');
+      const others = heirs.filter(h => h.relation === 'other');
+
+      const totalHeirsCount = heirs.length;
+
+      if (spouse) {
+        if (children.length > 0) {
+          ratios[spouse.id] = 0.5;
+          children.forEach(c => ratios[c.id] = 0.5 / children.length);
+        } else if (parents.length > 0) {
+          ratios[spouse.id] = 2/3;
+          parents.forEach(p => ratios[p.id] = (1/3) / parents.length);
+        } else if (siblings.length > 0) {
+          ratios[spouse.id] = 0.75;
+          siblings.forEach(s => ratios[s.id] = 0.25 / siblings.length);
+        } else {
+          ratios[spouse.id] = 1.0;
+        }
+        // others には法定相続分なし
+        others.forEach(o => ratios[o.id] = 0);
+      } else {
+        // 配偶者なし
+        if (children.length > 0) {
+          children.forEach(c => ratios[c.id] = 1.0 / children.length);
+          [...parents, ...siblings, ...others].forEach(x => ratios[x.id] = 0);
+        } else if (parents.length > 0) {
+          parents.forEach(p => ratios[p.id] = 1.0 / parents.length);
+          [...siblings, ...others].forEach(x => ratios[x.id] = 0);
+        } else if (siblings.length > 0) {
+          siblings.forEach(s => ratios[s.id] = 1.0 / siblings.length);
+          others.forEach(x => ratios[x.id] = 0);
+        } else {
+          // その他のみ、または該当なしなら全員で等分
+          heirs.forEach(h => ratios[h.id] = 1.0 / totalHeirsCount);
+        }
+      }
+      return ratios;
+    }
+
+    // 相続人全員の比率を法定相続分にセット（上書きボタン用）
+    function resetToStatutoryShares() {
+      const ratios = getStatutorySharesRatio();
+      state.heirs.forEach(h => {
+        const ratio = ratios[h.id] || 0;
+        h.share = Math.round(ratio * 100);
+      });
+      updateApp();
+    }
+
+    // 初回の自動計算（開始時の設定用）
+    function calculateStatutoryShares(triggerUpdate = true) {
+      const ratios = getStatutorySharesRatio();
+      state.heirs.forEach(h => {
+        const ratio = ratios[h.id] || 0;
+        h.share = Math.round(ratio * 100);
+      });
+      if (triggerUpdate) updateApp();
+    }
+
+    // --- 相続人管理 ---
+    function addHeir() {
+      const id = "h_" + Date.now();
+      const defaultNames = ["相続人A", "相続人B", "相続人C", "相続人D"];
+      const currentCount = state.heirs.length;
+      const name = defaultNames[currentCount % defaultNames.length] + (currentCount >= 4 ? Math.floor(currentCount / 4) + 1 : "");
+      
+      state.heirs.push({
+        id: id,
+        name: name,
+        relation: "child", // デフォルトは子
+        share: 0
+      });
+      calculateStatutoryShares();
+    }
+
+    function removeHeir(id) {
+      if (state.heirs.length <= 1) {
+        showFeedback("最低1人の相続人が必要です。");
+        return;
+      }
+      state.heirs = state.heirs.filter(h => h.id !== id);
+      
+      // 資産の分割データから削除された相続人をクリーンアップ
+      state.assets.forEach(asset => {
+        if (asset.distribution && asset.distribution[id]) {
+          delete asset.distribution[id];
+        }
+        if (asset.singleHeirId === id) {
+          asset.distributionType = "auto";
+          asset.singleHeirId = null;
+        }
+      });
+
+      calculateStatutoryShares();
+    }
+
+    function updateHeirField(id, field, value) {
+      const heir = state.heirs.find(h => h.id === id);
+      if (!heir) return;
+
+      if (field === 'share') {
+        let parsed = parseInt(value, 10);
+        if (isNaN(parsed)) parsed = 0;
+        heir.share = Math.max(0, Math.min(100, parsed));
+      } else if (field === 'relation') {
+        heir.relation = value;
+        // 続柄変更にともない法定相続分は再計算した方が親切なため自動リセット
+        calculateStatutoryShares();
+        return; // calculateStatutoryShares内でupdateAppが走るためここでリターン
+      } else {
+        heir[field] = value;
+      }
+      updateApp();
+    }
+
+    function renderHeirs() {
+      const container = document.getElementById('heirs-container');
+      container.innerHTML = '';
+
+      state.heirs.forEach((heir, index) => {
+        const color = heirColors[index % heirColors.length];
+        
+        const card = document.createElement('div');
+        card.className = "bg-slate-800/40 border border-slate-700/50 hover:border-gold-500/30 rounded-xl p-4 transition-all space-y-3 relative overflow-hidden";
+        card.style.borderLeft = `4px solid ${color}`;
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input type="text" value="${heir.name}" onchange="updateHeirField('${heir.id}', 'name', this.value)"
+                class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-gold-500 transition-colors" placeholder="お名前">
+              <select onchange="updateHeirField('${heir.id}', 'relation', this.value)"
+                class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-gold-500 transition-colors">
+                <option value="spouse" ${heir.relation === 'spouse' ? 'selected' : ''}>配偶者</option>
+                <option value="child" ${heir.relation === 'child' ? 'selected' : ''}>子</option>
+                <option value="parent" ${heir.relation === 'parent' ? 'selected' : ''}>直系尊属</option>
+                <option value="sibling" ${heir.relation === 'sibling' ? 'selected' : ''}>兄弟姉妹</option>
+                <option value="other" ${heir.relation === 'other' ? 'selected' : ''}>その他</option>
+              </select>
+            </div>
+            <button onclick="removeHeir('${heir.id}')" class="text-slate-500 hover:text-rose-400 p-1.5 rounded-lg transition-colors" title="削除">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+              <span class="flex items-center gap-1">
+                <i class="fa-solid fa-percent text-[10px] text-gold-500"></i> 分割希望割合 (スライダー)
+              </span>
+              <div class="flex items-center gap-1">
+                <input type="number" value="${heir.share}" min="0" max="100" onchange="updateHeirField('${heir.id}', 'share', this.value)"
+                  class="bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 w-12 text-center text-xs font-bold text-gold-400 focus:outline-none focus:border-gold-500">%
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <input type="range" min="0" max="100" value="${heir.share}" oninput="updateHeirField('${heir.id}', 'share', this.value)"
+                class="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-gold-500">
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // --- 資産管理 ---
+    function addAsset() {
+      const id = "a_" + Date.now();
+      state.assets.push({
+        id: id,
+        name: "新規資産",
+        type: "cash",
+        value: 10000000,
+        distributionType: "auto",
+        distribution: {}
+      });
+      updateApp();
+    }
+
+    function removeAsset(id) {
+      state.assets = state.assets.filter(a => a.id !== id);
+      updateApp();
+    }
+
+    function updateAssetField(id, field, value) {
+      const asset = state.assets.find(a => a.id === id);
+      if (!asset) return;
+
+      if (field === 'value' || field === 'area' || field === 'rosenka') {
+        let parsed = parseFloat(value);
+        if (isNaN(parsed)) parsed = 0;
+        asset[field] = parsed;
+      } else {
+        asset[field] = value;
+      }
+      updateApp();
+    }
+
+    function setAssetDistributionType(id, type, extraId = null) {
+      const asset = state.assets.find(a => a.id === id);
+      if (!asset) return;
+
+      asset.distributionType = type;
+      if (type === 'single') {
+        asset.singleHeirId = extraId || (state.heirs[0] ? state.heirs[0].id : null);
+      } else if (type === 'custom') {
+        // モーダルを表示して詳細設定
+        openDistributionModal(id);
+        return; // モーダル側で更新・セーブをハンドリングするため即時リターンしない
+      }
+      updateApp();
+    }
+
+    function renderAssets() {
+      const container = document.getElementById('assets-container');
+      container.innerHTML = '';
+
+      if (state.assets.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 border border-dashed border-slate-800 rounded-2xl text-slate-500 text-xs">
+            <i class="fa-solid fa-folder-open text-2xl mb-2 text-slate-600 block"></i>
+            登録されている資産がありません。「資産を追加」を押して作成してください。
+          </div>
+        `;
+        return;
+      }
+
+      state.assets.forEach(asset => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-800/40 border border-slate-700/50 hover:border-gold-500/20 rounded-xl p-4 transition-all space-y-4";
+
+        // タイプごとのインプット生成
+        let typeSpecificFields = '';
+        if (asset.type === 'cash') {
+          typeSpecificFields = `
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-1">金額 (円)</label>
+              <input type="number" value="${asset.value}" onchange="updateAssetField('${asset.id}', 'value', this.value)"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-gold-500">
+            </div>
+          `;
+        } else if (asset.type === 'stock') {
+          typeSpecificFields = `
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">銘柄名 (任意)</label>
+                <input type="text" value="${asset.nameStock || ''}" onchange="updateAssetField('${asset.id}', 'nameStock', this.value)"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-gold-500" placeholder="例: トヨタ">
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">評価額 (円)</label>
+                <input type="number" value="${asset.value}" onchange="updateAssetField('${asset.id}', 'value', this.value)"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-gold-500">
+              </div>
+            </div>
+          `;
+        } else if (asset.type === 'land') {
+          typeSpecificFields = `
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">地積 面積 (㎡)</label>
+                <input type="number" value="${asset.area || 100}" onchange="updateAssetField('${asset.id}', 'area', this.value)"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-gold-500">
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-1">路線価 (円/㎡)</label>
+                <input type="number" value="${asset.rosenka || 100000}" onchange="updateAssetField('${asset.id}', 'rosenka', this.value)"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-gold-500">
+              </div>
+              <div class="col-span-2">
+                <span class="text-[10px] text-gold-400">算出評価額: <strong>${formatCurrency(asset.area * asset.rosenka)}</strong></span>
+              </div>
+            </div>
+          `;
+        } else if (asset.type === 'building' || asset.type === 'other') {
+          typeSpecificFields = `
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-1">固定資産税評価額 / 評価額 (円)</label>
+              <input type="number" value="${asset.value}" onchange="updateAssetField('${asset.id}', 'value', this.value)"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-gold-500">
+            </div>
+          `;
+        }
+
+        // 取得先オプションのマークアップ構築
+        let distributionSelectionHTML = '';
+        state.heirs.forEach(h => {
+          distributionSelectionHTML += `<option value="${h.id}" ${asset.distributionType === 'single' && asset.singleHeirId === h.id ? 'selected' : ''}>${h.name} に100%</option>`;
+        });
+
+        card.innerHTML = `
+          <!-- 資産カードヘッダー -->
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input type="text" value="${asset.name}" onchange="updateAssetField('${asset.id}', 'name', this.value)"
+                class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-200 focus:outline-none focus:border-gold-500 transition-colors" placeholder="資産の名前">
+              <select onchange="updateAssetField('${asset.id}', 'type', this.value)"
+                class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 focus:outline-none focus:border-gold-500 transition-colors">
+                <option value="cash" ${asset.type === 'cash' ? 'selected' : ''}>現金・預金</option>
+                <option value="stock" ${asset.type === 'stock' ? 'selected' : ''}>株式・投資信託</option>
+                <option value="land" ${asset.type === 'land' ? 'selected' : ''}>不動産（土地）</option>
+                <option value="building" ${asset.type === 'building' ? 'selected' : ''}>不動産（建物）</option>
+                <option value="other" ${asset.type === 'other' ? 'selected' : ''}>その他資産</option>
+              </select>
+            </div>
+            <button onclick="removeAsset('${asset.id}')" class="text-slate-500 hover:text-rose-400 p-1.5 rounded-lg transition-colors" title="削除">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+          </div>
+
+          <!-- タイプ別入力 -->
+          ${typeSpecificFields}
+
+          <!-- 分配設定 -->
+          <div class="pt-2 border-t border-slate-800/80">
+            <label class="text-[10px] text-slate-400 block mb-1"><i class="fa-solid fa-hand-holding-dollar text-gold-500"></i> この資産の取得者設定</label>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <select onchange="handleDistributionSelectChange('${asset.id}', this.value)"
+                class="flex-grow bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-gold-500">
+                <option value="auto" ${asset.distributionType === 'auto' ? 'selected' : ''}>相続希望割合で自動按分</option>
+                <option value="custom" ${asset.distributionType === 'custom' ? 'selected' : ''}>分割 (％指定)</option>
+                <optgroup label="特定の1人が取得">
+                  ${distributionSelectionHTML}
+                </optgroup>
+              </select>
+              ${asset.distributionType === 'custom' ? `
+                <button onclick="openDistributionModal('${asset.id}')" class="px-3 py-1.5 rounded-lg bg-gold-500/10 border border-gold-500/30 hover:bg-gold-500/20 text-xs text-gold-300 font-semibold transition-all">
+                  割合編集
+                </button>
+              ` : ''}
+            </div>
+            
+            <!-- 分配サマリーの表示 -->
+            <div class="mt-2 text-[10px] text-slate-500">
+              取得状況: 
+              <span class="text-slate-300">
+                ${getAssetDistributionSummaryText(asset)}
+              </span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // ドロップダウン変更ハンドラー
+    function handleDistributionSelectChange(assetId, value) {
+      if (value === 'auto') {
+        setAssetDistributionType(assetId, 'auto');
+      } else if (value === 'custom') {
+        setAssetDistributionType(assetId, 'custom');
+      } else {
+        // heirIdが入っている
+        setAssetDistributionType(assetId, 'single', value);
+      }
+    }
+
+    // 各資産の分配サマリーテキストを生成
+    function getAssetDistributionSummaryText(asset) {
+      if (asset.distributionType === 'auto') {
+        return "相続割合(スライダー)に応じて自動的に按分されます。";
+      }
+      if (asset.distributionType === 'single') {
+        const heir = state.heirs.find(h => h.id === asset.singleHeirId);
+        return heir ? `<strong>${heir.name}</strong> が100%取得` : '未指定';
+      }
+      if (asset.distributionType === 'custom') {
+        const parts = [];
+        state.heirs.forEach(h => {
+          const ratio = asset.distribution[h.id] || 0;
+          if (ratio > 0) {
+            parts.push(`${h.name} (${Math.round(ratio * 100)}%)`);
+          }
+        });
+        return parts.length > 0 ? parts.join(', ') : '未設定 (0%)';
+      }
+      return "";
+    }
+
+    // --- 各資産分割カスタムモーダルの制御 ---
+    function openDistributionModal(assetId) {
+      editingAssetId = assetId;
+      const asset = state.assets.find(a => a.id === assetId);
+      if (!asset) return;
+
+      document.getElementById('modal-asset-title').innerHTML = `資産「<strong>${asset.name}</strong> (評価額: ${formatCurrency(asset.value)})」を分割する比率を設定してください。`;
+      
+      const container = document.getElementById('modal-heirs-list');
+      container.innerHTML = '';
+
+      state.heirs.forEach(h => {
+        // 既存の設定があれば持ってくる（なければ0）
+        const currentPercent = asset.distribution[h.id] ? Math.round(asset.distribution[h.id] * 100) : 0;
+
+        const row = document.createElement('div');
+        row.className = "flex items-center justify-between p-2.5 bg-slate-800/50 rounded-xl border border-slate-800";
+        row.innerHTML = `
+          <span class="text-xs font-semibold text-slate-300">${h.name} <span class="text-[10px] text-slate-500 font-normal">(${relationMap[h.relation]})</span></span>
+          <div class="flex items-center gap-1.5">
+            <input type="number" data-heir-id="${h.id}" value="${currentPercent}" min="0" max="100" oninput="calculateModalTotal()"
+              class="modal-percent-input w-16 bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-center font-bold text-gold-400 text-xs focus:outline-none focus:border-gold-500">%
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      document.getElementById('distribution-modal').classList.remove('hidden');
+      document.getElementById('distribution-modal').classList.add('flex');
+      calculateModalTotal();
+    }
+
+    function calculateModalTotal() {
+      const inputs = document.querySelectorAll('.modal-percent-input');
+      let total = 0;
+      inputs.forEach(input => {
+        let val = parseInt(input.value, 10);
+        if (isNaN(val)) val = 0;
+        total += val;
+      });
+
+      const totalEl = document.getElementById('modal-total-percentage');
+      totalEl.textContent = total + "%";
+
+      const warningEl = document.getElementById('modal-warning');
+      if (total !== 100) {
+        totalEl.className = "font-bold text-rose-400";
+        warningEl.classList.remove('hidden');
+        warningEl.textContent = `合計が100%になっていません。(現在 ${total}%) 合計100%にする必要があります。`;
+      } else {
+        totalEl.className = "font-bold text-emerald-400";
+        warningEl.classList.add('hidden');
+      }
+    }
+
+    function saveDistributionModal() {
+      const inputs = document.querySelectorAll('.modal-percent-input');
+      let total = 0;
+      const newDistribution = {};
+
+      inputs.forEach(input => {
+        const heirId = input.getAttribute('data-heir-id');
+        let val = parseInt(input.value, 10);
+        if (isNaN(val)) val = 0;
+        total += val;
+        newDistribution[heirId] = val / 100;
+      });
+
+      if (total !== 100) {
+        // 警告がすでに出ているが再度ユーザーに伝える
+        showFeedback("合計を100%にする必要があります。");
+        return;
+      }
+
+      const asset = state.assets.find(a => a.id === editingAssetId);
+      if (asset) {
+        asset.distributionType = 'custom';
+        asset.distribution = newDistribution;
+      }
+
+      closeDistributionModal();
+      updateApp();
+    }
+
+    function closeDistributionModal() {
+      document.getElementById('distribution-modal').classList.add('hidden');
+      document.getElementById('distribution-modal').classList.remove('flex');
+      editingAssetId = null;
+    }
+
+    // --- 集計テーブル表示 ---
+    function renderResultTable(totalEstate, taxableEstate, totalTax) {
+      const tbody = document.getElementById('result-table-body');
+      tbody.innerHTML = '';
+
+      const totalAcquisition = state.heirs.reduce((sum, h) => sum + h.actualAcquisition, 0);
+
+      state.heirs.forEach((h, index) => {
+        const color = heirColors[index % heirColors.length];
+        const actualRatio = totalAcquisition > 0 ? (h.actualAcquisition / totalAcquisition) : 0;
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-800/30 transition-colors";
+        tr.innerHTML = `
+          <td class="px-3 py-3 flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${color}"></span>
+            <div>
+              <span class="font-semibold text-slate-200 block">${h.name}</span>
+              <span class="text-[9px] text-slate-500">${relationMap[h.relation]}</span>
+            </div>
+          </td>
+          <td class="px-3 py-3 text-right font-medium text-slate-300">
+            ${h.share}%
+          </td>
+          <td class="px-3 py-3 text-right font-bold text-slate-200">
+            ${formatCurrency(h.actualAcquisition)}
+            <span class="text-[9px] text-slate-500 block">割合: ${Math.round(actualRatio * 100)}%</span>
+          </td>
+          <td class="px-3 py-3 text-right text-slate-400">
+            ${formatCurrency(h.taxableAmount)}
+          </td>
+          <td class="px-3 py-3 text-right font-black text-rose-400">
+            ${formatCurrency(h.taxAmount)}
+            <span class="text-[9px] text-slate-500 block">税率: ${Math.round(h.taxRate * 100)}%</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // テーブルフッター (合計)
+      const footerTr = document.createElement('tr');
+      footerTr.className = "bg-slate-800/30 font-bold border-t border-slate-700";
+      footerTr.innerHTML = `
+        <td class="px-3 py-3 text-slate-300">合計</td>
+        <td class="px-3 py-3 text-right text-slate-400">-</td>
+        <td class="px-3 py-3 text-right text-slate-200">${formatCurrency(totalAcquisition)}</td>
+        <td class="px-3 py-3 text-right text-slate-400">${formatCurrency(taxableEstate)}</td>
+        <td class="px-3 py-3 text-right text-rose-400">${formatCurrency(totalTax)}</td>
+      `;
+      tbody.appendChild(footerTr);
+    }
+
+    // --- グラフ切替 & レンダリング ---
+    function switchChartTab(tab) {
+      state.activeChartTab = tab;
+      
+      const tabs = ['share', 'tax', 'assets'];
+      tabs.forEach(t => {
+        const el = document.getElementById(`tab-chart-${t}`);
+        if (t === tab) {
+          el.className = "flex-1 pb-2 text-xs font-semibold border-b-2 border-gold-500 text-gold-400 transition-all text-center";
+        } else {
+          el.className = "flex-1 pb-2 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-all text-center";
+        }
+      });
+
+      renderCharts();
+    }
+
+    function renderCharts() {
+      const ctx = document.getElementById('summaryChart').getContext('2d');
+      const placeholder = document.getElementById('chart-placeholder');
+      const canvasEl = document.getElementById('summaryChart');
+
+      // 既存チャートの破棄
+      if (summaryChart) {
+        summaryChart.destroy();
+      }
+
+      if (state.heirs.length === 0 || state.assets.length === 0) {
+        canvasEl.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        placeholder.classList.add('flex');
+        return;
+      }
+
+      canvasEl.classList.remove('hidden');
+      placeholder.classList.add('hidden');
+      placeholder.classList.remove('flex');
+
+      const labels = [];
+      const colors = [];
+      const data = [];
+      let chartType = 'pie';
+      let chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: '#94a3b8', boxWidth: 12, font: { size: 10 } }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                let label = context.label || '';
+                if (label) label += ': ';
+                if (context.parsed !== undefined) {
+                  label += formatCurrency(context.parsed);
+                }
+                return label;
+              }
+            }
+          }
+        }
+      };
+
+      if (state.activeChartTab === 'share') {
+        // --- 遺産分配 (各相続人の取得額) ---
+        chartType = 'pie';
+        state.heirs.forEach((h, index) => {
+          labels.push(h.name);
+          colors.push(heirColors[index % heirColors.length]);
+          data.push(h.actualAcquisition);
+        });
+
+      } else if (state.activeChartTab === 'tax') {
+        // --- 相続税額 (棒グラフ) ---
+        chartType = 'bar';
+        state.heirs.forEach((h, index) => {
+          labels.push(h.name);
+          colors.push('#f43f5e'); // 統一のローズカラー
+          data.push(h.taxAmount);
+        });
+
+        chartOptions = {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return "相続税額: " + formatCurrency(context.raw);
+                }
+              }
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+            y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 9 }, callback: value => value >= 10000 ? (value/10000) + '万円' : value } }
+          }
+        };
+
+      } else if (state.activeChartTab === 'assets') {
+        // --- 資産構成別 ---
+        chartType = 'doughnut';
+        const typeSum = { cash: 0, stock: 0, land: 0, building: 0, other: 0 };
+        const typeLabels = { cash: "現金・預金", stock: "株式・投信", land: "不動産(土地)", building: "不動産(建物)", other: "その他" };
+        const typeColors = { cash: "#3b82f6", stock: "#8b5cf6", land: "#10b981", building: "#ec4899", other: "#64748b" };
+
+        state.assets.forEach(a => {
+          typeSum[a.type] = (typeSum[a.type] || 0) + a.value;
+        });
+
+        Object.keys(typeSum).forEach(type => {
+          if (typeSum[type] > 0) {
+            labels.push(typeLabels[type]);
+            colors.push(typeColors[type]);
+            data.push(typeSum[type]);
+          }
+        });
+      }
+
+      summaryChart = new Chart(ctx, {
+        type: chartType,
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: colors,
+            borderWidth: 1.5,
+            borderColor: '#0f172a'
+          }]
+        },
+        options: chartOptions
+      });
+    }
+
+    // --- 簡単なカスタム通知表示 ---
+    function showFeedback(message) {
+      // 画面にトースト通知
+      const toast = document.createElement('div');
+      toast.className = "fixed bottom-5 right-5 bg-gold-500 text-slate-950 font-bold px-4 py-2.5 rounded-xl shadow-2xl transition-all duration-300 transform translate-y-10 opacity-0 z-50 text-xs flex items-center gap-2 border border-white/20";
+      toast.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${message}`;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-10', 'opacity-0');
+      }, 50);
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-10', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
