@@ -261,7 +261,7 @@
           </div>
           <div class="mt-3 text-[10px] text-ceremony-silver-400 leading-relaxed space-y-1">
             <p>※1 基礎控除額 ＝ 3,000万円 ＋ 600万円 × 法定相続人の数</p>
-            <p id="tax-mode-note">※2 日本実務電卓方式：各人の法定相続分で算算出される各相続税を合算後、実際の取得額の割合で按分して最終税額を算出しています。</p>
+            <p id="tax-mode-note">※2 日本実務電卓方式：各人の法定相続分で算出した各相続税を合算後、実際の取得額の割合で按分して最終税額を算出しています。</p>
           </div>
         </section>
 
@@ -498,83 +498,57 @@
     }
 
     function updateApp() {
-      //
-      // ① 土地の自動評価（路線価）
-      //
       state.assets.forEach(asset => {
-        if (asset.type === 'land' && asset.landEvaluationType === 'rosenka') {
-          asset.amount = (asset.area || 0) * (asset.rosenka || 0);
+        if (asset.type === 'land') {
+          if (asset.landEvaluationType === 'rosenka') {
+            asset.amount = (asset.area || 0) * (asset.rosenka || 0);
+          }
         }
       });
 
-      //
-      // ② 相続人の初期化
-      //
+      const totalEstate = state.assets.reduce((sum, asset) => sum + asset.amount, 0);
+      const statutoryHeirsCount = state.heirs.filter(h => h.relation !== 'other').length;
+      const deduction = 30000000 + (6000000 * Math.max(1, statutoryHeirsCount));
+      const taxableEstate = Math.max(0, totalEstate - deduction);
+      const totalShareInput = state.heirs.reduce((sum, h) => sum + h.share, 0);
+
       state.heirs.forEach(h => {
         h.actualAcquisition = 0;
         h.distributionBreakdown = {};
       });
 
-      //
-      // ③ 全資産を横断して actualAcquisition を集計
-      //
       state.assets.forEach(asset => {
-        const amount = asset.amount || 0;
-
-        // --- モード1：自動按分（auto） ---
-        if (asset.splitMode === "auto") {
-          state.heirs.forEach(h => {
-            const ratio = asset.autoSplit?.[h.id] || 0;
-            const acq = amount * ratio;
-            h.actualAcquisition += acq;
-            h.distributionBreakdown[asset.id] = acq;
-          });
-        }
-
-        // --- モード2：個別設定（custom） ---
-        else if (asset.splitMode === "custom") {
-          state.heirs.forEach(h => {
-            const ratio = asset.customSplit?.[h.id] || 0;
-            const acq = amount * ratio;
-            h.actualAcquisition += acq;
-            h.distributionBreakdown[asset.id] = acq;
-          });
-        }
-
-        // --- モード3：単独所有（single） ---
-        else if (asset.splitMode === "single" || asset.canSplit === false) {
-          const targetHeirId = asset.singleOwner || asset.singleHeirId;
-          const heir = state.heirs.find(h => h.id === targetHeirId);
-          if (heir) {
-            heir.actualAcquisition += amount;
-            heir.distributionBreakdown[asset.id] = amount;
+        if (asset.splitMode === 'auto') {
+          if (totalShareInput > 0) {
+            state.heirs.forEach(h => {
+              const shareRatio = h.share / totalShareInput;
+              const acq = asset.amount * shareRatio;
+              h.actualAcquisition += acq;
+              h.distributionBreakdown[asset.id] = acq;
+            });
           }
+        } else if (asset.distributionType === 'single') {
+          const singleHeirId = asset.singleHeirId;
+          const heir = state.heirs.find(h => h.id === singleHeirId);
+          if (heir) {
+            heir.actualAcquisition += asset.amount;
+            heir.distributionBreakdown[asset.id] = asset.amount;
+          }
+        } else if (asset.distributionType === 'custom') {
+          state.heirs.forEach(h => {
+            const ratio = asset.distribution[h.id] || 0;
+            const acq = asset.amount * ratio;
+            h.actualAcquisition += acq;
+            h.distributionBreakdown[asset.id] = acq;
+          });
         }
       });
 
-      //
-      // ④ 全相続人の actualAcquisition 合計
-      //
-      const totalActual = state.heirs.reduce((sum, h) => sum + h.actualAcquisition, 0);
-
-      //
-      // ⑤ 希望割合（share）を actualAcquisition ベースで更新
-      //
-      state.heirs.forEach(h => {
-        h.share = totalActual > 0 ? Math.round((h.actualAcquisition / totalActual) * 100) : 0;
-      });
-
-      //
-      // ⑥ 課税計算（旧ロジックを維持）
-      //
-      const totalEstate = totalActual;
-      const statutoryHeirsCount = state.heirs.filter(h => h.relation !== 'other').length;
-      const deduction = 30000000 + (6000000 * Math.max(1, statutoryHeirsCount));
-      const taxableEstate = Math.max(0, totalEstate - deduction);
+      const totalActualAcquisition = state.heirs.reduce((sum, h) => sum + h.actualAcquisition, 0);
 
       if (state.taxMode === 'direct') {
         state.heirs.forEach(h => {
-          const ratio = totalActual > 0 ? (h.actualAcquisition / totalActual) : 0;
+          const ratio = totalActualAcquisition > 0 ? (h.actualAcquisition / totalActualAcquisition) : 0;
           h.taxableAmount = taxableEstate * ratio;
           const taxCalc = getTaxRateAndDeduction(h.taxableAmount);
           h.taxRate = taxCalc.rate;
@@ -595,7 +569,7 @@
         });
 
         state.heirs.forEach(h => {
-          const actualRatio = totalActual > 0 ? (h.actualAcquisition / totalActual) : 0;
+          const actualRatio = totalActualAcquisition > 0 ? (h.actualAcquisition / totalActualAcquisition) : 0;
           h.taxableAmount = taxableEstate * actualRatio;
           const taxCalc = getTaxRateAndDeduction(h.taxableAmount);
           h.taxRate = taxCalc.rate;
@@ -604,9 +578,6 @@
         });
       }
 
-      //
-      // ⑦ 配偶者控除
-      //
       state.heirs.forEach(h => {
         if (h.relation === 'spouse') {
           const spouseStatutoryAmount = taxableEstate * 0.5;
@@ -624,9 +595,6 @@
         }
       });
 
-      //
-      // ⑧ UI 更新
-      //
       const totalTax = state.heirs.reduce((sum, h) => sum + h.taxAmount, 0);
 
       document.getElementById('summary-total-estate').textContent = formatJapaneseCurrency(totalEstate);
@@ -635,7 +603,6 @@
       document.getElementById('summary-total-tax').textContent = formatJapaneseCurrency(totalTax);
 
       const alertEl = document.getElementById('heir-share-alert');
-      const totalShareInput = state.heirs.reduce((sum, h) => sum + h.share, 0);
       if (totalShareInput > 100) {
         const excess = totalShareInput - 100;
         alertEl.className = "mb-4 p-3.5 rounded-xl text-xs flex items-center justify-between border bg-rose-500/10 border-rose-500/30 text-rose-400 font-medium";
@@ -670,6 +637,8 @@
         alertEl.classList.remove('hidden');
       }
 
+      renderHeirs();
+      renderAssets();
       renderResultTable(totalEstate, taxableEstate, totalTax);
       renderCharts();
     }
@@ -683,7 +652,7 @@
       if (mode === 'standard') {
         btnStandard.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 shadow-md flex items-center gap-2 bg-ceremony-gold-500 text-ceremony-purple-950 border-ceremony-gold-400 font-bold hover:bg-ceremony-gold-400";
         btnDirect.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 flex items-center gap-2 bg-ceremony-purple-900/50 text-ceremony-silver-300 border-ceremony-purple-800 hover:text-white hover:bg-ceremony-purple-850";
-        noteEl.innerHTML = "※2 日本実務電卓方式：各人の法定相続分で算算出される各相続税を合算後、実際の取得額の割合で按分して最終税額を算出しています。";
+        noteEl.innerHTML = "※2 日本実務電卓方式：各人の法定相続分で算出した各相続税を合算後、実際の取得額の割合で按分して最終税額を算出しています。";
       } else {
         btnDirect.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 shadow-md flex items-center gap-2 bg-ceremony-gold-500 text-ceremony-purple-950 border-ceremony-gold-400 font-bold hover:bg-ceremony-gold-400";
         btnStandard.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 flex items-center gap-2 bg-ceremony-purple-900/50 text-ceremony-silver-300 border-ceremony-purple-800 hover:text-white hover:bg-ceremony-purple-850";
@@ -860,16 +829,17 @@
           <div class="space-y-2">
             <div class="flex items-center justify-between text-xs text-ceremony-silver-400">
               <span class="flex items-center gap-1">
-                <i class="fa-solid fa-percent text-[10px] text-ceremony-gold-500"></i> 分割割合（自動同期）
+                <i class="fa-solid fa-percent text-[10px] text-ceremony-gold-500"></i> 分割希望割合 (スライダー)
               </span>
               <div class="flex items-center gap-1">
-                <input type="number" value="${heir.share}" min="0" max="100" readonly
-                  class="bg-ceremony-purple-950/40 border border-ceremony-purple-900 rounded px-1.5 py-0.5 w-12 text-center text-xs font-bold text-ceremony-silver-400 select-none">%
+                <input type="number" value="${heir.share}" min="0" max="100" onchange="updateHeirField('${heir.id}', 'share', this.value)"
+                  class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded px-1.5 py-0.5 w-12 text-center text-xs font-bold text-ceremony-gold-500 focus:outline-none focus:border-ceremony-gold-500">%
               </div>
             </div>
             <div class="flex items-center gap-3">
-              <input type="range" min="0" max="100" value="${heir.share}" disabled style="accent-color: ${color}; opacity: 0.6;"
-                class="w-full h-1.5 bg-ceremony-purple-950 rounded-lg appearance-none cursor-not-allowed">
+              <input type="range" min="0" max="100" value="${heir.share}" oninput="updateHeirField('${heir.id}', 'share', this.value)"
+                style="accent-color: ${color};"
+                class="w-full h-1.5 bg-ceremony-purple-950 rounded-lg appearance-none cursor-pointer">
             </div>
             <div class="flex items-center justify-between text-[10px] text-ceremony-silver-400 pt-1 border-t border-ceremony-purple-800/40">
               <span>法定：${statPercent}% &rarr; 現在：${heir.share}%</span>
@@ -889,8 +859,8 @@
         type: "cash",
         amount: 10000000,
         landEvaluationType: "rosenka",
-        splitMode: "auto",
-        autoSplit: {}
+        distributionType: "auto",
+        distribution: {}
       });
       updateApp();
     }
@@ -1082,7 +1052,7 @@
           
           let heirsRadioHTML = '';
           state.heirs.forEach((h, hIdx) => {
-            const isChecked = (asset.singleOwner === h.id || asset.singleHeirId === h.id) ? 'checked' : '';
+            const isChecked = asset.singleOwner === h.id ? 'checked' : '';
             const rColor = heirColors[hIdx % heirColors.length] || '#d4af37';
             
             heirsRadioHTML += `
@@ -1129,9 +1099,9 @@
                     ${h.name}
                   </span>
                   <div class="flex items-center gap-1">
-                    <input type="number" min="0" max="1" step="0.01" value="${currentVal}"
+                    <input type="number" min="0" max="100" value="${currentVal}"
                       onchange="updateAssetCustomSplitValue('${asset.id}', '${h.id}', this.value)"
-                      class="w-12 bg-ceremony-purple-950 border border-ceremony-purple-800 rounded px-1 py-0.5 text-center font-bold text-ceremony-gold-500 text-xs focus:outline-none focus:border-ceremony-gold-500">
+                      class="w-12 bg-ceremony-purple-950 border border-ceremony-purple-800 rounded px-1 py-0.5 text-center font-bold text-ceremony-gold-500 text-xs focus:outline-none focus:border-ceremony-gold-500">%
                   </div>
                 </div>
               `;
@@ -1175,18 +1145,17 @@
     }
 
     function getAssetDistributionSummaryText(asset) {
-      if (asset.splitMode === 'auto') {
+      if (asset.distributionType === 'auto') {
         return "相続割合に応じて自動的に按分されます。";
       }
-      if (asset.splitMode === 'single' || asset.canSplit === false) {
-        const targetHeirId = asset.singleOwner || asset.singleHeirId;
-        const heir = state.heirs.find(h => h.id === targetHeirId);
+      if (asset.distributionType === 'single') {
+        const heir = state.heirs.find(h => h.id === asset.singleHeirId);
         return heir ? `<strong>${heir.name}</strong> が100%取得` : '未指定';
       }
-      if (asset.splitMode === 'custom') {
+      if (asset.distributionType === 'custom') {
         const parts = [];
         state.heirs.forEach(h => {
-          const ratio = asset.customSplit?.[h.id] || 0;
+          const ratio = asset.distribution[h.id] || 0;
           if (ratio > 0) {
             parts.push(`${h.name} (${Math.round(ratio * 100)}%)`);
           }
@@ -1207,7 +1176,7 @@
       container.innerHTML = '';
 
       state.heirs.forEach(h => {
-        const currentPercent = asset.customSplit?.[h.id] ? Math.round(asset.customSplit[h.id] * 100) : 0;
+        const currentPercent = asset.distribution[h.id] ? Math.round(asset.distribution[h.id] * 100) : 0;
 
         const row = document.createElement('div');
         row.className = "flex items-center justify-between p-2.5 bg-ceremony-purple-950/50 rounded-xl border border-ceremony-purple-800/40";
@@ -1252,14 +1221,14 @@
     function saveDistributionModal() {
       const inputs = document.querySelectorAll('.modal-percent-input');
       let total = 0;
-      const newCustomSplit = {};
+      const newDistribution = {};
 
       inputs.forEach(input => {
         const heirId = input.getAttribute('data-heir-id');
         let val = parseInt(input.value, 10);
         if (isNaN(val)) val = 0;
         total += val;
-        newCustomSplit[heirId] = val / 100;
+        newDistribution[heirId] = val / 100;
       });
 
       if (total !== 100) {
@@ -1269,8 +1238,8 @@
 
       const asset = state.assets.find(a => a.id === editingAssetId);
       if (asset) {
-        asset.splitMode = 'custom';
-        asset.customSplit = newCustomSplit;
+        asset.distributionType = 'custom';
+        asset.distribution = newDistribution;
       }
 
       closeDistributionModal();
@@ -1404,9 +1373,9 @@
 
       if (state.activeChartTab === 'share') {
         chartType = 'pie';
-        const totalHeirAcq = state.heirs.reduce((sum, h) => sum + h.actualAcquisition, 0);
+        const totalAcq = state.heirs.reduce((sum, h) => sum + h.actualAcquisition, 0);
         state.heirs.forEach((h, index) => {
-          const ratio = totalHeirAcq > 0 ? Math.round((h.actualAcquisition / totalHeirAcq) * 100) : 0;
+          const ratio = totalAcq > 0 ? Math.round((h.actualAcquisition / totalAcq) * 100) : 0;
           const detailedLabel = `${h.name} ${ratio}% (${formatJapaneseCurrency(h.actualAcquisition)})`;
           
           labels.push(detailedLabel);
@@ -1522,7 +1491,6 @@
       if (!asset) return;
       
       asset.canSplit = isChecked;
-      asset.splitMode = isChecked ? 'auto' : 'single';
       
       if (typeof updateApp === 'function') {
         updateApp();
@@ -1534,7 +1502,6 @@
       if (!asset) return;
       
       asset.singleOwner = heirId;
-      asset.singleHeirId = heirId;
       
       if (typeof updateApp === 'function') {
         updateApp();
@@ -1546,17 +1513,22 @@
       if (!asset) return;
       
       asset.splitMode = mode;
+      asset.singleOwner = null;
       
       if (mode === 'custom' && !asset.customSplit) {
         asset.customSplit = {};
+        
         state.heirs.forEach(h => {
-          asset.customSplit[h.id] = h.share ? (h.share / 100) : 0;
+          asset.customSplit[h.id] = h.share || 0;
         });
-      } else if (mode === 'auto' && !asset.autoSplit) {
-        asset.autoSplit = {};
-        const totalRatio = state.heirs.reduce((sum, h) => sum + (h.share || 0), 0);
-        state.heirs.forEach(h => {
-          asset.autoSplit[h.id] = totalRatio > 0 ? (h.share / totalRatio) : 0;
+        
+        let assignedPercentSum = 0;
+        state.heirs.forEach((h, idx) => {
+          if (idx === state.heirs.length - 1) {
+            asset.customSplit[h.id] = 100 - assignedPercentSum;
+          } else {
+            assignedPercentSum += asset.customSplit[h.id] || 0;
+          }
         });
       }
       
@@ -1566,18 +1538,73 @@
     }
 
     function recalculateHeirSharesFromAssets() {
-      // 新しい自動計算フローに一本化されたため、古い計算の呼び出しは即座に終了させます。
-      return;
+      const heirAmounts = {};
+      state.heirs.forEach(h => {
+        heirAmounts[h.id] = 0;
+      });
+
+      state.assets.forEach(asset => {
+        const assetAmount = asset.amount || 0;
+
+        if (asset.canSplit === false && asset.singleOwner) {
+          if (heirAmounts[asset.singleOwner] !== undefined) {
+            heirAmounts[asset.singleOwner] += assetAmount;
+          }
+        }
+        else if (asset.canSplit !== false && asset.splitMode === 'auto') {
+          if (asset.autoSplit) {
+            state.heirs.forEach(h => {
+              const pct = asset.autoSplit[h.id] || 0;
+              heirAmounts[h.id] += assetAmount * (pct / 100);
+            });
+          }
+        }
+        else if (asset.canSplit !== false && asset.splitMode === 'custom') {
+          if (asset.customSplit) {
+            state.heirs.forEach(h => {
+              const pct = asset.customSplit[h.id] || 0;
+              heirAmounts[h.id] += assetAmount * (pct / 100);
+            });
+          }
+        }
+      });
+
+      let totalAmount = 0;
+      state.heirs.forEach(h => {
+        totalAmount += heirAmounts[h.id];
+      });
+
+      if (totalAmount > 0) {
+        let assignedShareSum = 0;
+        
+        state.heirs.forEach((h, idx) => {
+          if (idx === state.heirs.length - 1) {
+            h.share = 100 - assignedShareSum;
+          } else {
+            const calculatedShare = Math.round((heirAmounts[h.id] / totalAmount) * 100);
+            h.share = calculatedShare;
+            assignedShareSum += calculatedShare;
+          }
+        });
+      }
     }
 
     function updateAssetCustomSplitValue(assetId, heirId, val) {
       const asset = state.assets.find(a => a.id === assetId);
       if (!asset || !asset.customSplit) return;
       
-      let parsed = parseFloat(val);
+      let parsed = parseInt(val, 10);
       if (isNaN(parsed)) parsed = 0;
       
-      asset.customSplit[heirId] = Math.max(0, Math.min(1, parsed));
+      const percent = Math.max(0, Math.min(100, parsed));
+      asset.customSplit[heirId] = percent;
+      
+      const targetHeir = state.heirs.find(h => h.id === heirId);
+      if (targetHeir) {
+        targetHeir.share = percent;
+      }
+      
+      recalculateHeirSharesFromAssets();
       
       if (typeof updateApp === 'function') {
         updateApp();
@@ -1586,8 +1613,135 @@
 
     // 6. 安全コンポーネント (修正版・二重計算を完全に防ぐための即時停止仕様、amount を参照)
     (function injectSafeSingleOwnerCalculationLogic() {
-      // 新しい一方向単一計算ロジックが組み込まれたため、古い割り込みを完全に抑止します。
       return;
+      
+      if (typeof window !== 'undefined' && typeof updateApp === 'function') {
+        const originalUpdateApp = updateApp;
+        
+        updateApp = function() {
+          originalUpdateApp.apply(this, arguments);
+          
+          let hasOverridden = false;
+          
+          state.assets.forEach(asset => {
+            if (asset.singleOwner) {
+              const targetHeirId = asset.singleOwner;
+              hasOverridden = true;
+              
+              state.heirs.forEach(h => {
+                if (!h.distributionBreakdown) h.distributionBreakdown = {};
+                if (h.distributionBreakdown[asset.id] !== undefined) {
+                  h.actualAcquisition -= h.distributionBreakdown[asset.id];
+                }
+                h.distributionBreakdown[asset.id] = 0;
+              });
+              
+              const targetHeir = state.heirs.find(h => h.id === targetHeirId);
+              if (targetHeir) {
+                if (!targetHeir.distributionBreakdown) targetHeir.distributionBreakdown = {};
+                targetHeir.distributionBreakdown[asset.id] = asset.amount;
+                targetHeir.actualAcquisition += asset.amount;
+              }
+            }
+            else if (asset.canSplit && asset.splitMode === 'custom') {
+              if (!asset.customSplit) return; 
+              hasOverridden = true;
+
+              state.heirs.forEach(h => {
+                if (!h.distributionBreakdown) h.distributionBreakdown = {};
+                if (h.distributionBreakdown[asset.id] !== undefined) {
+                  h.actualAcquisition -= h.distributionBreakdown[asset.id];
+                }
+                h.distributionBreakdown[asset.id] = 0;
+              });
+
+              let totalPercent = 0;
+              state.heirs.forEach(h => {
+                totalPercent += Number(asset.customSplit[h.id] || 0);
+              });
+
+              if (totalPercent > 0) {
+                state.heirs.forEach(h => {
+                  const percent = Number(asset.customSplit[h.id] || 0);
+                  const amount = asset.amount * (percent / totalPercent);
+
+                  h.distributionBreakdown[asset.id] = amount;
+                  h.actualAcquisition += amount;
+                });
+              }
+            }
+          });
+          
+          if (hasOverridden) {
+            const totalActualAcquisition = state.heirs.reduce((sum, h) => sum + h.actualAcquisition, 0);
+            const totalEstate = state.assets.reduce((sum, asset) => sum + asset.amount, 0);
+            const statutoryHeirsCount = state.heirs.filter(h => h.relation !== 'other').length;
+            const deduction = 30000000 + (6000000 * Math.max(1, statutoryHeirsCount));
+            const taxableEstate = Math.max(0, totalEstate - deduction);
+            
+            if (state.taxMode === 'direct') {
+              state.heirs.forEach(h => {
+                h.spouseExemptionApplied = false;
+                const ratio = totalActualAcquisition > 0 ? (h.actualAcquisition / totalActualAcquisition) : 0;
+                h.taxableAmount = taxableEstate * ratio;
+                const taxCalc = getTaxRateAndDeduction(h.taxableAmount);
+                h.taxRate = taxCalc.rate;
+                h.taxDeduction = taxCalc.deduction;
+                h.taxAmount = Math.max(0, h.taxableAmount * taxCalc.rate - taxCalc.deduction);
+              });
+            } else {
+              const statutoryShares = getStatutorySharesRatio();
+              let totalStatutoryTax = 0;
+              
+              state.heirs.forEach(h => {
+                const statRatio = statutoryShares[h.id] || 0;
+                const statTaxableAmount = taxableEstate * statRatio;
+                const taxCalc = getTaxRateAndDeduction(statTaxableAmount);
+                const statTax = Math.max(0, statTaxableAmount * taxCalc.rate - statTaxableAmount);
+                h.statTax = statTax;
+                totalStatutoryTax += statTax;
+              });
+              
+              state.heirs.forEach(h => {
+                h.spouseExemptionApplied = false;
+                const actualRatio = totalActualAcquisition > 0 ? (h.actualAcquisition / totalActualAcquisition) : 0;
+                h.taxableAmount = taxableEstate * actualRatio;
+                const taxCalc = getTaxRateAndDeduction(h.taxableAmount);
+                h.taxRate = taxCalc.rate;
+                h.taxDeduction = taxCalc.deduction;
+                h.taxAmount = totalStatutoryTax * actualRatio;
+              });
+            }
+            
+            state.heirs.forEach(h => {
+              if (h.relation === 'spouse') {
+                const spouseStatutoryAmount = taxableEstate * 0.5;
+                const spouseExemptionLimit = Math.max(160000000, spouseStatutoryAmount);
+
+                if (spouseStatutoryAmount <= spouseExemptionLimit) {
+                  h.taxAmount = 0;
+                  h.spouseExemptionApplied = true;
+                } else {
+                  const taxableExcess = Math.max(0, h.taxableAmount - spouseExemptionLimit);
+                  const taxCalc = getTaxRateAndDeduction(taxableExcess);
+                  h.taxAmount = Math.max(0, taxableExcess * taxCalc.rate - taxCalc.deduction);
+                  h.spouseExemptionApplied = false;
+                }
+              }
+            });
+            
+            const totalTax = state.heirs.reduce((sum, h) => sum + h.taxAmount, 0);
+            
+            document.getElementById('summary-total-estate').textContent = formatJapaneseCurrency(totalEstate);
+            document.getElementById('summary-deduction').textContent = formatJapaneseCurrency(deduction);
+            document.getElementById('summary-taxable-estate').textContent = formatJapaneseCurrency(totalEstate - deduction);
+            document.getElementById('summary-total-tax').textContent = formatJapaneseCurrency(totalTax);
+            
+            renderResultTable(totalEstate, taxableEstate, totalTax);
+            renderCharts();
+          }
+        };
+      }
     })();
   </script>
 </body>
