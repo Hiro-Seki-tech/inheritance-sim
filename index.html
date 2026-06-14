@@ -88,7 +88,7 @@
       </div>
       <div class="flex items-center space-x-2">
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-ceremony-gold-500/10 text-ceremony-gold-500 border border-ceremony-gold-500/20">
-          v2.6 Stable-Base
+          v2.9 Stable
         </span>
       </div>
     </div>
@@ -128,7 +128,7 @@
         </div>
         <div class="space-y-1 md:pl-4">
           <strong class="text-ceremony-gold-500 font-semibold block">【資産の配分（2. 資産の入力）】</strong>
-          <p class="text-ceremony-silver-400 text-[11px]">資産入力 of 際に「自動で分ける」を選ぶと、1 で設定した希望割合に合わせて自動で配分されます。「個別に決める」を選ぶと、その資産の配分が最優先され、結果は希望割合にも反映されます。</p>
+          <p class="text-ceremony-silver-400 text-[11px]">資産入力の際に「自動で分ける」を選ぶと、1 で設定した希望割合に合わせて自動で配分されます。「個別に決める」を選ぶと、その資産の配分が最優先され、結果は希望割合にも反映されます。</p>
         </div>
         <div class="space-y-1 md:pl-4">
           <strong class="text-ceremony-gold-500 font-semibold block">【税計算に使われる割合】</strong>
@@ -517,7 +517,35 @@
       });
 
       state.assets.forEach(asset => {
-        if (asset.splitMode === 'auto') {
+        // 1. 分割不可（単独所有）モードの集計
+        if (asset.canSplit === false) {
+          const targetOwnerId = asset.singleOwner;
+          const heir = state.heirs.find(h => h.id === targetOwnerId);
+          if (heir) {
+            heir.actualAcquisition += asset.amount;
+            heir.distributionBreakdown[asset.id] = asset.amount;
+          }
+        } 
+        // 2. 分割可・個別指定モードの集計
+        else if (asset.splitMode === 'custom') {
+          let customTotal = 0;
+          state.heirs.forEach(h => { customTotal += Number(asset.customSplit[h.id] || 0); });
+          
+          // 合計が100%以外の場合は計算保留としてスキップ（ステップ3-0-2-C）
+          if (customTotal !== 100) {
+            // 何も処理しない（actualAcquisitionへの加算およびdistributionBreakdownへの追加をスキップ）
+          }
+          else {
+            state.heirs.forEach(h => {
+              const ratio = Number(asset.customSplit[h.id] || 0) / customTotal;
+              const acq = asset.amount * ratio;
+              h.actualAcquisition += acq;
+              h.distributionBreakdown[asset.id] = acq;
+            });
+          }
+        } 
+        // 3. 自動追従モード（※ステップ3-2で大改修するため、今回は既存ロジックを温存）
+        else if (asset.splitMode === 'auto') {
           if (totalShareInput > 0) {
             state.heirs.forEach(h => {
               const shareRatio = h.share / totalShareInput;
@@ -526,22 +554,15 @@
               h.distributionBreakdown[asset.id] = acq;
             });
           }
-        } else if (asset.distributionType === 'single') {
-          const singleHeirId = asset.singleHeirId;
-          const heir = state.heirs.find(h => h.id === singleHeirId);
-          if (heir) {
-            heir.actualAcquisition += asset.amount;
-            heir.distributionBreakdown[asset.id] = asset.amount;
-          }
-        } else if (asset.distributionType === 'custom') {
-          state.heirs.forEach(h => {
-            const ratio = asset.distribution[h.id] || 0;
-            const acq = asset.amount * ratio;
-            h.actualAcquisition += acq;
-            h.distributionBreakdown[asset.id] = acq;
-          });
         }
       });
+
+      // 単独・カスタム資産から相続人の share（％）へ結果値を逆流上書きする機構
+      if (totalEstate > 0) {
+        state.heirs.forEach(h => {
+          h.share = Math.round((h.actualAcquisition / totalEstate) * 100);
+        });
+      }
 
       const totalActualAcquisition = state.heirs.reduce((sum, h) => sum + h.actualAcquisition, 0);
 
@@ -726,12 +747,14 @@
       const ratios = getStatutorySharesRatio();
       let totalShare = 0;
       
+      // 一旦、四捨五入で各員の％を算出
       state.heirs.forEach(h => {
         const ratio = ratios[h.id] || 0;
         h.share = Math.round(ratio * 100);
         totalShare += h.share;
       });
 
+      // 100%からズレた端数がある場合、最も割合の高い相続人（同率なら先頭）の枠で強制調停
       if (totalShare !== 100 && state.heirs.length > 0) {
         const diff = 100 - totalShare;
         let targetHeir = state.heirs[0];
@@ -743,12 +766,14 @@
         targetHeir.share += diff;
       }
 
+      // 全資産を「分割可・自動按分」の王道へ初期リセット
       state.assets.forEach(asset => {
         asset.canSplit = true;
         asset.splitMode = "auto";
         asset.singleOwner = null;
         asset.customSplit = {};
         
+        // 過去の古いプロパティの残党も安全に無力化
         asset.distributionType = "auto";
         asset.singleHeirId = null;
         asset.distribution = {};
@@ -780,6 +805,8 @@
       adjustHeirSharesTo100();
       updateApp();
     }
+
+    // (中略)
 
     function updateHeirField(id, field, value) {
       const heir = state.heirs.find(h => h.id === id);
@@ -831,19 +858,25 @@
         card.innerHTML = `
           <div class="flex items-center justify-between gap-2">
             <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <div class="relative flex items-center">
-                <span class="absolute left-2.5 w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${color}"></span>
-                <input type="text" value="${heir.name}" onchange="updateHeirField('${heir.id}', 'name', this.value)"
-                  class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-7 pr-2.5 py-1 text-xs sm:text-sm text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors w-full" placeholder="お名前">
+              <div>
+                <label class="text-ceremony-gold-500 text-[10px] mb-0.5 block">お名前</label>
+                <div class="relative flex items-center">
+                  <span class="absolute left-2.5 w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${color}"></span>
+                  <input type="text" value="${heir.name}" onchange="updateHeirField('${heir.id}', 'name', this.value)"
+                    class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-7 pr-2.5 py-1 text-xs sm:text-sm text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors w-full">
+                </div>
               </div>
-              <select onchange="updateHeirField('${heir.id}', 'relation', this.value)"
-                class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs sm:text-sm text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors">
-                <option value="spouse" ${heir.relation === 'spouse' ? 'selected' : ''}>配偶者</option>
-                <option value="child" ${heir.relation === 'child' ? 'selected' : ''}>子</option>
-                <option value="parent" ${heir.relation === 'parent' ? 'selected' : ''}>直系尊属</option>
-                <option value="sibling" ${heir.relation === 'sibling' ? 'selected' : ''}>兄弟姉妹</option>
-                <option value="other" ${heir.relation === 'other' ? 'selected' : ''}>その他</option>
-              </select>
+              <div>
+                <label class="text-ceremony-gold-500 text-[10px] mb-0.5 block">続柄</label>
+                <select onchange="updateHeirField('${heir.id}', 'relation', this.value)"
+                  class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs sm:text-sm text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors w-full">
+                  <option value="spouse" ${heir.relation === 'spouse' ? 'selected' : ''}>配偶者</option>
+                  <option value="child" ${heir.relation === 'child' ? 'selected' : ''}>子</option>
+                  <option value="parent" ${heir.relation === 'parent' ? 'selected' : ''}>直系尊属</option>
+                  <option value="sibling" ${heir.relation === 'sibling' ? 'selected' : ''}>兄弟姉妹</option>
+                  <option value="other" ${heir.relation === 'other' ? 'selected' : ''}>その他</option>
+                </select>
+              </div>
             </div>
             <button onclick="removeHeir('${heir.id}')" class="text-ceremony-silver-400 hover:text-rose-400 p-1.5 rounded-lg transition-colors" title="削除">
               <i class="fa-regular fa-trash-can"></i>
@@ -900,7 +933,7 @@
     }
 
     function updateAssetField(id, field, value) {
-      const asset = state.assets.find(a => a.id === id);
+      const asset = state.assets.find(a => a.id === asset);
       if (!asset) return;
 
       if (field === 'amount' || field === 'area' || field === 'rosenka') {
@@ -1109,6 +1142,12 @@
           let heirsInputsHTML = '';
           if (!isAuto) {
             if (!asset.customSplit) asset.customSplit = {};
+
+            // 各 asset.customSplit の合計値を計算
+            let currentCustomTotal = 0;
+            state.heirs.forEach(h => {
+              currentCustomTotal += Number(asset.customSplit[h.id] || 0);
+            });
             
             heirsInputsHTML += `<div class="bg-ceremony-purple-950/60 p-2 rounded-xl border border-ceremony-purple-900 grid grid-cols-1 sm:grid-cols-2 gap-2">`;
             state.heirs.forEach((h, hIdx) => {
@@ -1130,6 +1169,15 @@
               `;
             });
             heirsInputsHTML += `</div>`;
+
+            // 合計が100%になっていない場合に警告UIを差し込む
+            if (currentCustomTotal !== 100) {
+              heirsInputsHTML += `
+                <div class="text-red-400 text-xs mt-1 font-medium flex items-center gap-1 animate-pulse">
+                  <i class="fa-solid fa-triangle-exclamation"></i> この資産の配分が合計${currentCustomTotal}％になっています。100%に調整してください。
+                </div>
+              `;
+            }
           }
           
           customSplitWrapper.innerHTML = `
@@ -1393,12 +1441,10 @@
       toast.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${message}`;
       document.body.appendChild(toast);
       
-      // トーストフェードイン効果
       setTimeout(() => {
         toast.classList.remove('translate-y-10', 'opacity-0');
       }, 50);
       
-      // 自動消去
       setTimeout(() => {
         toast.classList.add('translate-y-10', 'opacity-0');
         setTimeout(() => toast.remove(), 300);
@@ -1424,9 +1470,13 @@
       if (!asset) return;
       asset.splitMode = mode;
       asset.singleOwner = null;
-      if (mode === 'custom' && !asset.customSplit) {
+      
+      // コプ殿の献策：customに切り替えた瞬間、既存データの有無に関わらず、現在のheirsの希望割合を初期値として上書き変更コピー
+      if (mode === 'custom') {
         asset.customSplit = {};
-        state.heirs.forEach(h => { asset.customSplit[h.id] = h.share || 0; });
+        state.heirs.forEach(h => {
+          asset.customSplit[h.id] = h.share || 0;
+        });
       }
       updateApp();
     }
