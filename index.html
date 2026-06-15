@@ -86,7 +86,11 @@
           <p class="text-[10px] sm:text-xs text-ceremony-silver-400">厳かで格調高い リアルタイム遗産分割 & 相続税シミュレーション</p>
         </div>
       </div>
-      <div class="flex items-center space-x-2">
+      
+      <div class="flex items-center space-x-3">
+        <button onclick="openHelpModal()" class="text-xs font-bold bg-ceremony-purple-900/60 hover:bg-ceremony-purple-800 border border-ceremony-purple-700/60 text-ceremony-gold-400 hover:text-ceremony-gold-300 px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-black/30">
+          <i class="fa-solid fa-circle-question text-sm"></i> 使い方？
+        </button>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-ceremony-gold-500/10 text-ceremony-gold-500 border border-ceremony-gold-500/20">
           v2.9 Stable
         </span>
@@ -96,48 +100,7 @@
 
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
 
-    <div class="bg-ceremony-purple-900/20 border border-ceremony-purple-800/60 rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl shadow-black/40">
-      <div>
-        <h2 class="text-lg font-semibold text-ceremony-gold-500 flex items-center gap-2">
-          <i class="fa-solid fa-calculator text-ceremony-silver-300"></i> シミュレーション設定
-        </h2>
-        <p class="text-xs text-ceremony-silver-400 mt-1">
-          相続税の計算ロジックを切り替えることができます。
-        </p>
-      </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <button id="btn-mode-standard" onclick="setTaxMode('standard')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 shadow-md flex items-center gap-2 bg-ceremony-gold-500 text-ceremony-purple-950 border-ceremony-gold-400 font-bold hover:bg-ceremony-gold-400">
-          <i class="fa-solid fa-shield-halved"></i>
-          <span>日本実務電卓 (総額按分方式)</span>
-        </button>
-        <button id="btn-mode-direct" onclick="setTaxMode('direct')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 flex items-center gap-2 bg-ceremony-purple-900/50 text-ceremony-silver-300 border-ceremony-purple-800 hover:text-white hover:bg-ceremony-purple-850">
-          <i class="fa-solid fa-bolt"></i>
-          <span>仕様書v1.5 (直接課税方式)</span>
-        </button>
-      </div>
-    </div>
-
     <div id="legal-spouse-selector-container" class="hidden bg-ceremony-purple-900/20 border border-ceremony-purple-800/60 rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl shadow-black/40"></div>
-
-    <div class="bg-ceremony-purple-900/10 border border-ceremony-purple-800/40 rounded-2xl p-4 sm:p-5 text-xs text-ceremony-silver-300 leading-relaxed space-y-3 shadow-lg">
-      <div class="flex items-center gap-2 pb-1.5 border-b border-ceremony-purple-800/40 text-ceremony-gold-500 font-bold">
-        <i class="fa-solid fa-circle-info"></i> <span>宝均 シミュレーションのご案内</span>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 divide-y md:divide-y-0 md:divide-x divide-ceremony-purple-800/40">
-        <div class="space-y-1">
-          <strong class="text-ceremony-gold-500 font-semibold block">【相続人の希望割合（1. 相続人の設定）】</strong>
-          <p class="text-ceremony-silver-400 text-[11px]">ここで決めた割合は、相続全体の「基本の割合」です。後で 2 の資産入力で「自動で分ける」を選ぶと、この希望割合に沿って資産が配分されます。</p>
-        </div>
-        <div class="space-y-1 md:pl-4">
-          <strong class="text-ceremony-gold-500 font-semibold block">【資産の配分（2. 資産の入力）】</strong>
-          <p class="text-ceremony-silver-400 text-[11px]">資産入力の際に「自動で分ける」を選ぶと、1 で設定した希望割合に合わせて自動で配分されます。「個別に決める」を選ぶと、その資産の配分が最優先され、結果は希望割合にも反映されます。</p>
-        </div>
-        <div class="space-y-1 md:pl-4">
-          <strong class="text-ceremony-gold-500 font-semibold block">【税計算に使われる割合】</strong>
-          <p class="text-ceremony-silver-400 text-[11px]">「自動で分ける」を選んだ資産 &rarr; 希望割合が使われます。<br>「個別に決める」を選んだ資産 &rarr; 個別に設定した割合が使われます。</p>
-        </div>
-      </div>
-    </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
@@ -168,8 +131,6 @@
               </button>
             </div>
           </div>
-
-          <div id="heir-share-alert" class="hidden mb-4 p-3 rounded-xl text-xs flex items-center justify-between border transition-all duration-300"></div>
 
           <div id="heirs-container" class="space-y-4 max-h-[420px] overflow-y-auto pr-1"></div>
         </section>
@@ -261,6 +222,21 @@
               <tbody id="result-table-body" class="divide-y divide-ceremony-purple-800/40"></tbody>
             </table>
           </div>
+
+          <div class="mt-4 pt-3 border-t border-ceremony-purple-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[10px] text-ceremony-silver-400">
+            <span class="flex items-center gap-1.5">
+              <i class="fa-solid fa-scale-balanced text-ceremony-gold-500/60"></i>
+              <span>計算基盤設定：相続税의計算ロジックを切り替えることができます。</span>
+            </span>
+            <div class="flex gap-1.5">
+              <button id="btn-mode-standard" onclick="setTaxMode('standard')" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold transition-all duration-200 bg-ceremony-gold-500 text-ceremony-purple-950 border-ceremony-gold-400">
+                日本実務電卓 (総額按分方式)
+              </button>
+              <button id="btn-mode-direct" onclick="setTaxMode('direct')" class="px-2.5 py-1 rounded-lg border text-[10px] transition-all duration-200 bg-ceremony-purple-950 border-ceremony-purple-800 text-ceremony-silver-400 hover:text-white">
+                仕様書v1.5 (直接課税方式)
+              </button>
+            </div>
+          </div>
           <div class="mt-3 text-[10px] text-ceremony-silver-400 leading-relaxed space-y-1">
             <p>※1 基礎控除額 ＝ 3,000万円 ＋ 600万円 × 法定相続人の数</p>
             <p id="tax-mode-note">※2 日本実務電卓方式：各人の法定相続分で算出した各相続税を合算後、実際の取得額の割合で按分して最終税額を算出しています。</p>
@@ -305,6 +281,59 @@
       <div class="flex justify-end gap-2 pt-2">
         <button onclick="closeDistributionModal()" class="px-4 py-2 rounded-xl bg-ceremony-purple-800 hover:bg-ceremony-purple-700 text-ceremony-silver-200 text-xs font-semibold transition-all">キャンセル</button>
         <button onclick="saveDistributionModal()" class="px-4 py-2 rounded-xl bg-ceremony-gold-500 hover:bg-ceremony-gold-600 text-ceremony-purple-950 text-xs font-bold transition-all shadow-md">適用する</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="help-modal" class="fixed inset-0 bg-ceremony-purple-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-4" onclick="closeHelpModal()">
+    <div class="bg-ceremony-purple-900 border border-ceremony-gold-500/30 rounded-2xl p-6 w-full max-w-2xl shadow-2xl space-y-4" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-ceremony-purple-800 pb-3">
+        <h4 class="text-base sm:text-lg font-bold text-ceremony-gold-500 flex items-center gap-2">
+          <i class="fa-solid fa-circle-question text-ceremony-gold-400"></i> 宝均 シミュレータの使い方
+        </h4>
+        <button onclick="closeHelpModal()" class="text-ceremony-silver-400 hover:text-white transition-colors">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      
+      <div class="text-xs sm:text-sm text-ceremony-silver-200 space-y-4 leading-relaxed max-h-[400px] overflow-y-auto pr-1">
+        <div class="space-y-1.5">
+          <strong class="text-ceremony-gold-400 font-bold block flex items-center gap-1">
+            <i class="fa-solid fa-users text-xs"></i> 1. 相続人の設定
+          </strong>
+          <p class="text-ceremony-silver-400 pl-4">
+            配偶者の有無、および子供や親、兄弟姉妹の人数を設定します。続柄（relation）を変更すると、法律上の基準となる「法定相続割合」が自動計算されます。
+          </p>
+        </div>
+
+        <div class="space-y-1.5">
+          <strong class="text-ceremony-gold-400 font-bold block flex items-center gap-1">
+            <i class="fa-solid fa-coins text-xs"></i> 2. 各遺産の直接割合配分
+          </strong>
+          <p class="text-ceremony-silver-400 pl-4">
+            「2. 資産の入力」タブを開き、各財産（土地、預金、株式など）ごとに、**誰に何％分を分け与えるかを直接数値で入力**します。現物財産の場合は、特定の誰か1名に100%集中させる（単独取得）ことも可能です。
+          </p>
+        </div>
+
+        <div class="space-y-1.5">
+          <strong class="text-ceremony-gold-400 font-bold block flex items-center gap-1">
+            <i class="fa-solid fa-chart-line text-xs"></i> 3. リアルタイム逆算と税金シミュレーション
+          </strong>
+          <p class="text-ceremony-silver-400 pl-4">
+            すべての資産で合計がキッチリ「100%」になるよう配分されると、それらを合算した**全体の最終的な分割割合が自動的に逆算され、各相続人カードの「現在〇%」にリアルタイム反映**されます。同時に、厳格な税法に則った相続税額が瞬時に算出されます。
+          </p>
+        </div>
+
+        <div class="p-3 bg-ceremony-purple-950/60 border border-ceremony-purple-800 rounded-xl text-[11px] text-ceremony-gold-300/90 space-y-1">
+          <span class="font-bold block"><i class="fa-solid fa-triangle-exclamation"></i> 注意点</span>
+          <p>※各資産の配分合計が100%になっていない財産は、未完成データとして全体の逆算計算から一時的に除外されます。必ず100%に揃えて調整を行ってください。</p>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-2 border-t border-ceremony-purple-800">
+        <button onclick="closeHelpModal()" class="px-5 py-2 rounded-xl bg-ceremony-gold-500 hover:bg-ceremony-gold-600 text-ceremony-purple-950 text-xs font-bold transition-all shadow-md">
+          確認いたしました
+        </button>
       </div>
     </div>
   </div>
@@ -619,46 +648,6 @@
 
       const totalTax = state.heirs.reduce((sum, h) => sum + h.taxAmount, 0);
 
-      document.getElementById('summary-total-estate').textContent = formatJapaneseCurrency(totalEstate);
-      document.getElementById('summary-deduction').textContent = formatJapaneseCurrency(deduction);
-      document.getElementById('summary-taxable-estate').textContent = formatJapaneseCurrency(taxableEstate);
-      document.getElementById('summary-total-tax').textContent = formatJapaneseCurrency(totalTax);
-
-      const alertEl = document.getElementById('heir-share-alert');
-      if (totalShareInput > 100) {
-        const excess = totalShareInput - 100;
-        alertEl.className = "mb-4 p-3.5 rounded-xl text-xs flex items-center justify-between border bg-rose-500/10 border-rose-500/30 text-rose-400 font-medium";
-        alertEl.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="bg-rose-500 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0">⚠️</span>
-            <span>希望割合が合計で100%を超えています：<strong class="text-rose-300 font-extrabold">超過：${excess}%</strong>（合計：${totalShareInput}%）</span>
-          </div>
-          <span class="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-lg border border-rose-500/30 shrink-0 font-bold ml-2">要調整</span>
-        `;
-        alertEl.classList.remove('hidden');
-      } else if (totalShareInput < 100) {
-        const remaining = 100 - totalShareInput;
-        alertEl.className = "mb-4 p-3.5 rounded-xl text-xs flex items-center justify-between border bg-ceremony-gold-500/10 border-ceremony-gold-500/30 text-ceremony-gold-500 font-medium";
-        alertEl.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="bg-ceremony-gold-500 text-ceremony-purple-950 w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0">💡</span>
-            <span>希望割合に空きがあります：<strong class="text-ceremony-gold-300 font-extrabold">未配分：${remaining}%</strong>（合計：${totalShareInput}%）</span>
-          </div>
-          <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-lg border border-emerald-500/30 shrink-0 font-bold ml-2">未配分</span>
-        `;
-        alertEl.classList.remove('hidden');
-      } else {
-        alertEl.className = "mb-4 p-3.5 rounded-xl text-xs flex items-center justify-between border bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-medium";
-        alertEl.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="bg-emerald-500 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0"><i class="fa-solid fa-check"></i></span>
-            <span>希望割合が完全に配分されました：<strong>適正：100%</strong></span>
-          </div>
-          <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-lg border border-emerald-500/30 shrink-0 font-bold ml-2">適正</span>
-        `;
-        alertEl.classList.remove('hidden');
-      }
-
       renderHeirs();
       renderAssets();
       renderLegalSpouseSelector();
@@ -667,18 +656,18 @@
     }
 
     function setTaxMode(mode) {
+      state.taxMode = mode;
       const btnStandard = document.getElementById('btn-mode-standard');
       const btnDirect = document.getElementById('btn-mode-direct');
       const noteEl = document.getElementById('tax-mode-note');
-      state.taxMode = mode;
 
       if (mode === 'standard') {
-        btnStandard.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 shadow-md flex items-center gap-2 bg-ceremony-gold-500 text-ceremony-purple-950 border-ceremony-gold-400 font-bold hover:bg-ceremony-gold-400";
-        btnDirect.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 flex items-center gap-2 bg-ceremony-purple-900/50 text-ceremony-silver-300 border-ceremony-purple-800 hover:text-white hover:bg-ceremony-purple-850";
+        btnStandard.className = "px-2.5 py-1 rounded-lg border text-[10px] font-bold transition-all duration-200 bg-ceremony-gold-500 text-ceremony-purple-950 border-ceremony-gold-400";
+        btnDirect.className = "px-2.5 py-1 rounded-lg border text-[10px] transition-all duration-200 bg-ceremony-purple-950 border-ceremony-purple-800 text-ceremony-silver-400 hover:text-white";
         noteEl.innerHTML = "※2 日本実務電卓方式：各人の法定相続分で算出した各相続税を合算後、実際の取得額の割合で按分して最終税額を算出しています。";
       } else {
-        btnDirect.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 shadow-md flex items-center gap-2 bg-ceremony-gold-500 text-ceremony-purple-950 border-ceremony-gold-400 font-bold hover:bg-ceremony-gold-400";
-        btnStandard.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 flex items-center gap-2 bg-ceremony-purple-900/50 text-ceremony-silver-300 border-ceremony-purple-800 hover:text-white hover:bg-ceremony-purple-850";
+        btnDirect.className = "px-2.5 py-1 rounded-lg border text-[10px] font-bold transition-all duration-200 bg-ceremony-gold-500 text-ceremony-purple-950 border-ceremony-gold-400";
+        btnStandard.className = "px-2.5 py-1 rounded-lg border text-[10px] transition-all duration-200 bg-ceremony-purple-950 border-ceremony-purple-800 text-ceremony-silver-400 hover:text-white";
         noteEl.innerHTML = "※2 仕様書v1.5直接課税方式：各相続人の『実際の取得金額』に対して直接相続税の速算表を適用して算出した税額です。";
       }
       updateApp();
@@ -736,32 +725,27 @@
       return ratios;
     }
 
-    // 【端数バグ修正版】「法定相続分に初期化」ボタンを押された時、相続人の割合を完全に100%調整した上で、全資産を強制同期初期化する
     function resetToStatutoryShares() {
       const ratios = getStatutorySharesRatio();
       
-      // 1. 各相続人の割合を一度整数に丸めて代入
       state.heirs.forEach(h => {
         const ratio = ratios[h.id] || 0;
         h.share = Math.round(ratio * 100);
       });
 
-      // 2. 丸め誤差による端数を、最も割合の高い相続人で自動調整（警告表示を完璧に封殺）
       let totalShare = state.heirs.reduce((sum, h) => sum + h.share, 0);
       if (totalShare !== 100 && state.heirs.length > 0) {
-        const diff = 100 - totalShare; // 不足分または超過分
+        const diff = 100 - totalShare;
         let maxHeir = state.heirs[0];
         state.heirs.forEach(h => {
           if (h.share > maxHeir.share) {
             maxHeir = h;
           }
         });
-        maxHeir.share += diff; // 最も割合の高い相続人で端数を吸収
+        maxHeir.share += diff;
       }
 
-      // 3. 各資産の状態も連動して「分割可」「個別に決める」の最新法定相続割合（100%調整済）に強制同期リセット
       resetAllAssetsToStatutoryShare();
-
       updateApp();
       showFeedback("📊 相続人設定および全資産の個別割合を法定相続分に同期初期化しました。");
     }
@@ -812,7 +796,6 @@
       }
     }
 
-    // 法定相続人が追加されたら、法定相続割合を初期化し、各資産の状態も「分割可」「個別に決める」「中身は最新の法定相続割合」に強制初期化する
     function addHeir() {
       const id = "h_" + Date.now();
       const defaultNames = ["相続人A", "相続人B", "相続人C", "相続人D"];
@@ -827,14 +810,10 @@
         share: 0
       });
       adjustHeirSharesTo100();
-
-      // 各資産を自動で「分割可」「個別に決める」の最新法定相続割合へ連動リセット
       resetAllAssetsToStatutoryShare();
-
       updateApp();
     }
 
-    // 法定相続人が削除されたら、法定相続割合を初期化し、各資産の状態も「分割可」「個別に決める」「中身は最新の法定相続割合」に強制初期化する
     function removeHeir(id) {
       if (state.heirs.length <= 1) {
         showFeedback("最低1人の相続人が必要です。");
@@ -842,10 +821,7 @@
       }
       state.heirs = state.heirs.filter(h => h.id !== id);
       adjustHeirSharesTo100();
-
-      // 各資産を自動で「分割可」「個別に決める」の最新法定相続割合へ連動リセット
       resetAllAssetsToStatutoryShare();
-
       updateApp();
     }
 
@@ -876,10 +852,15 @@
             state.legalSpouseId = nextLegal ? nextLegal.id : null;
           }
         }
+        
         adjustHeirSharesTo100();
+        resetAllAssetsToStatutoryShare();
+        
         const updatedRatios = getStatutorySharesRatio();
         state.heirs.forEach(h => { h.statutoryShare = updatedRatios[h.id] || 0; });
+        
         updateApp();
+        showFeedback("🔄 続柄の変更に伴い、分割割合を最新の法定相続分に同期初期化しました。");
         return;
       } else {
         heir[field] = value;
@@ -902,13 +883,13 @@
 
         if (diff > 0) {
           diffText = `+${diff}%`;
-          diffClass = "text-ceremony-gold-500 font-extrabold bg-ceremony-gold-500/10 px-1.5 py-0.5 rounded border border-ceremony-gold-500/20";
+          diffClass = "text-ceremony-gold-400 bg-ceremony-gold-500/10 border-ceremony-gold-500/20";
         } else if (diff < 0) {
           diffText = `${diff}%`;
-          diffClass = "text-violet-300 font-extrabold bg-ceremony-purple-500/10 px-1.5 py-0.5 rounded border border-ceremony-purple-500/20";
+          diffClass = "text-rose-400 bg-rose-500/10 border-rose-500/20";
         } else {
           diffText = "±0%";
-          diffClass = "text-ceremony-silver-400 font-medium bg-ceremony-purple-950/40 px-1.5 py-0.5 rounded border border-ceremony-purple-800/60";
+          diffClass = "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
         }
         
         let typeBadgeHTML = '';
@@ -953,14 +934,8 @@
           </div>
 
           <div class="space-y-2">
-            <div class="flex items-center justify-between text-xs text-ceremony-silver-400">
-              <span class="flex items-center gap-1">
-                <i class="fa-solid fa-percent text-[10px] text-ceremony-gold-500"></i> 現在の取得割合 (結果インジケーター)
-              </span>
-              <div class="flex items-center gap-1">
-                <input type="number" value="${heir.share}" readonly
-                  class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded px-1.5 py-0.5 w-12 text-center text-xs font-bold text-ceremony-gold-500/70 cursor-not-allowed focus:outline-none">%
-              </div>
+            <div class="flex items-center gap-1 text-xs text-ceremony-silver-400">
+              <i class="fa-solid fa-percent text-[10px] text-ceremony-gold-500"></i> 現在の取得割合 (結果インジケーター)
             </div>
             <div class="relative pt-2 pb-2 flex items-center">
               <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-full pointer-events-none z-0">
@@ -970,9 +945,10 @@
                 style="accent-color: ${color};"
                 class="w-full h-1.5 bg-ceremony-purple-950 rounded-lg appearance-none cursor-not-allowed opacity-60 relative z-10">
             </div>
-            <div class="flex items-center justify-between text-[10px] text-ceremony-silver-400 pt-1 border-t border-ceremony-purple-800/40">
-              <span>法定：${statPercent}% &rarr; 現在：${heir.share}%</span>
-              <span class="${diffClass}">差分：${diffText}</span>
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs sm:text-sm text-ceremony-silver-200 pt-2.5 border-t border-ceremony-purple-800/40">
+              <span class="font-bold tracking-wide">分割割合：法定 <strong class="text-ceremony-silver-100 font-black">${statPercent}%</strong> &rarr; 現在 <strong class="text-ceremony-gold-400 font-black">${heir.share}%</strong></span>
+              <span class="${diffClass} text-xs tracking-wider px-2.5 py-0.5 rounded border font-black text-center sm:text-right">差分：${diffText}</span>
             </div>
           </div>
         `;
@@ -1162,7 +1138,7 @@
           <div class="flex items-center justify-between gap-2">
             <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-2">
               <input type="text" value="${asset.name}" onchange="updateAssetField('${asset.id}', 'name', this.value)"
-                class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs font-semibold text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors" placeholder="資産の名前">
+                class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs font-semibold text-ceremony-silver-100 focus:outline-none border-ceremony-gold-500 transition-colors" placeholder="資産の名前">
               <select onchange="updateAssetField('${asset.id}', 'type', this.value)"
                 class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors">
                 <option value="cash" ${asset.type === 'cash' ? 'selected' : ''}>現金・預金</option>
@@ -1226,64 +1202,50 @@
           card.appendChild(ownerWrapper);
 
         } else {
-          const isAuto = asset.splitMode === 'auto';
           const customSplitWrapper = document.createElement('div');
           customSplitWrapper.className = "gemkin-custom-split-container pt-2.5 mt-2 border-t border-ceremony-purple-800/40 space-y-2.5";
           
           let heirsInputsHTML = '';
-          if (!isAuto) {
-            if (!asset.customSplit) asset.customSplit = {};
+          if (!asset.customSplit) asset.customSplit = {};
 
-            let currentCustomTotal = 0;
-            state.heirs.forEach(h => {
-              currentCustomTotal += Number(asset.customSplit[h.id] || 0);
-            });
+          let currentCustomTotal = 0;
+          state.heirs.forEach(h => {
+            currentCustomTotal += Number(asset.customSplit[h.id] || 0);
+          });
+          
+          heirsInputsHTML += `<div class="bg-ceremony-purple-950/60 p-2 rounded-xl border border-ceremony-purple-900 grid grid-cols-1 sm:grid-cols-2 gap-2">`;
+          state.heirs.forEach((h, hIdx) => {
+            const currentVal = asset.customSplit[h.id] !== undefined ? asset.customSplit[h.id] : 0;
+            const hColor = heirColors[hIdx % heirColors.length] || '#d4af37';
             
-            heirsInputsHTML += `<div class="bg-ceremony-purple-950/60 p-2 rounded-xl border border-ceremony-purple-900 grid grid-cols-1 sm:grid-cols-2 gap-2">`;
-            state.heirs.forEach((h, hIdx) => {
-              const currentVal = asset.customSplit[h.id] !== undefined ? asset.customSplit[h.id] : 0;
-              const hColor = heirColors[hIdx % heirColors.length] || '#d4af37';
-              
-              heirsInputsHTML += `
-                <div class="flex items-center justify-between bg-ceremony-purple-950/40 px-2 py-1 rounded-lg border border-ceremony-purple-800/40">
-                  <span class="text-[11px] font-medium text-ceremony-silver-200 flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full" style="background-color: ${hColor}"></span>
-                    ${h.name}
-                  </span>
-                  <div class="flex items-center gap-1">
-                    <input type="number" min="0" max="100" value="${currentVal}"
-                      onchange="updateAssetCustomSplitValue('${asset.id}', '${h.id}', this.value)"
-                      class="w-12 bg-ceremony-purple-950 border border-ceremony-purple-800 rounded px-1 py-0.5 text-center font-bold text-ceremony-gold-500 text-xs focus:outline-none focus:border-ceremony-gold-500">%
-                  </div>
+            heirsInputsHTML += `
+              <div class="flex items-center justify-between bg-ceremony-purple-950/40 px-2 py-1 rounded-lg border border-ceremony-purple-800/40">
+                <span class="text-[11px] font-medium text-ceremony-silver-200 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full" style="background-color: ${hColor}"></span>
+                  ${h.name}
+                </span>
+                <div class="flex items-center gap-1">
+                  <input type="number" min="0" max="100" value="${currentVal}"
+                    onchange="updateAssetCustomSplitValue('${asset.id}', '${h.id}', this.value)"
+                    class="w-12 bg-ceremony-purple-950 border border-ceremony-purple-800 rounded px-1 py-0.5 text-center font-bold text-ceremony-gold-500 text-xs focus:outline-none focus:border-ceremony-gold-500">%
                 </div>
-              `;
-            });
-            heirsInputsHTML += `</div>`;
+              </div>
+            `;
+          });
+          heirsInputsHTML += `</div>`;
 
-            if (currentCustomTotal !== 100) {
-              heirsInputsHTML += `
-                <div class="text-red-400 text-xs mt-1 font-medium flex items-center gap-1 animate-pulse">
-                  <i class="fa-solid fa-triangle-exclamation"></i> この資産の配分が合計${currentCustomTotal}％になっています。100%に調整してください。
-                </div>
-              `;
-            }
+          if (currentCustomTotal !== 100) {
+            heirsInputsHTML += `
+              <div class="text-red-400 text-xs mt-1 font-medium flex items-center gap-1 animate-pulse">
+                <i class="fa-solid fa-triangle-exclamation"></i> この資産の配分が合計${currentCustomTotal}％になっています。100%に調整してください。
+              </div>
+            `;
           }
           
           customSplitWrapper.innerHTML = `
-            <div class="flex items-center justify-between text-[10px] text-ceremony-silver-400">
-              <span class="flex items-center gap-1">
-                <i class="fa-solid fa-gears text-ceremony-gold-500"></i> 分割配分モード選択
-              </span>
-              <div class="flex p-0.5 bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg">
-                <button onclick="updateAssetSplitMode('${asset.id}', 'auto')"
-                  class="px-2 py-0.5 text-[9px] font-bold rounded transition-all ${isAuto ? 'bg-ceremony-gold-500 text-ceremony-purple-950 shadow' : 'text-ceremony-silver-400 hover:text-white'}">
-                  自動で分ける
-                </button>
-                <button onclick="updateAssetSplitMode('${asset.id}', 'custom')"
-                  class="px-2 py-0.5 text-[9px] font-bold rounded transition-all ${!isAuto ? 'bg-ceremony-gold-500 text-ceremony-purple-950 shadow' : 'text-ceremony-silver-400 hover:text-white'}">
-                  個別に決める
-                </button>
-              </div>
+            <div class="text-[10px] text-ceremony-silver-400 mb-1 flex items-center gap-1">
+              <i class="fa-solid fa-sliders text-ceremony-gold-500"></i>
+              <span>各相続人への遺産配分割合（％）</span>
             </div>
             ${heirsInputsHTML}
           `;
@@ -1579,7 +1541,7 @@
         } else if (asset.canSplit !== false && asset.splitMode === 'auto') {
           const currentTotalShare = state.heirs.reduce((sum, h) => sum + h.share, 0);
           if (currentTotalShare > 0) {
-            state.heirs.forEach(h => { heirAmounts[h.id] += assetAmount * (h.share / currentTotalShare); });
+            state.heirs.forEach(h => { heirAmounts[h.id] += assetAmount * (h.share / 100); });
           }
         } else if (asset.canSplit !== false && asset.splitMode === 'custom') {
           if (asset.customSplit) {
@@ -1612,6 +1574,18 @@
       asset.customSplit[heirId] = Math.max(0, Math.min(100, parsed));
       recalculateHeirSharesFromAssets();
       updateApp();
+    }
+
+    function openHelpModal() {
+      const modal = document.getElementById('help-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeHelpModal() {
+      const modal = document.getElementById('help-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
     }
   </script>
 </body>
