@@ -100,6 +100,27 @@
 
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
 
+    <div class="bg-ceremony-purple-900/20 border border-ceremony-purple-800/60 rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl shadow-black/40">
+      <div>
+        <h2 class="text-lg font-semibold text-ceremony-gold-500 flex items-center gap-2">
+          <i class="fa-solid fa-calculator text-ceremony-silver-300"></i> シミュレーション設定
+        </h2>
+        <p class="text-xs text-ceremony-silver-400 mt-1">
+          相続税の計算ロジックを切り替えることができます。
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="btn-mode-standard" onclick="setTaxMode('standard')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 shadow-md flex items-center gap-2 bg-ceremony-gold-500 text-ceremony-purple-950 border-ceremony-gold-400 font-bold hover:bg-ceremony-gold-400">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>日本実務電卓 (総額按分方式)</span>
+        </button>
+        <button id="btn-mode-direct" onclick="setTaxMode('direct')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 flex items-center gap-2 bg-ceremony-purple-900/50 text-ceremony-silver-300 border-ceremony-purple-800 hover:text-white hover:bg-ceremony-purple-850">
+          <i class="fa-solid fa-bolt"></i>
+          <span>仕様書v1.5 (直接課税方式)</span>
+        </button>
+      </div>
+    </div>
+
     <div id="legal-spouse-selector-container" class="hidden bg-ceremony-purple-900/20 border border-ceremony-purple-800/60 rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl shadow-black/40"></div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -221,21 +242,6 @@
               </thead>
               <tbody id="result-table-body" class="divide-y divide-ceremony-purple-800/40"></tbody>
             </table>
-          </div>
-
-          <div class="mt-4 pt-3 border-t border-ceremony-purple-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[10px] text-ceremony-silver-400">
-            <span class="flex items-center gap-1.5">
-              <i class="fa-solid fa-scale-balanced text-ceremony-gold-500/60"></i>
-              <span>計算基盤設定：相続税의計算ロジックを切り替えることができます。</span>
-            </span>
-            <div class="flex gap-1.5">
-              <button id="btn-mode-standard" onclick="setTaxMode('standard')" class="px-2.5 py-1 rounded-lg border text-[10px] font-bold transition-all duration-200 bg-ceremony-gold-500 text-ceremony-purple-950 border-ceremony-gold-400">
-                日本実務電卓 (総額按分方式)
-              </button>
-              <button id="btn-mode-direct" onclick="setTaxMode('direct')" class="px-2.5 py-1 rounded-lg border text-[10px] transition-all duration-200 bg-ceremony-purple-950 border-ceremony-purple-800 text-ceremony-silver-400 hover:text-white">
-                仕様書v1.5 (直接課税方式)
-              </button>
-            </div>
           </div>
           <div class="mt-3 text-[10px] text-ceremony-silver-400 leading-relaxed space-y-1">
             <p>※1 基礎控除額 ＝ 3,000万円 ＋ 600万円 × 法定相続人の数</p>
@@ -648,6 +654,11 @@
 
       const totalTax = state.heirs.reduce((sum, h) => sum + h.taxAmount, 0);
 
+      document.getElementById('summary-total-estate').textContent = formatJapaneseCurrency(totalEstate);
+      document.getElementById('summary-deduction').textContent = formatJapaneseCurrency(deduction);
+      document.getElementById('summary-taxable-estate').textContent = formatJapaneseCurrency(taxableEstate);
+      document.getElementById('summary-total-tax').textContent = formatJapaneseCurrency(totalTax);
+
       renderHeirs();
       renderAssets();
       renderLegalSpouseSelector();
@@ -656,18 +667,18 @@
     }
 
     function setTaxMode(mode) {
-      state.taxMode = mode;
       const btnStandard = document.getElementById('btn-mode-standard');
       const btnDirect = document.getElementById('btn-mode-direct');
       const noteEl = document.getElementById('tax-mode-note');
+      state.taxMode = mode;
 
       if (mode === 'standard') {
-        btnStandard.className = "px-2.5 py-1 rounded-lg border text-[10px] font-bold transition-all duration-200 bg-ceremony-gold-500 text-ceremony-purple-950 border-ceremony-gold-400";
-        btnDirect.className = "px-2.5 py-1 rounded-lg border text-[10px] transition-all duration-200 bg-ceremony-purple-950 border-ceremony-purple-800 text-ceremony-silver-400 hover:text-white";
+        btnStandard.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 shadow-md flex items-center gap-2 bg-ceremony-gold-500 text-ceremony-purple-950 border-ceremony-gold-400 font-bold hover:bg-ceremony-gold-400";
+        btnDirect.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 flex items-center gap-2 bg-ceremony-purple-900/50 text-ceremony-silver-300 border-ceremony-purple-800 hover:text-white hover:bg-ceremony-purple-850";
         noteEl.innerHTML = "※2 日本実務電卓方式：各人の法定相続分で算出した各相続税を合算後、実際の取得額の割合で按分して最終税額を算出しています。";
       } else {
-        btnDirect.className = "px-2.5 py-1 rounded-lg border text-[10px] font-bold transition-all duration-200 bg-ceremony-gold-500 text-ceremony-purple-950 border-ceremony-gold-400";
-        btnStandard.className = "px-2.5 py-1 rounded-lg border text-[10px] transition-all duration-200 bg-ceremony-purple-950 border-ceremony-purple-800 text-ceremony-silver-400 hover:text-white";
+        btnDirect.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 shadow-md flex items-center gap-2 bg-ceremony-gold-500 text-ceremony-purple-950 border-ceremony-gold-400 font-bold hover:bg-ceremony-gold-400";
+        btnStandard.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all border duration-200 flex items-center gap-2 bg-ceremony-purple-900/50 text-ceremony-silver-300 border-ceremony-purple-800 hover:text-white hover:bg-ceremony-purple-850";
         noteEl.innerHTML = "※2 仕様書v1.5直接課税方式：各相続人の『実際の取得金額』に対して直接相続税の速算表を適用して算出した税額です。";
       }
       updateApp();
@@ -725,27 +736,32 @@
       return ratios;
     }
 
+    // 【端数バグ修正版】「法定相続分に初期化」ボタンを押された時、相続人の割合を完全に100%調整した上で、全資産を強制同期初期化する
     function resetToStatutoryShares() {
       const ratios = getStatutorySharesRatio();
       
+      // 1. 各相続人の割合を一度整数に丸めて代入
       state.heirs.forEach(h => {
         const ratio = ratios[h.id] || 0;
         h.share = Math.round(ratio * 100);
       });
 
+      // 2. 丸め誤差による端数を、最も割合の高い相続人で自動調整（警告表示を完璧に封殺）
       let totalShare = state.heirs.reduce((sum, h) => sum + h.share, 0);
       if (totalShare !== 100 && state.heirs.length > 0) {
-        const diff = 100 - totalShare;
+        const diff = 100 - totalShare; // 不足分または超過分
         let maxHeir = state.heirs[0];
         state.heirs.forEach(h => {
           if (h.share > maxHeir.share) {
             maxHeir = h;
           }
         });
-        maxHeir.share += diff;
+        maxHeir.share += diff; // 最も割合の高い相続人で端数を吸収
       }
 
+      // 3. 各資産の状態も連動して「分割可」「個別に決める」の最新法定相続割合（100%調整済）に強制同期リセット
       resetAllAssetsToStatutoryShare();
+
       updateApp();
       showFeedback("📊 相続人設定および全資産の個別割合を法定相続分に同期初期化しました。");
     }
@@ -796,6 +812,7 @@
       }
     }
 
+    // 法定相続人が追加されたら、法定相続割合を初期化し、各資産の状態も「分割可」「個別に決める」「中身は最新の法定相続割合」に強制初期化する
     function addHeir() {
       const id = "h_" + Date.now();
       const defaultNames = ["相続人A", "相続人B", "相続人C", "相続人D"];
@@ -810,10 +827,14 @@
         share: 0
       });
       adjustHeirSharesTo100();
+
+      // 各資産を自動で「分割可」「個別に決める」の最新法定相続割合へ連動リセット
       resetAllAssetsToStatutoryShare();
+
       updateApp();
     }
 
+    // 法定相続人が削除されたら、法定相続割合を初期化し、各資産の状態も「分割可」「個別に決める」「中身は最新の法定相続割合」に強制初期化する
     function removeHeir(id) {
       if (state.heirs.length <= 1) {
         showFeedback("最低1人の相続人が必要です。");
@@ -821,7 +842,10 @@
       }
       state.heirs = state.heirs.filter(h => h.id !== id);
       adjustHeirSharesTo100();
+
+      // 各資産を自動で「分割可」「個別に決める」の最新法定相続割合へ連動リセット
       resetAllAssetsToStatutoryShare();
+
       updateApp();
     }
 
@@ -853,7 +877,10 @@
           }
         }
         
+        // 続柄変更があった際は、増減と同じく相続人全体の割合を100%調整で初期化する
         adjustHeirSharesTo100();
+        
+        // さらに全資産の個別割合も自動的に最新の法定相続割合へ強制同期リセットをかける
         resetAllAssetsToStatutoryShare();
         
         const updatedRatios = getStatutorySharesRatio();
@@ -1138,7 +1165,7 @@
           <div class="flex items-center justify-between gap-2">
             <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-2">
               <input type="text" value="${asset.name}" onchange="updateAssetField('${asset.id}', 'name', this.value)"
-                class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs font-semibold text-ceremony-silver-100 focus:outline-none border-ceremony-gold-500 transition-colors" placeholder="資産の名前">
+                class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs font-semibold text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors" placeholder="資産の名前">
               <select onchange="updateAssetField('${asset.id}', 'type', this.value)"
                 class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors">
                 <option value="cash" ${asset.type === 'cash' ? 'selected' : ''}>現金・預金</option>
@@ -1541,7 +1568,7 @@
         } else if (asset.canSplit !== false && asset.splitMode === 'auto') {
           const currentTotalShare = state.heirs.reduce((sum, h) => sum + h.share, 0);
           if (currentTotalShare > 0) {
-            state.heirs.forEach(h => { heirAmounts[h.id] += assetAmount * (h.share / 100); });
+            state.heirs.forEach(h => { heirAmounts[h.id] += assetAmount * (h.share / currentTotalShare); });
           }
         } else if (asset.canSplit !== false && asset.splitMode === 'custom') {
           if (asset.customSplit) {
@@ -1576,6 +1603,7 @@
       updateApp();
     }
 
+    // 【[3]修正箇所】使い方モーダルポップアップの表示を制御する開閉関数
     function openHelpModal() {
       const modal = document.getElementById('help-modal');
       modal.classList.remove('hidden');
