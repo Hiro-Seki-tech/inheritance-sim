@@ -117,6 +117,8 @@
       </div>
     </div>
 
+    <div id="legal-spouse-selector-container" class="hidden bg-ceremony-purple-900/20 border border-ceremony-purple-800/60 rounded-2xl p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl shadow-black/40"></div>
+
     <div class="bg-ceremony-purple-900/10 border border-ceremony-purple-800/40 rounded-2xl p-4 sm:p-5 text-xs text-ceremony-silver-300 leading-relaxed space-y-3 shadow-lg">
       <div class="flex items-center gap-2 pb-1.5 border-b border-ceremony-purple-800/40 text-ceremony-gold-500 font-bold">
         <i class="fa-solid fa-circle-info"></i> <span>宝均 シミュレーションのご案内</span>
@@ -261,7 +263,7 @@
           </div>
           <div class="mt-3 text-[10px] text-ceremony-silver-400 leading-relaxed space-y-1">
             <p>※1 基礎控除額 ＝ 3,000万円 ＋ 600万円 × 法定相続人の数</p>
-            <p id="tax-mode-note">※2 日本実務電卓方式：各人の法定相続分で算出した各相続税を合算後、実際の取得額の割合で按分して最終税額を算出しています。</p>
+            <p id="tax-mode-note">※2 日本実務電卓方式：各人の法定相続分で算算出された各相続税を合算後、実際の取得額の割合で按分して最終税額を算出しています。</p>
           </div>
         </section>
 
@@ -311,10 +313,11 @@
     // --- 初期データ構造 ---
     let state = {
       taxMode: 'standard',
+      legalSpouseId: null,
       heirs: [
-        { id: "h1", name: "配偶者", relation: "spouse", share: 50 },
-        { id: "h2", name: "長男", relation: "child", share: 25 },
-        { id: "h3", name: "長女", relation: "child", share: 25 }
+        { id: "h1", name: "配偶者", relation: "spouse", spouseType: "legal", share: 50 },
+        { id: "h2", name: "長男", relation: "child", spouseType: null, share: 25 },
+        { id: "h3", name: "長女", relation: "child", spouseType: null, share: 25 }
       ],
       assets: [
         { id: "a1", name: "代々木の土地", type: "land", landEvaluationType: "fixedAsset", area: 120, rosenka: 450000, amount: 54000000, canSplit: true, splitMode: "auto", singleOwner: null, customSplit: {} },
@@ -325,7 +328,8 @@
     };
 
     const relationMap = {
-      spouse: "配偶者",
+      spouse_legal: "配偶者 (法律婚)",
+      spouse_partner: "配偶者 (パートナー)",
       child: "子",
       parent: "直系尊属",
       sibling: "兄弟姉妹",
@@ -467,8 +471,22 @@
         }
       }
 
+      state.heirs.forEach(h => {
+        if (h.relation === 'spouse') {
+          if (h.spouseType === 'legal') h.relation = 'spouse_legal';
+          else if (h.spouseType === 'partner') h.relation = 'spouse_partner';
+          else { h.relation = 'spouse_partner'; h.spouseType = 'partner'; }
+        }
+      });
+      const legalSpousesOnLoad = state.heirs.filter(h => h.relation === 'spouse_legal');
+      if (legalSpousesOnLoad.length > 1) {
+        enforceSingleLegalSpouse(legalSpousesOnLoad[0].id);
+      } else {
+        const currentLegal = state.heirs.find(h => h.relation === 'spouse_legal');
+        state.legalSpouseId = currentLegal ? currentLegal.id : null;
+      }
+
       switchInputTab('heirs');
-      // 【ステップ3-0-1】起動時に各種描画の前にコア計算を叩き、全データをサマリーと同期させる
       updateApp(); 
     }
 
@@ -496,6 +514,29 @@
       }
     }
 
+    function renderLegalSpouseSelector() {
+      const container = document.getElementById('legal-spouse-selector-container');
+      const legalSpouses = state.heirs.filter(h => h.spouseType === 'legal');
+
+      if (legalSpouses.length <= 1) {
+        container.classList.add('hidden');
+        container.innerHTML = "";
+        return;
+      }
+
+      container.classList.remove('hidden');
+      container.innerHTML = `
+        <div>
+          <h3 class="text-xs font-bold tracking-widest text-ceremony-gold-400 uppercase flex items-center gap-1.5"><i class="fa-solid fa-user-check"></i> 法律婚の配偶者を選択</h3>
+          <p class="text-[10px] text-ceremony-gold-300 font-bold mb-1">法律婚の配偶者を選択してください（1名のみ）</p>
+          <p class="text-[10px] text-ceremony-silver-400 mt-0.5">法律婚の配偶者は1名のみ指定可能です（配偶者控除・法定相続分の対象）。</p>
+        </div>
+        <select onchange="state.legalSpouseId = this.value; updateApp();" class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-3 py-2 text-xs sm:text-sm text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors w-full md:w-64">
+          ${legalSpouses.map(h => `<option value="${h.id}" ${state.legalSpouseId === h.id ? 'selected' : ''}>${h.name}</option>`).join('')}
+        </select>
+      `;
+    }
+
     function updateApp() {
       state.assets.forEach(asset => {
         if (asset.type === 'land') {
@@ -514,10 +555,10 @@
       state.heirs.forEach(h => {
         h.actualAcquisition = 0;
         h.distributionBreakdown = {};
+        h.spouseExemptionApplied = false; // 幽霊控除残留防止：一律初期リセット
       });
 
       state.assets.forEach(asset => {
-        // 1. 分割不可（単独所有）モードの集計
         if (asset.canSplit === false) {
           const targetOwnerId = asset.singleOwner;
           const heir = state.heirs.find(h => h.id === targetOwnerId);
@@ -526,14 +567,12 @@
             heir.distributionBreakdown[asset.id] = asset.amount;
           }
         } 
-        // 2. 分割可・個別指定モードの集計
         else if (asset.splitMode === 'custom') {
           let customTotal = 0;
           state.heirs.forEach(h => { customTotal += Number(asset.customSplit[h.id] || 0); });
           
-          // 合計が100%以外の場合は計算保留としてスキップ（ステップ3-0-2-C）
           if (customTotal !== 100) {
-            // 何も処理しない（actualAcquisitionへの加算およびdistributionBreakdownへの追加をスキップ）
+            // 何も処理しない
           }
           else {
             state.heirs.forEach(h => {
@@ -544,7 +583,6 @@
             });
           }
         } 
-        // 3. 自動追従モード（※ステップ3-2で大改修するため、今回は既存ロジックを温存）
         else if (asset.splitMode === 'auto') {
           if (totalShareInput > 0) {
             state.heirs.forEach(h => {
@@ -557,7 +595,6 @@
         }
       });
 
-      // 単独・カスタム資産から相続人の share（％）へ結果値を逆流上書きする機構
       if (totalEstate > 0) {
         state.heirs.forEach(h => {
           h.share = Math.round((h.actualAcquisition / totalEstate) * 100);
@@ -599,7 +636,7 @@
       }
 
       state.heirs.forEach(h => {
-        if (h.relation === 'spouse') {
+        if (h.id === state.legalSpouseId) {
           const spouseStatutoryAmount = taxableEstate * 0.5;
           const spouseExemptionLimit = Math.max(160000000, spouseStatutoryAmount);
           const taxableExcess = Math.max(0, h.taxableAmount - spouseExemptionLimit);
@@ -642,7 +679,7 @@
             <span class="bg-ceremony-gold-500 text-ceremony-purple-950 w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0">💡</span>
             <span>希望割合に空きがあります：<strong class="text-ceremony-gold-300 font-extrabold">未配分：${remaining}%</strong>（合計：${totalShareInput}%）</span>
           </div>
-          <span class="text-[10px] bg-ceremony-gold-500/20 text-ceremony-gold-300 px-2 py-0.5 rounded-lg border border-ceremony-gold-500/30 shrink-0 font-bold ml-2">未配分</span>
+          <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-lg border border-emerald-500/30 shrink-0 font-bold ml-2">未配分</span>
         `;
         alertEl.classList.remove('hidden');
       } else {
@@ -659,6 +696,7 @@
 
       renderHeirs();
       renderAssets();
+      renderLegalSpouseSelector();
       renderResultTable(totalEstate, taxableEstate, totalTax);
       renderCharts();
     }
@@ -686,7 +724,7 @@
       const heirs = state.heirs;
       if (heirs.length === 0) return ratios;
 
-      const spouse = heirs.find(h => h.relation === 'spouse');
+      const spouse = heirs.find(h => h.id === state.legalSpouseId);
       const children = heirs.filter(h => h.relation === 'child');
       const parents = heirs.filter(h => h.relation === 'parent');
       const siblings = heirs.filter(h => h.relation === 'sibling');
@@ -722,6 +760,14 @@
           heirs.forEach(h => ratios[h.id] = 1.0 / totalHeirsCount);
         }
       }
+      heirs.forEach(h => {
+        if (h.relation === 'spouse_partner' || h.spouseType === 'partner') {
+          ratios[h.id] = 0;
+        }
+        if (state.legalSpouseId !== null && h.relation === 'spouse_legal' && h.id !== state.legalSpouseId) {
+          ratios[h.id] = 0;
+        }
+      });
       return ratios;
     }
 
@@ -743,18 +789,31 @@
       if (triggerUpdate) updateApp();
     }
 
+    function enforceSingleLegalSpouse(changedHeirId) {
+      const legalSpouses = state.heirs.filter(h => h.relation === 'spouse_legal');
+      if (legalSpouses.length > 1) {
+        legalSpouses.forEach(h => {
+          if (h.id !== changedHeirId) {
+            h.relation = 'spouse_partner';
+            h.spouseType = 'partner';
+          }
+        });
+        showFeedback("⚠️ 法律婚の配偶者は1名のみ指定可能です。他の配偶者をパートナーへ自動変更しました。");
+      }
+      const currentLegal = state.heirs.find(h => h.relation === 'spouse_legal');
+      state.legalSpouseId = currentLegal ? currentLegal.id : null;
+    }
+
     function adjustHeirSharesTo100() {
       const ratios = getStatutorySharesRatio();
       let totalShare = 0;
       
-      // 一旦、四捨五入で各員の％を算出
       state.heirs.forEach(h => {
         const ratio = ratios[h.id] || 0;
         h.share = Math.round(ratio * 100);
         totalShare += h.share;
       });
 
-      // 100%からズレた端数がある場合、最も割合の高い相続人（同率なら先頭）の枠で強制調停
       if (totalShare !== 100 && state.heirs.length > 0) {
         const diff = 100 - totalShare;
         let targetHeir = state.heirs[0];
@@ -766,14 +825,12 @@
         targetHeir.share += diff;
       }
 
-      // 全資産を「分割可・自動按分」の王道へ初期リセット
       state.assets.forEach(asset => {
         asset.canSplit = true;
         asset.splitMode = "auto";
         asset.singleOwner = null;
         asset.customSplit = {};
         
-        // 過去の古いプロパティの残党も安全に無力化
         asset.distributionType = "auto";
         asset.singleHeirId = null;
         asset.distribution = {};
@@ -790,6 +847,7 @@
         id: id,
         name: name,
         relation: "child",
+        spouseType: null,
         share: 0
       });
       adjustHeirSharesTo100();
@@ -806,8 +864,6 @@
       updateApp();
     }
 
-    // (中略)
-
     function updateHeirField(id, field, value) {
       const heir = state.heirs.find(h => h.id === id);
       if (!heir) return;
@@ -818,7 +874,26 @@
         heir.share = Math.max(0, Math.min(100, parsed));
       } else if (field === 'relation') {
         heir.relation = value;
+        if (value === 'spouse_legal') {
+          heir.spouseType = 'legal';
+          state.legalSpouseId = id;
+          enforceSingleLegalSpouse(id);
+        } else if (value === 'spouse_partner') {
+          heir.spouseType = 'partner';
+          if (state.legalSpouseId === id) {
+            const nextLegal = state.heirs.find(h => h.relation === 'spouse_legal');
+            state.legalSpouseId = nextLegal ? nextLegal.id : null;
+          }
+        } else {
+          heir.spouseType = null;
+          if (state.legalSpouseId === id) {
+            const nextLegal = state.heirs.find(h => h.relation === 'spouse_legal');
+            state.legalSpouseId = nextLegal ? nextLegal.id : null;
+          }
+        }
         adjustHeirSharesTo100();
+        const updatedRatios = getStatutorySharesRatio();
+        state.heirs.forEach(h => { h.statutoryShare = updatedRatios[h.id] || 0; });
         updateApp();
         return;
       } else {
@@ -851,6 +926,13 @@
           diffClass = "text-ceremony-silver-400 font-medium bg-ceremony-purple-950/40 px-1.5 py-0.5 rounded border border-ceremony-purple-800/60";
         }
         
+        let typeBadgeHTML = '';
+        if (heir.relation === 'spouse_legal') {
+          typeBadgeHTML = `<span class="text-[9px] font-bold text-ceremony-gold-400 bg-ceremony-gold-500/10 border border-ceremony-gold-500/30 px-1.5 py-0.5 rounded ml-2">法律婚</span>`;
+        } else if (heir.relation === 'spouse_partner') {
+          typeBadgeHTML = `<span class="text-[9px] font-bold text-ceremony-silver-300 bg-ceremony-silver-500/10 border border-ceremony-silver-500/30 px-1.5 py-0.5 rounded ml-2">パートナー</span>`;
+        }
+
         const card = document.createElement('div');
         card.className = "bg-ceremony-purple-900/20 border border-ceremony-purple-800/40 hover:border-ceremony-gold-500/30 rounded-xl p-4 transition-all space-y-3 relative overflow-hidden";
         card.style.borderLeft = `4px solid ${color}`;
@@ -862,6 +944,7 @@
                 <label class="text-ceremony-gold-500 text-[10px] mb-0.5 block">お名前</label>
                 <div class="relative flex items-center">
                   <span class="absolute left-2.5 w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${color}"></span>
+                  ${typeBadgeHTML}
                   <input type="text" value="${heir.name}" onchange="updateHeirField('${heir.id}', 'name', this.value)"
                     class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-7 pr-2.5 py-1 text-xs sm:text-sm text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors w-full">
                 </div>
@@ -870,7 +953,8 @@
                 <label class="text-ceremony-gold-500 text-[10px] mb-0.5 block">続柄</label>
                 <select onchange="updateHeirField('${heir.id}', 'relation', this.value)"
                   class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs sm:text-sm text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors w-full">
-                  <option value="spouse" ${heir.relation === 'spouse' ? 'selected' : ''}>配偶者</option>
+                  <option value="spouse_legal" ${heir.relation === 'spouse_legal' ? 'selected' : ''}>配偶者 (法律婚)</option>
+                  <option value="spouse_partner" ${heir.relation === 'spouse_partner' ? 'selected' : ''}>配偶者 (パートナー)</option>
                   <option value="child" ${heir.relation === 'child' ? 'selected' : ''}>子</option>
                   <option value="parent" ${heir.relation === 'parent' ? 'selected' : ''}>直系尊属</option>
                   <option value="sibling" ${heir.relation === 'sibling' ? 'selected' : ''}>兄弟姉妹</option>
@@ -933,7 +1017,7 @@
     }
 
     function updateAssetField(id, field, value) {
-      const asset = state.assets.find(a => a.id === asset);
+      const asset = state.assets.find(a => a.id === id);
       if (!asset) return;
 
       if (field === 'amount' || field === 'area' || field === 'rosenka') {
@@ -1143,7 +1227,6 @@
           if (!isAuto) {
             if (!asset.customSplit) asset.customSplit = {};
 
-            // 各 asset.customSplit の合計値を計算
             let currentCustomTotal = 0;
             state.heirs.forEach(h => {
               currentCustomTotal += Number(asset.customSplit[h.id] || 0);
@@ -1170,7 +1253,6 @@
             });
             heirsInputsHTML += `</div>`;
 
-            // 合計が100%になっていない場合に警告UIを差し込む
             if (currentCustomTotal !== 100) {
               heirsInputsHTML += `
                 <div class="text-red-400 text-xs mt-1 font-medium flex items-center gap-1 animate-pulse">
@@ -1210,7 +1292,7 @@
       const asset = state.assets.find(a => a.id === assetId);
       if (!asset) return;
 
-      document.getElementById('modal-asset-title').innerHTML = `資産「<strong>${asset.name}</strong> (評価額: ${formatStandardCurrency(asset.amount)}) Brenner」を分割する比率を設定してください。`;
+      document.getElementById('modal-asset-title').innerHTML = `資産「<strong>${asset.name}</strong> (評価額: ${formatStandardCurrency(asset.amount)})」を分割する比率を設定してください。`;
       const container = document.getElementById('modal-heirs-list');
       container.innerHTML = '';
 
@@ -1222,7 +1304,7 @@
           <span class="text-xs font-semibold text-ceremony-silver-200">${h.name} <span class="text-[10px] text-ceremony-silver-400 font-normal">(${relationMap[h.relation]})</span></span>
           <div class="flex items-center gap-1.5">
             <input type="number" data-heir-id="${h.id}" value="${currentPercent}" min="0" max="100" oninput="calculateModalTotal()"
-              class="modal-percent-input w-16 bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2 py-1 text-center font-bold text-ceremony-gold-500 text-xs focus:outline-none focus:border-ceremony-gold-500">%
+              class="modal-percent-input w-16 bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-center font-bold text-ceremony-gold-500 text-xs focus:outline-none focus:border-ceremony-gold-500">%
           </div>
         `;
         container.appendChild(row);
@@ -1338,7 +1420,7 @@
         </td>
         <td class="px-3 py-3 text-right text-ceremony-silver-300">
           ${formatStandardCurrency(taxableEstate)}
-          <span class="text-[10px] text-ceremony-silver-400 block">${formatJapaneseCurrency(taxableEstate)}</span>
+          <span class="text-[10px] text-ceremony-silver-400 block">${formatJapaneseCurrency(totalEstate - (30000000 + 6000000 * Math.max(1, state.heirs.filter(h => h.relation !== 'other').length)) < 0 ? 0 : totalEstate - (30000000 + 6000000 * Math.max(1, state.heirs.filter(h => h.relation !== 'other').length)))}</span>
         </td>
         <td class="px-3 py-3 text-right text-rose-400">
           ${formatStandardCurrency(totalTax)}
@@ -1471,7 +1553,6 @@
       asset.splitMode = mode;
       asset.singleOwner = null;
       
-      // コプ殿の献策：customに切り替えた瞬間、既存データの有無に関わらず、現在のheirsの希望割合を初期値として上書き変更コピー
       if (mode === 'custom') {
         asset.customSplit = {};
         state.heirs.forEach(h => {
