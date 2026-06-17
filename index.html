@@ -137,7 +137,7 @@
           </button>
         </div>
 
-        <div class="flex items-center bg-ceremony-purple-950/80 px-2 py-1 rounded-xl border border-ceremony-purple-700/40 text-[11px]">
+        <div class="flex items-center bg-ceremony-purple-950/80 px-2 py-1 rounded-xl border border-ceremony-purple-700/40 border-t sm:border-t-0 text-[11px]">
           <span class="text-ceremony-gold-500 mr-1.5"><i class="fa-regular fa-clock"></i></span>
           <select class="bg-transparent text-ceremony-silver-200 font-medium focus:outline-none cursor-pointer text-[11px]" onchange="if(this.value !== '2026') { showFeedback('⏳ 未来の法改正税制に対応したジェムキンへの跳躍リンクは、将来の法案可決時にアップデートで活性化されます。'); this.value = '2026'; }">
             <option value="2026" selected class="bg-ceremony-purple-950 text-white">2026年 税制版</option>
@@ -150,7 +150,7 @@
           <button onclick="openHelpModal()" class="text-xs font-bold bg-ceremony-purple-900/60 hover:bg-ceremony-purple-800 border border-ceremony-purple-700/60 text-ceremony-gold-400 hover:text-ceremony-gold-300 px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-black/30">
             <i class="fa-solid fa-circle-question text-sm"></i> 使い方？
           </button>
-          </div>
+        </div>
       </div>
     </div>
   </header>
@@ -383,7 +383,7 @@
         { id: "h3", name: "長女", relation: "child", spouseType: null, share: 25 }
       ],
       assets: [
-        { id: "a1", name: "代々木の土地", type: "land", landEvaluationType: "fixedAsset", area: 120, rosenka: 450000, amount: 54000000, canSplit: true, splitMode: "custom", singleOwner: null, customSplit: {}, shokuboType: "none" },
+        { id: "a1", name: "代々木の土地", type: "land", landEvaluationType: "fixedAsset", area: 120, rosenka: 450000, amount: 54000000, canSplit: true, splitMode: "custom", singleOwner: null, customSplit: {}, shokuboType: "none", shokuboApplicableHeirs: [] },
         { id: "a2", name: "定期預金", type: "cash", amount: 35000000, canSplit: true, splitMode: "custom", singleOwner: null, customSplit: {} },
         { id: "a3", name: "株式 (ジェムホールディングス)", type: "stock", nameStock: "ジェムHD", amount: 18000000, canSplit: true, splitMode: "custom", singleOwner: null, customSplit: {} }
       ],
@@ -572,7 +572,185 @@
       const totalEstate = state.assets.reduce((sum, asset) => sum + asset.amount, 0);
       const statutoryHeirsCount = state.heirs.filter(h => h.relation !== 'other').length;
       const deduction = 30000000 + (6000000 * Math.max(1, statutoryHeirsCount));
-      const taxableEstate = Math.max(0, totalEstate - deduction);
+
+      // ==========================================
+      // 🛡️ 【軍師の完全なる調停：小規模宅地等の特例（①〜③並列・人ベース面積按分）裏方調停陣】
+      // 画面上のUIや民法上の asset.amount、相続人への逆算％には一切指一本触れず、
+      // 土地ごとに「要件該当者が取得した割合に相当する地積」だけを厳格に切り出してソート・減額する。
+      // ==========================================
+      let totalSpecialReduction = 0; // すべての特例による総減額量を保持
+
+      // --- 🟥 第1陣：特定居住用宅地等（shokuboType === 'live'：上限330㎡ / 80%減額） ---
+      let liveQuotaParts = []; // 特例要件を満たした「相続人ごとのパーツ」を格納する配列
+      
+      state.assets.forEach(asset => {
+        if (asset.type === 'land' && asset.shokuboType === 'live') {
+          const totalArea = asset.area || 0;
+          const rosanka = asset.landEvaluationType === 'rosenka' ? (asset.rosenka || 0) : (asset.area > 0 ? (asset.amount / asset.area) : 0);
+          if (totalArea <= 0 || rosanka <= 0) return;
+
+          // この土地において、特例要件を満たす（選択されている）各相続人の取得割合を元に地積をバラバラに切り分ける
+          const applicableHeirs = asset.shokuboApplicableHeirs || [];
+          applicableHeirs.forEach(heirId => {
+            let heirSplitPercent = 0;
+            if (asset.canSplit === false) {
+              // 分割不可（単独取得）の場合、その人が単独オーナーなら100%、違うなら0%
+              heirSplitPercent = (asset.singleOwner === heirId) ? 100 : 0;
+            } else if (asset.splitMode === 'custom' && asset.customSplit) {
+              heirSplitPercent = Number(asset.customSplit[heirId] || 0);
+            } else if (asset.splitMode === 'auto') {
+              // 自動（法定比率連動）モードの場合、現在の相続人のshareを参照
+              const totalShareInput = state.heirs.reduce((sum, h) => sum + h.share, 0);
+              const matchedHeir = state.heirs.find(h => h.id === heirId);
+              if (matchedHeir && totalShareInput > 0) {
+                heirSplitPercent = (matchedHeir.share / totalShareInput) * 100;
+              }
+            }
+
+            if (heirSplitPercent > 0) {
+              // 土地全体の面積から、この要件合致相続人が相続する「有効な面積」を正確に割り出す
+              const validPartArea = totalArea * (heirSplitPercent / 100);
+              liveQuotaParts.push({
+                assetId: asset.id,
+                heirId: heirId,
+                area: validPartArea,
+                rosanka: rosanka
+              });
+            }
+          });
+        }
+      });
+
+      // --- 🟦 第2陣：特定事業用宅地等（shokuboType === 'business'：上限400㎡ / 80%減額） ---
+      let businessQuotaParts = [];
+      
+      state.assets.forEach(asset => {
+        if (asset.type === 'land' && asset.shokuboType === 'business') {
+          const totalArea = asset.area || 0;
+          const rosanka = asset.landEvaluationType === 'rosenka' ? (asset.rosenka || 0) : (asset.area > 0 ? (asset.amount / asset.area) : 0);
+          if (totalArea <= 0 || rosanka <= 0) return;
+
+          const applicableHeirs = asset.shokuboApplicableHeirs || [];
+          applicableHeirs.forEach(heirId => {
+            let heirSplitPercent = 0;
+            if (asset.canSplit === false) {
+              heirSplitPercent = (asset.singleOwner === heirId) ? 100 : 0;
+            } else if (asset.splitMode === 'custom' && asset.customSplit) {
+              heirSplitPercent = Number(asset.customSplit[heirId] || 0);
+            } else if (asset.splitMode === 'auto') {
+              const totalShareInput = state.heirs.reduce((sum, h) => sum + h.share, 0);
+              const matchedHeir = state.heirs.find(h => h.id === heirId);
+              if (matchedHeir && totalShareInput > 0) {
+                heirSplitPercent = (matchedHeir.share / totalShareInput) * 100;
+              }
+            }
+
+            if (heirSplitPercent > 0) {
+              const validPartArea = totalArea * (heirSplitPercent / 100);
+              businessQuotaParts.push({
+                assetId: asset.id,
+                heirId: heirId,
+                area: validPartArea,
+                rosanka: rosanka
+              });
+            }
+          });
+        }
+      });
+
+      // --- 🟩 第3陣：貸付事業用宅地等（shokuboType === 'rent'：上限200㎡ / 50%減額） ---
+      let rentQuotaParts = [];
+      
+      state.assets.forEach(asset => {
+        if (asset.type === 'land' && asset.shokuboType === 'rent') {
+          const totalArea = asset.area || 0;
+          const rosanka = asset.landEvaluationType === 'rosenka' ? (asset.rosenka || 0) : (asset.area > 0 ? (asset.amount / asset.area) : 0);
+          if (totalArea <= 0 || rosanka <= 0) return;
+
+          const applicableHeirs = asset.shokuboApplicableHeirs || [];
+          applicableHeirs.forEach(heirId => {
+            let heirSplitPercent = 0;
+            if (asset.canSplit === false) {
+              heirSplitPercent = (asset.singleOwner === heirId) ? 100 : 0;
+            } else if (asset.splitMode === 'custom' && asset.customSplit) {
+              heirSplitPercent = Number(asset.customSplit[heirId] || 0);
+            } else if (asset.splitMode === 'auto') {
+              const totalShareInput = state.heirs.reduce((sum, h) => sum + h.share, 0);
+              const matchedHeir = state.heirs.find(h => h.id === heirId);
+              if (matchedHeir && totalShareInput > 0) {
+                heirSplitPercent = (matchedHeir.share / totalShareInput) * 100;
+              }
+            }
+
+            if (heirSplitPercent > 0) {
+              const validPartArea = totalArea * (heirSplitPercent / 100);
+              rentQuotaParts.push({
+                assetId: asset.id,
+                heirId: heirId,
+                area: validPartArea,
+                rosanka: rosanka
+              });
+            }
+          });
+        }
+      });
+
+      // ==========================================
+      // ⚖️ 【軍師の最終調停：国税庁規定・小規模宅地等の完全併用超過判定方程式】
+      // ①居住用、②事業用、③貸付用が混在した場合、別々に枠をハメるだけでは税法違反となる。
+      // 国税庁の併用公式「(①面積/330) + (②面積/400) + (③面積/200) ≦ 1.0」を厳格に適用する。
+      // ユーザーが最も得をするよう「1㎡あたりの減額量（路線価×減額率）」が高い順にソートして枠をハメ直す。
+      // ==========================================
+      totalSpecialReduction = 0; // 一度単純加算した特例減額量をリセットし、この方程式で再調停する
+
+      let allSpecialParts = [];
+
+      // 1. すべての特例パーツに「1㎡あたりの減額効率（価値の縮小量）」と「併用枠の消費ウェイト」を付与して一本の配列に統合
+      liveQuotaParts.forEach(p => {
+        allSpecialParts.push({ ...p, type: 'live', efficiency: p.rosanka * 0.8, weightDenom: 330 });
+      });
+      businessQuotaParts.forEach(p => {
+        allSpecialParts.push({ ...p, type: 'business', efficiency: p.rosanka * 0.8, weightDenom: 400 });
+      });
+      rentQuotaParts.forEach(p => {
+        allSpecialParts.push({ ...p, type: 'rent', efficiency: p.rosanka * 0.5, weightDenom: 200 });
+      });
+
+      // 2. 「1㎡あたり、より多く税金を安くできる高効率な土地パーツ順（降順）」にソート
+      allSpecialParts.sort((a, b) => b.efficiency - a.efficiency);
+
+      // 3. 総消費ウェイト（上限 1.0）のメーターを監視しながら、最も得な土地から順に特例枠へハメ込む
+      let currentTotalWeight = 0;
+
+      allSpecialParts.forEach(part => {
+        if (currentTotalWeight >= 1.0) return; // 既に特例の上限（100%）に達している場合は等倍通常課税へスルー
+
+        // このパーツが100%特例枠に入った場合の消費ウェイト
+        const partWeight = part.area / part.weightDenom;
+
+        if (currentTotalWeight + partWeight <= 1.0) {
+          // パターンA: パーツ丸ごとが残り枠にすっぽり収まる場合
+          const reduction = part.area * part.efficiency;
+          totalSpecialReduction += reduction;
+          currentTotalWeight += partWeight;
+        } else {
+          // パターンB: パーツの一部が特例の限界障壁（1.0）をはみ出る場合、残り限界枠分だけを逆算して引く
+          const remainingWeight = 1.0 - currentTotalWeight;
+          const allowedArea = remainingWeight * part.weightDenom; // 残りウェイトから逆算した「特例が許される面積」
+          
+          const reduction = allowedArea * part.efficiency;
+          totalSpecialReduction += reduction;
+          currentTotalWeight = 1.0; // 限界メーター満タン
+        }
+      });
+
+      // 税金計算用の総資産額を裏方で最終調停し、算出した正しき最大特例減額総量を控除
+      let taxableTotalAssets = Math.max(0, totalEstate - totalSpecialReduction);
+      // ==========================================
+
+      // 特例適用後の調停価格から基礎控除額を引き、正しき課税対象遺産総額(taxableEstate)を決定
+      let taxableEstate = Math.max(0, taxableTotalAssets - deduction);
+
       const totalShareInput = state.heirs.reduce((sum, h) => sum + h.share, 0);
 
       state.heirs.forEach(h => {
@@ -891,7 +1069,7 @@
         state.heirs.forEach(h => { h.statutoryShare = updatedRatios[h.id] || 0; });
         
         updateApp();
-        showFeedback("🔄 続柄の変更に伴い、分割割合を最新の法定相続分に同期初期化しました。");
+        showFeedback("🔄 続柄の変更に伴い、分割割合を最新 of 法定相続分に同期初期化しました。");
         return;
       } else {
         heir[field] = value;
@@ -1023,7 +1201,8 @@
         splitMode: "custom", 
         singleOwner: null,
         customSplit: initialCustomSplit,
-        shokuboType: "none"
+        shokuboType: "none",
+        shokuboApplicableHeirs: []
       });
       updateApp();
     }
@@ -1043,6 +1222,21 @@
         asset[field] = parsed;
       } else {
         asset[field] = value;
+      }
+      updateApp();
+    }
+
+    function toggleShokuboHeir(assetId, heirId, isChecked) {
+      const asset = state.assets.find(a => a.id === assetId);
+      if (!asset) return;
+      if (!asset.shokuboApplicableHeirs) asset.shokuboApplicableHeirs = [];
+      
+      if (isChecked) {
+        if (!asset.shokuboApplicableHeirs.includes(heirId)) {
+          asset.shokuboApplicableHeirs.push(heirId);
+        }
+      } else {
+        asset.shokuboApplicableHeirs = asset.shokuboApplicableHeirs.filter(id => id !== heirId);
       }
       updateApp();
     }
@@ -1111,6 +1305,30 @@
           `;
         } else if (asset.type === 'land') {
           const evalType = asset.landEvaluationType || 'rosenka';
+          const shokuboType = asset.shokuboType || 'none';
+          
+          let heirsCheckboxesHTML = '';
+          if (shokuboType !== 'none') {
+            if (!asset.shokuboApplicableHeirs) asset.shokuboApplicableHeirs = [];
+            heirsCheckboxesHTML += `
+              <div class="mt-2.5 p-2.5 bg-ceremony-purple-950/60 rounded-xl border border-ceremony-purple-800/60 space-y-1.5">
+                <span class="text-[10px] text-ceremony-gold-400 font-bold block flex items-center gap-1">
+                  <i class="fa-solid fa-user-shield"></i> この特例の要件を満たす取得者を選択（複数選択可）
+                </span>
+                <div class="flex flex-wrap gap-2 pt-1">
+            `;
+            state.heirs.forEach(h => {
+              const isChecked = asset.shokuboApplicableHeirs.includes(h.id) ? 'checked' : '';
+              heirsCheckboxesHTML += `
+                <label class="flex items-center gap-1.5 text-[11px] text-ceremony-silver-200 bg-ceremony-purple-900/40 px-2.5 py-1 rounded border border-ceremony-purple-800/80 hover:border-ceremony-gold-500/30 cursor-pointer select-none transition-all">
+                  <input type="checkbox" value="${h.id}" ${isChecked} onchange="toggleShokuboHeir('${asset.id}', '${h.id}', this.checked)" class="accent-ceremony-gold-500 cursor-pointer">
+                  <span>${h.name}</span>
+                </label>
+              `;
+            });
+            heirsCheckboxesHTML += `</div></div>`;
+          }
+
           typeSpecificFields = `
             <div class="space-y-2">
               <div>
@@ -1163,20 +1381,20 @@
             `;
           }
 
-          const shokuboType = asset.shokuboType || 'none';
           typeSpecificFields += `
             <div class="mt-3 pt-2.5 border-t border-ceremony-purple-800/40">
               <label class="text-[10px] text-ceremony-gold-500 font-bold block mb-1 flex items-center gap-1">
                 <i class="fa-solid fa-house-chimney"></i> 小規模宅地等の特例選択
               </label>
-              <select onchange="updateAssetField('${asset.id}', 'shokuboType', this.value); showFeedback(this.value !== 'none' ? '🏡 小規模宅地の特例UIを変更しました（計算反映は次フェーズ）。' : '🏡 特例を未適用に戻しました。');"
+              <select onchange="updateAssetField('${asset.id}', 'shokuboType', this.value); if(this.value === 'none') { asset.shokuboApplicableHeirs = []; } updateApp();"
                 class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500">
                 <option value="none" ${shokuboType === 'none' ? 'selected' : ''}>【未適用】通常の評価額で計算</option>
                 <option value="live" ${shokuboType === 'live' ? 'selected' : ''}>① 特定居住用宅地等 (自宅: 上限330㎡ / 80%減額)</option>
                 <option value="business" ${shokuboType === 'business' ? 'selected' : ''}>② 特定事業用宅地等 (店・工場: 上限400㎡ / 80%減額)</option>
-                <option value="rent" ${shokuboType === 'rent' ? 'selected' : ''}>④ 貸付事業用宅地等 (アパート等: 上限200㎡ / 50%減額)</option>
+                <option value="rent" ${shokuboType === 'rent' ? 'selected' : ''}>③ 貸付事業用宅地等 (アパート等: 上限200㎡ / 50%減額)</option>
               </select>
             </div>
+            ${heirsCheckboxesHTML}
           `;
           typeSpecificFields += `</div>`;
 
@@ -1448,7 +1666,7 @@
         </td>
         <td class="px-3 py-3 text-right text-ceremony-silver-300">
           ${formatStandardCurrency(taxableEstate)}
-          <span class="text-[10px] text-ceremony-silver-400 block">${formatJapaneseCurrency(totalEstate - (30000000 + 6000000 * Math.max(1, state.heirs.filter(h => h.relation !== 'other').length)) < 0 ? 0 : totalEstate - (30000000 + 6000000 * Math.max(1, state.heirs.filter(h => h.relation !== 'other').length)))}</span>
+          <span class="text-[10px] text-ceremony-silver-400 block">${formatJapaneseCurrency(taxableEstate)}</span>
         </td>
         <td class="px-3 py-3 text-right text-rose-400">
           ${formatStandardCurrency(totalTax)}
