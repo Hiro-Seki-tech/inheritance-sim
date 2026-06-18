@@ -108,15 +108,21 @@
             <i class="fa-solid fa-ribbon text-ceremony-purple-950 text-xl animate-pulse"></i>
           </div>
 
-          <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 plip-noble-bubble bg-gradient-to-b from-ceremony-purple-900 via-ceremony-purple-950 to-purple-950 border border-ceremony-gold-500/30 text-[9px] font-black tracking-widest px-2.5 py-1 rounded-md text-ceremony-gold-400 whitespace-nowrap shadow-xl shadow-black/80 pointer-events-none select-none z-50">
-            <span class="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-[4px] border-x-transparent border-b-[5px] border-b-ceremony-purple-900"></span>
-            
-            <span class="relative inline-block w-3.5 h-3.5 mr-1 align-middle">
-              <i class="fa-solid fa-lightbulb plip-rainbow-text-bulb text-[10px] absolute left-0 top-0.5"></i>
-              <i class="fa-solid fa-bolt text-yellow-300 text-[8px] absolute right-0 -top-0.5 drop-shadow-[0_0_2px_#fde047]"></i>
-            </span>
-            <span>PLIP!</span>
-          </div>
+
+
+<div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 plip-noble-bubble bg-purple-950 border border-ceremony-gold-500 text-[9px] font-black tracking-widest px-2.5 py-1 rounded-md whitespace-nowrap shadow-2xl shadow-black pointer-events-none select-none z-50">
+  
+  <span class="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-[5px] border-x-transparent border-b-[6px] border-b-ceremony-gold-500"></span>
+  <span class="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-[4px] border-x-transparent border-b-[5px] border-b-purple-950 z-10"></span>
+  
+  <span class="relative inline-block w-3.5 h-3.5 mr-1 align-middle">
+    <i class="fa-solid fa-lightbulb plip-rainbow-text-bulb text-[10px] absolute left-0 top-0.5"></i>
+    <i class="fa-solid fa-bolt text-yellow-300 text-[8px] absolute right-0 -top-0.5 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]"></i>
+  </span>
+  <span class="text-ceremony-gold-400 font-black drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">PLIP!</span>
+</div>
+
+
         </div>
 
         <div>
@@ -218,21 +224,21 @@
 
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div class="bg-ceremony-purple-950/60 border border-ceremony-purple-800/50 p-3.5 rounded-xl">
-              <span class="text-ceremony-silver-400 text-[10px] sm:text-xs block">遺産総額</span>
+              <span class="text-ceremony-silver-400 text-[10px] block">遺産総額</span>
               <span id="summary-total-estate" class="text-lg sm:text-xl font-bold text-ceremony-silver-100">0円</span>
             </div>
             <div class="bg-ceremony-purple-950/60 border border-ceremony-purple-800/50 p-3.5 rounded-xl">
-              <span class="text-ceremony-silver-400 text-[10px] sm:text-xs block">基礎控除額</span>
+              <span class="text-ceremony-silver-400 text-[10px] block">基礎控除額</span>
               <span id="summary-deduction" class="text-lg sm:text-xl font-bold text-emerald-400">0円</span>
             </div>
             <div class="bg-ceremony-purple-950/60 border border-ceremony-purple-800/50 p-3.5 rounded-xl col-span-2">
               <div class="flex justify-between items-center">
                 <div>
-                  <span class="text-ceremony-silver-400 text-[10px] sm:text-xs block">課税対象遺産総額</span>
+                  <span class="text-ceremony-silver-400 text-[10px] block">課税対象遺産総額</span>
                   <span id="summary-taxable-estate" class="text-xl sm:text-2xl font-black text-ceremony-gold-500">0円</span>
                 </div>
                 <div class="text-right">
-                  <span class="text-ceremony-silver-400 text-[10px] sm:text-xs block">相続税総額</span>
+                  <span class="text-ceremony-silver-400 text-[10px] block">相続税総額</span>
                   <span id="summary-total-tax" class="text-xl sm:text-2xl font-black text-rose-400">0円</span>
                 </div>
               </div>
@@ -368,6 +374,51 @@
       <div class="flex justify-end pt-2 border-t border-ceremony-purple-800">
         <button onclick="closeHelpModal()" class="px-5 py-2 rounded-xl bg-ceremony-gold-500 hover:bg-ceremony-gold-600 text-ceremony-purple-950 text-xs font-bold transition-all shadow-md">
           確認いたしました
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="shokubo-help-modal" class="fixed inset-0 bg-ceremony-purple-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-4" onclick="closeShokuboHelpModal()">
+    <div class="bg-ceremony-purple-900 border border-ceremony-gold-500/40 rounded-2xl p-5 w-full max-w-md shadow-2xl space-y-4" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-ceremony-purple-800 pb-2.5">
+        <h4 class="text-sm sm:text-base font-bold text-ceremony-gold-500 flex items-center gap-1.5">
+          <i class="fa-solid fa-house-shield text-ceremony-gold-400"></i> 小規模宅地等の特例：簡易手引き
+        </h4>
+        <button onclick="closeShokuboHelpModal()" class="text-ceremony-silver-400 hover:text-white transition-colors">
+          <i class="fa-solid fa-xmark text-base"></i>
+        </button>
+      </div>
+      
+      <div class="text-xs text-ceremony-silver-200 space-y-3.5 leading-relaxed max-h-[320px] overflow-y-auto pr-1">
+        <div class="bg-ceremony-purple-950/40 p-2.5 rounded-xl border border-ceremony-purple-800/40 space-y-1">
+          <strong class="text-ceremony-gold-400 font-bold block flex items-center gap-1">① 特定居住用宅地等（自宅）</strong>
+          <p class="text-ceremony-silver-400 pl-2">
+            <span class="text-white font-medium">【対象となる人】</span><br>
+            亡くなった方の<span class="text-ceremony-gold-300 font-bold">「配偶者」</span>、または同じ家で生活していた<span class="text-ceremony-gold-300 font-bold">「同居親族」</span>、あるいは実家を離れて借家住まいの親族（通称：家なき子）が自宅を相続する場合に適用可能です。
+          </p>
+        </div>
+
+        <div class="bg-ceremony-purple-950/40 p-2.5 rounded-xl border border-ceremony-purple-800/40 space-y-1">
+          <strong class="text-ceremony-gold-400 font-bold block flex items-center gap-1">② 特定事業用宅地等（店・工場）</strong>
+          <p class="text-ceremony-silver-400 pl-2">
+            <span class="text-white font-medium">【対象となる人】</span><br>
+            亡くなった方が営んでいた商売や事業を引き継ぎ、その土地をそのまま使って<span class="text-ceremony-gold-300 font-bold">「事業を継続する親族」</span>が相続する場合に適用可能です。
+          </p>
+        </div>
+
+        <div class="bg-ceremony-purple-950/40 p-2.5 rounded-xl border border-ceremony-purple-800/40 space-y-1">
+          <strong class="text-ceremony-gold-400 font-bold block flex items-center gap-1">③ 貸付事業用宅地等（アパート・駐車場）</strong>
+          <p class="text-ceremony-silver-400 pl-2">
+            <span class="text-white font-medium">【対象となる人】</span><br>
+            アパート経営、貸マンション、コインパーキングなどの不動産貸付業をそのまま引き継ぎ、確定申告等をして<span class="text-ceremony-gold-300 font-bold">「貸付事業を継続する親族」</span>が相続する場合に適用可能です。
+          </p>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-1.5 border-t border-ceremony-purple-800">
+        <button onclick="closeShokuboHelpModal()" class="w-full sm:w-auto px-5 py-2 rounded-xl bg-ceremony-gold-500 hover:bg-ceremony-gold-600 text-ceremony-purple-950 text-xs font-bold transition-all shadow-md">
+          閉じる
         </button>
       </div>
     </div>
@@ -574,14 +625,10 @@
       const deduction = 30000000 + (6000000 * Math.max(1, statutoryHeirsCount));
 
       // ==========================================
-      // 🛡️ 【軍師の完全なる調停：小規模宅地等の特例（①〜③並列・人ベース面積按分）裏方調停陣】
-      // 画面上のUIや民法上の asset.amount、相続人への逆算％には一切指一本触れず、
-      // 土地ごとに「要件該当者が取得した割合に相当する地積」だけを厳格に切り出してソート・減額する。
+      // 🛡️ 小規模宅地等の特例 計算
       // ==========================================
-      let totalSpecialReduction = 0; // すべての特例による総減額量を保持
-
-      // --- 🟥 第1陣：特定居住用宅地等（shokuboType === 'live'：上限330㎡ / 80%減額） ---
-      let liveQuotaParts = []; // 特例要件を満たした「相続人ごとのパーツ」を格納する配列
+      let totalSpecialReduction = 0; 
+      let liveQuotaParts = []; 
       
       state.assets.forEach(asset => {
         if (asset.type === 'land' && asset.shokuboType === 'live') {
@@ -589,17 +636,14 @@
           const rosanka = asset.landEvaluationType === 'rosenka' ? (asset.rosenka || 0) : (asset.area > 0 ? (asset.amount / asset.area) : 0);
           if (totalArea <= 0 || rosanka <= 0) return;
 
-          // この土地において、特例要件を満たす（選択されている）各相続人の取得割合を元に地積をバラバラに切り分ける
           const applicableHeirs = asset.shokuboApplicableHeirs || [];
           applicableHeirs.forEach(heirId => {
             let heirSplitPercent = 0;
             if (asset.canSplit === false) {
-              // 分割不可（単独取得）の場合、その人が単独オーナーなら100%、違うなら0%
               heirSplitPercent = (asset.singleOwner === heirId) ? 100 : 0;
             } else if (asset.splitMode === 'custom' && asset.customSplit) {
               heirSplitPercent = Number(asset.customSplit[heirId] || 0);
             } else if (asset.splitMode === 'auto') {
-              // 自動（法定比率連動）モードの場合、現在の相続人のshareを参照
               const totalShareInput = state.heirs.reduce((sum, h) => sum + h.share, 0);
               const matchedHeir = state.heirs.find(h => h.id === heirId);
               if (matchedHeir && totalShareInput > 0) {
@@ -608,7 +652,6 @@
             }
 
             if (heirSplitPercent > 0) {
-              // 土地全体の面積から、この要件合致相続人が相続する「有効な面積」を正確に割り出す
               const validPartArea = totalArea * (heirSplitPercent / 100);
               liveQuotaParts.push({
                 assetId: asset.id,
@@ -621,9 +664,7 @@
         }
       });
 
-      // --- 🟦 第2陣：特定事業用宅地等（shokuboType === 'business'：上限400㎡ / 80%減額） ---
       let businessQuotaParts = [];
-      
       state.assets.forEach(asset => {
         if (asset.type === 'land' && asset.shokuboType === 'business') {
           const totalArea = asset.area || 0;
@@ -658,9 +699,7 @@
         }
       });
 
-      // --- 🟩 第3陣：貸付事業用宅地等（shokuboType === 'rent'：上限200㎡ / 50%減額） ---
       let rentQuotaParts = [];
-      
       state.assets.forEach(asset => {
         if (asset.type === 'land' && asset.shokuboType === 'rent') {
           const totalArea = asset.area || 0;
@@ -695,17 +734,9 @@
         }
       });
 
-      // ==========================================
-      // ⚖️ 【軍師の最終調停：国税庁規定・小規模宅地等の完全併用超過判定方程式】
-      // ①居住用、②事業用、③貸付用が混在した場合、別々に枠をハメるだけでは税法違反となる。
-      // 国税庁の併用公式「(①面積/330) + (②面積/400) + (③面積/200) ≦ 1.0」を厳格に適用する。
-      // ユーザーが最も得をするよう「1㎡あたりの減額量（路線価×減額率）」が高い順にソートして枠をハメ直す。
-      // ==========================================
-      totalSpecialReduction = 0; // 一度単純加算した特例減額量をリセットし、この方程式で再調停する
-
+      totalSpecialReduction = 0; 
       let allSpecialParts = [];
 
-      // 1. すべての特例パーツに「1㎡あたりの減額効率（価値の縮小量）」と「併用枠の消費ウェイト」を付与して一本の配列に統合
       liveQuotaParts.forEach(p => {
         allSpecialParts.push({ ...p, type: 'live', efficiency: p.rosanka * 0.8, weightDenom: 330 });
       });
@@ -716,42 +747,53 @@
         allSpecialParts.push({ ...p, type: 'rent', efficiency: p.rosanka * 0.5, weightDenom: 200 });
       });
 
-      // 2. 「1㎡あたり、より多く税金を安くできる高効率な土地パーツ順（降順）」にソート
       allSpecialParts.sort((a, b) => b.efficiency - a.efficiency);
-
-      // 3. 総消費ウェイト（上限 1.0）のメーターを監視しながら、最も得な土地から順に特例枠へハメ込む
       let currentTotalWeight = 0;
 
       allSpecialParts.forEach(part => {
-        if (currentTotalWeight >= 1.0) return; // 既に特例の上限（100%）に達している場合は等倍通常課税へスルー
-
-        // このパーツが100%特例枠に入った場合の消費ウェイト
+        if (currentTotalWeight >= 1.0) return; 
         const partWeight = part.area / part.weightDenom;
 
         if (currentTotalWeight + partWeight <= 1.0) {
-          // パターンA: パーツ丸ごとが残り枠にすっぽり収まる場合
           const reduction = part.area * part.efficiency;
           totalSpecialReduction += reduction;
           currentTotalWeight += partWeight;
         } else {
-          // パターンB: パーツの一部が特例の限界障壁（1.0）をはみ出る場合、残り限界枠分だけを逆算して引く
           const remainingWeight = 1.0 - currentTotalWeight;
-          const allowedArea = remainingWeight * part.weightDenom; // 残りウェイトから逆算した「特例が許される面積」
-          
+          const allowedArea = remainingWeight * part.weightDenom; 
           const reduction = allowedArea * part.efficiency;
           totalSpecialReduction += reduction;
-          currentTotalWeight = 1.0; // 限界メーター満タン
+          currentTotalWeight = 1.0; 
         }
       });
 
-      // 税金計算用の総資産額を裏方で最終調停し、算出した正しき最大特例減額総量を控除
       let taxableTotalAssets = Math.max(0, totalEstate - totalSpecialReduction);
-      // ==========================================
-
-      // 特例適用後の調停価格から基礎控除額を引き、正しき課税対象遺産総額(taxableEstate)を決定
       let taxableEstate = Math.max(0, taxableTotalAssets - deduction);
 
-      const totalShareInput = state.heirs.reduce((sum, h) => sum + h.share, 0);
+      state.heirs.forEach(h => {
+        h.specialExemptionAppliedAmount = 0; 
+      });
+
+      let currentTotalWeightForExemption = 0;
+      allSpecialParts.forEach(part => {
+        if (currentTotalWeightForExemption >= 1.0) return;
+        const partWeight = part.area / part.weightDenom;
+        
+        let appliedArea = 0;
+        if (currentTotalWeightForExemption + partWeight <= 1.0) {
+          appliedArea = part.area;
+          currentTotalWeightForExemption += partWeight;
+        } else {
+          const remainingWeight = 1.0 - currentTotalWeightForExemption;
+          appliedArea = remainingWeight * part.weightDenom;
+          currentTotalWeightForExemption = 1.0;
+        }
+
+        const heir = state.heirs.find(h => h.id === part.heirId);
+        if (heir && appliedArea > 0) {
+          heir.specialExemptionAppliedAmount += (appliedArea * part.efficiency);
+        }
+      });
 
       state.heirs.forEach(h => {
         h.actualAcquisition = 0;
@@ -801,10 +843,14 @@
 
       const totalActualAcquisition = state.heirs.reduce((sum, h) => sum + h.actualAcquisition, 0);
 
+      state.heirs.forEach(h => {
+        h.individualTaxablePrice = Math.max(0, h.actualAcquisition - h.specialExemptionAppliedAmount);
+      });
+      const finalTaxablePriceSum = state.heirs.reduce((sum, h) => sum + h.individualTaxablePrice, 0);
+
       if (state.taxMode === 'direct') {
         state.heirs.forEach(h => {
-          const ratio = totalActualAcquisition > 0 ? (h.actualAcquisition / totalActualAcquisition) : 0;
-          h.taxableAmount = taxableEstate * ratio;
+          h.taxableAmount = h.individualTaxablePrice;
           const taxCalc = getTaxRateAndDeduction(h.taxableAmount);
           h.taxRate = taxCalc.rate;
           h.taxDeduction = taxCalc.deduction;
@@ -824,12 +870,12 @@
         });
 
         state.heirs.forEach(h => {
-          const actualRatio = totalActualAcquisition > 0 ? (h.actualAcquisition / totalActualAcquisition) : 0;
-          h.taxableAmount = taxableEstate * actualRatio;
+          const priceRatio = finalTaxablePriceSum > 0 ? (h.individualTaxablePrice / finalTaxablePriceSum) : 0;
+          h.taxableAmount = h.individualTaxablePrice; 
           const taxCalc = getTaxRateAndDeduction(h.taxableAmount);
           h.taxRate = taxCalc.rate;
           h.taxDeduction = taxCalc.deduction;
-          h.taxAmount = totalStatutoryTax * actualRatio;
+          h.taxAmount = totalStatutoryTax * priceRatio; 
         });
       }
 
@@ -1069,7 +1115,7 @@
         state.heirs.forEach(h => { h.statutoryShare = updatedRatios[h.id] || 0; });
         
         updateApp();
-        showFeedback("🔄 続柄の変更に伴い、分割割合を最新 of 法定相続分に同期初期化しました。");
+        showFeedback("🔄 続柄の変更に伴い、分割割合を最新の法定相続分に同期初期化しました。");
         return;
       } else {
         heir[field] = value;
@@ -1241,20 +1287,6 @@
       updateApp();
     }
 
-    function setAssetDistributionType(id, type, extraId = null) {
-      const asset = state.assets.find(a => a.id === id);
-      if (!asset) return;
-
-      asset.distributionType = type;
-      if (type === 'single') {
-        asset.singleHeirId = extraId || (state.heirs[0] ? state.heirs[0].id : null);
-      } else if (type === 'custom') {
-        openDistributionModal(id);
-        return;
-      }
-      updateApp();
-    }
-
     function renderAssets() {
       const container = document.getElementById('assets-container');
       container.innerHTML = '';
@@ -1383,9 +1415,14 @@
 
           typeSpecificFields += `
             <div class="mt-3 pt-2.5 border-t border-ceremony-purple-800/40">
-              <label class="text-[10px] text-ceremony-gold-500 font-bold block mb-1 flex items-center gap-1">
-                <i class="fa-solid fa-house-chimney"></i> 小規模宅地等の特例選択
-              </label>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[10px] text-ceremony-gold-500 font-bold flex items-center gap-1">
+                  <i class="fa-solid fa-house-chimney"></i> 小規模宅地等の特例選択
+                </label>
+                <button type="button" onclick="openShokuboHelpModal()" class="text-[10px] text-ceremony-gold-400 hover:text-ceremony-gold-200 flex items-center gap-0.5 bg-ceremony-gold-500/10 px-1.5 py-0.5 rounded border border-ceremony-gold-500/30 transition-all">
+                  <i class="fa-solid fa-circle-question"></i> どんな人に適用？
+                </button>
+              </div>
               <select onchange="updateAssetField('${asset.id}', 'shokuboType', this.value); if(this.value === 'none') { asset.shokuboApplicableHeirs = []; } updateApp();"
                 class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500">
                 <option value="none" ${shokuboType === 'none' ? 'selected' : ''}>【未適用】通常の評価額で計算</option>
@@ -1538,7 +1575,7 @@
       const asset = state.assets.find(a => a.id === assetId);
       if (!asset) return;
 
-      document.getElementById('modal-asset-title').innerHTML = `資産「<strong>${asset.name}</strong> (評価額: ${formatStandardCurrency(asset.amount)})」を分割する比率を設定してください。`;
+      document.getElementById('modal-asset-title').innerHTML = `資産「<strong>${asset.name}</strong> (評価額: ${formatStandardCurrency(asset.amount)}) の分割比率を設定してください。`;
       const container = document.getElementById('modal-heirs-list');
       container.innerHTML = '';
 
@@ -1649,6 +1686,7 @@
             ${formatStandardCurrency(h.taxAmount)}
             <span class="text-[10px] text-rose-300 block">${formatJapaneseCurrency(h.taxAmount)}</span>
             ${h.spouseExemptionApplied ? '<span class="text-[9px] text-emerald-400 block font-bold mt-0.5"><i class="fa-solid fa-gift"></i> 配偶者控除が適用されました</span>' : ''}
+            ${h.specialExemptionAppliedAmount > 0 ? `<span class="text-[9px] text-amber-400 block font-bold mt-0.5"><i class="fa-solid fa-house-shield"></i> 小規模宅地特例：${formatJapaneseCurrency(h.specialExemptionAppliedAmount)}控除</span>` : ''}
             <span class="text-[9px] text-ceremony-silver-400 block">税率: ${Math.round(h.taxRate * 100)}%</span>
           </td>
         `;
@@ -1861,6 +1899,19 @@
 
     function closeHelpModal() {
       const modal = document.getElementById('help-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    /* 💡 【新設】小規模宅地等の特例手引きポップアップの開閉制御関数群 */
+    function openShokuboHelpModal() {
+      const modal = document.getElementById('shokubo-help-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeShokuboHelpModal() {
+      const modal = document.getElementById('shokubo-help-modal');
       modal.classList.add('hidden');
       modal.classList.remove('flex');
     }
