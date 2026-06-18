@@ -116,51 +116,37 @@
                class="w-12 h-12 rounded-xl shadow-lg shadow-ceremony-purple-500/10 flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all" 
                title="シミュレーションを手動再計算">
 
-
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-full h-full">
-  <defs>
-    <!-- 背景の高貴なベース金グラデーション -->
-    <linearGradient id="gemkinGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#d4af37" />
-      <stop offset="100%" stop-color="#cbd5e1" />
-    </linearGradient>
-
-    <!-- 六曜星盤の静かなる明滅アニメーション（リボンは不動、星盤のみ息づく） -->
-    <style>
-      .pulse-rokuyo {
-        animation: rokuyoPulse 2.5s infinite ease-in-out;
-        transform-origin: center;
-      }
-      @keyframes rokuyoPulse {
-        0%, 100% { opacity: 0.15; filter: drop-shadow(0 0 0px rgba(161,98,7,0)); }
-        50% { opacity: 0.70; filter: drop-shadow(0 0 5px rgba(161,98,7,0.7)); }
-      }
-    </style>
-  </defs>
-
-  <!-- 外殻の角丸座布団 -->
-  <rect x="5" y="5" width="90" height="90" rx="20" fill="url(#gemkinGoldGrad)" filter="drop-shadow(0px 4px 6px rgba(12, 5, 20, 0.4))"/>
-
-  <!-- 🌌 静かに明滅する高貴なる六曜の星盤 -->
-  <g class="pulse-rokuyo" fill="#a16207">
-    <circle cx="50" cy="50" r="16" stroke="#a16207" stroke-width="1.8" fill="none" opacity="0.4"/>
-    <circle cx="50" cy="22" r="5.5" /> <!-- 大安 -->
-    <circle cx="76" cy="36" r="5.5" /> <!-- 留引 -->
-    <circle cx="69" cy="67" r="5.5" /> <!-- 先勝 -->
-    <circle cx="31" cy="67" r="5.5" /> <!-- 友引 -->
-    <circle cx="24" cy="36" r="5.5" /> <!-- 先負 -->
-    <circle cx="50" cy="50" r="3.5" /> <!-- 赤口（中心） -->
-  </g>
-
-  <!-- 🎗️ 【改築】ボタン中心に堂々たる存在感で鎮座する、太く格調高い漆黒のリボン -->
-  <g fill="#0c0514" filter="drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.5))">
-    <!-- 輪を太く肉厚にし、リボンの足の幅と厚みを極大化。位置を完全な中心（50,50）へ寄せて存在感を無双させました -->
-    <path d="M50,22 C43.4,22 38,27.4 38,34 C38,39.6 41.3,44.4 46,45.5 L34,70 C33,72 34,74.5 36,75.5 C38,76.5 40.5,75.5 41.5,73.5 L50,54 L58.5,73.5 C59.5,75.5 62,76.5 64,75.5 C66,74.5 67,72 66,70 L54,45.5 C58.7,44.4 62,39.6 62,34 C62,27.4 56.6,22 50,22 Z M50,40 C46.7,40 44,37.3 44,34 C44,30.7 46.7,28 50,28 C53.3,28 56,30.7 56,34 C56,37.3 53.3,40 50,40 Z"/>
-  </g>
-</svg>
-
-
-
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-full h-full">
+              <defs>
+                <linearGradient id="gemkinGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#d4af37" />
+                  <stop offset="100%" stop-color="#cbd5e1" />
+                </linearGradient>
+                <style>
+                  .pulse-rokuyo {
+                    animation: rokuyoPulse 2.5s infinite ease-in-out;
+                    transform-origin: center;
+                  }
+                  @keyframes rokuyoPulse {
+                    0%, 100% { opacity: 0.15; filter: drop-shadow(0 0 0px rgba(161,98,7,0)); }
+                    50% { opacity: 0.70; filter: drop-shadow(0 0 5px rgba(161,98,7,0.7)); }
+                  }
+                </style>
+              </defs>
+              <rect x="5" y="5" width="90" height="90" rx="20" fill="url(#gemkinGoldGrad)" filter="drop-shadow(0px 4px 6px rgba(12, 5, 20, 0.4))"/>
+              <g class="pulse-rokuyo" fill="#a16207">
+                <circle cx="50" cy="50" r="16" stroke="#a16207" stroke-width="1.8" fill="none" opacity="0.4"/>
+                <circle cx="50" cy="22" r="5.5" />
+                <circle cx="76" cy="36" r="5.5" />
+                <circle cx="69" cy="67" r="5.5" />
+                <circle cx="31" cy="67" r="5.5" />
+                <circle cx="24" cy="36" r="5.5" />
+                <circle cx="50" cy="50" r="3.5" />
+              </g>
+              <g fill="#0c0514" filter="drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.5))">
+                <path d="M50,22 C43.4,22 38,27.4 38,34 C38,39.6 41.3,44.4 46,45.5 L34,70 C33,72 34,74.5 36,75.5 C38,76.5 40.5,75.5 41.5,73.5 L50,54 L58.5,73.5 C59.5,75.5 62,76.5 64,75.5 C66,74.5 67,72 66,70 L54,45.5 C58.7,44.4 62,39.6 62,34 C62,27.4 56.6,22 50,22 Z M50,40 C46.7,40 44,37.3 44,34 C44,30.7 46.7,28 50,28 C53.3,28 56,30.7 56,34 C56,37.3 53.3,40 50,40 Z"/>
+              </g>
+            </svg>
 
           </div>
 
@@ -326,7 +312,7 @@
               <thead class="bg-ceremony-purple-900/50 sticky top-0 backdrop-blur">
                 <tr>
                   <th class="px-3 py-3 font-semibold text-ceremony-silver-200">相続人 (続柄)</th>
-                  <th class="px-3 py-3 font-semibold text-ceremony-silver-200 text-right">希望割合</th>
+                  <th class="px-3 py-3 font-semibold text-ceremony-silver-200 text-right">取得割合</th>
                   <th class="px-3 py-3 font-semibold text-ceremony-silver-200 text-right">取得額</th>
                   <th class="px-3 py-3 font-semibold text-ceremony-silver-200 text-right">課税対象額</th>
                   <th class="px-3 py-3 font-semibold text-ceremony-silver-200 text-right text-rose-400">相続税額</th>
@@ -485,9 +471,9 @@
       taxMode: 'standard',
       legalSpouseId: null,
       heirs: [
-        { id: "h1", name: "配偶者", relation: "spouse_legal", spouseType: "legal", share: 50 },
-        { id: "h2", name: "長男", relation: "child", spouseType: null, share: 25 },
-        { id: "h3", name: "長女", relation: "child", spouseType: null, share: 25 }
+        { id: "h1", name: "配偶者", relation: "spouse_legal", spouseType: "legal", share: 50, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1 },
+        { id: "h2", name: "長男", relation: "child", spouseType: null, share: 25, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1 },
+        { id: "h3", name: "長女", relation: "child", spouseType: null, share: 25, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1 }
       ],
       assets: [
         { id: "a1", name: "代々木の土地", type: "land", landEvaluationType: "fixedAsset", area: 120, rosenka: 450000, amount: 54000000, canSplit: true, splitMode: "custom", singleOwner: null, customSplit: {}, shokuboType: "none", shokuboApplicableHeirs: [] },
@@ -966,9 +952,6 @@
       renderResultTable(totalEstate, taxableEstate, totalTax);
       renderCharts();
 
-      // ==========================================
-      // 🌊 二次相続ボタンの表示・非表示判定
-      // ==========================================
       const hasSpouse = state.heirs.some(h => h.relation === 'spouse_legal');
       const hasChild = state.heirs.some(h => h.relation === 'child');
       const secondaryBtn = document.getElementById('secondary-inheritance-btn');
@@ -1134,7 +1117,13 @@
         name: name,
         relation: "child",
         spouseType: null,
-        share: 0
+        share: 0,
+        useZoyo: false,
+        zoyoMode: 'rekinen',
+        reki3Year: 0,
+        reki7Year: 0,
+        seisanTotal: 0,
+        seisanYears: 1
       });
       adjustHeirSharesTo100();
       resetAllAssetsToStatutoryShare();
@@ -1160,6 +1149,8 @@
         let parsed = parseInt(value, 10);
         if (isNaN(parsed)) parsed = 0;
         heir.share = Math.max(0, Math.min(100, parsed));
+      } else if (['reki3Year', 'reki7Year', 'seisanTotal', 'seisanYears'].includes(field)) {
+        heir[field] = parseFloat(value) || 0;
       } else if (field === 'relation') {
         heir.relation = value;
         if (value === 'spouse_legal') {
@@ -1187,7 +1178,7 @@
         state.heirs.forEach(h => { h.statutoryShare = updatedRatios[h.id] || 0; });
         
         updateApp();
-        showFeedback("🔄 続柄の変更に伴い、分割割合を最新の法定相続分に同期初期化しました。");
+        showFeedback("🔄 続柄の変更に伴い、分割割合を最新 of 法定相続分に同期初期化しました。");
         return;
       } else {
         heir[field] = value;
@@ -1277,6 +1268,85 @@
               <span class="font-bold tracking-wide">分割割合：法定 <strong class="text-ceremony-silver-100 font-black">${statPercent}%</strong> &rarr; 現在 <strong class="text-ceremony-gold-400 font-black">${heir.share}%</strong></span>
               <span class="${diffClass} text-xs tracking-wider px-2.5 py-0.5 rounded border font-black text-center sm:text-right">差分：${diffText}</span>
             </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-ceremony-purple-800/60 space-y-3">
+            <label class="flex items-center gap-2 text-xs font-bold text-ceremony-silver-200 cursor-pointer select-none">
+              <input type="checkbox" id="useZoyo_${heir.id}" ${heir.useZoyo ? 'checked' : ''}
+                onchange="updateHeirField('${heir.id}', 'useZoyo', this.checked)"
+                class="accent-ceremony-gold-500 cursor-pointer">
+              <span class="flex items-center gap-1.5 text-ceremony-gold-400">
+                <i class="fa-solid fa-gift text-[10px]"></i> 生前贈与（持ち戻し分）を加算する
+              </span>
+            </label>
+
+            ${heir.useZoyo ? `
+              <div class="p-3 bg-ceremony-purple-950/60 rounded-xl border border-ceremony-purple-900 space-y-3">
+                <div class="flex flex-wrap items-center gap-4 text-xs">
+                  <span class="text-ceremony-silver-400 font-bold">課税方式の選択：</span>
+                  <label class="flex items-center gap-1.5 cursor-pointer select-none text-ceremony-silver-200">
+                    <input type="radio" name="zoyoMode_${heir.id}" value="rekinen" ${heir.zoyoMode !== 'seisan' ? 'checked' : ''}
+                      onchange="updateHeirField('${heir.id}', 'zoyoMode', 'rekinen')"
+                      class="accent-ceremony-gold-500 cursor-pointer">
+                    <span>暦年課税（通常の贈与）</span>
+                  </label>
+                  <label class="flex items-center gap-1.5 cursor-pointer select-none text-ceremony-silver-200">
+                    <input type="radio" name="zoyoMode_${heir.id}" value="seisan" ${heir.zoyoMode === 'seisan' ? 'checked' : ''}
+                      onchange="updateHeirField('${heir.id}', 'zoyoMode', 'seisan')"
+                      class="accent-ceremony-gold-500 cursor-pointer">
+                    <span>相続時精算課税制度</span>
+                  </label>
+                </div>
+
+                ${heir.zoyoMode !== 'seisan' ? `
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <label class="text-ceremony-gold-500 text-[10px] mb-1 block">① 直近3年以内の贈与総額</label>
+                      <div class="relative flex items-center">
+                        <input type="number" min="0" value="${heir.reki3Year || 0}"
+                          onchange="updateHeirField('${heir.id}', 'reki3Year', this.value)"
+                          class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-3 pr-8 py-1 text-xs text-ceremony-silver-100 font-bold focus:outline-none focus:border-ceremony-gold-500 transition-colors w-full text-right">
+                        <span class="absolute right-2.5 text-[10px] text-ceremony-silver-400 font-bold">万円</span>
+                      </div>
+                      <span class="text-[9px] text-ceremony-silver-400 block mt-0.5">※110万以下でも全額が相続税対象に連れ戻されます</span>
+                    </div>
+                    <div>
+                      <label class="text-ceremony-gold-500 text-[10px] mb-1 block">② 4年前〜7年前の贈与総額</label>
+                      <div class="relative flex items-center">
+                        <input type="number" min="0" value="${heir.reki7Year || 0}"
+                          onchange="updateHeirField('${heir.id}', 'reki7Year', this.value)"
+                          class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-3 pr-8 py-1 text-xs text-ceremony-silver-100 font-bold focus:outline-none focus:border-ceremony-gold-500 transition-colors w-full text-right">
+                        <span class="absolute right-2.5 text-[10px] text-ceremony-silver-400 font-bold">万円</span>
+                      </div>
+                      <span class="text-[9px] text-ceremony-silver-400 block mt-0.5">※この4年間の合計から最大100万円が自動免除されます</span>
+                    </div>
+                  </div>
+                ` : `
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <label class="text-ceremony-gold-500 text-[10px] mb-1 block">③ この制度での贈与総額</label>
+                      <div class="relative flex items-center">
+                        <input type="number" min="0" value="${heir.seisanTotal || 0}"
+                          onchange="updateHeirField('${heir.id}', 'seisanTotal', this.value)"
+                          class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-3 pr-8 py-1 text-xs text-ceremony-silver-100 font-bold focus:outline-none focus:border-ceremony-gold-500 transition-colors w-full text-right">
+                        <span class="absolute right-2.5 text-[10px] text-ceremony-silver-400 font-bold">万円</span>
+                      </div>
+                      <span class="text-[9px] text-ceremony-silver-400 block mt-0.5">※2,500万円まで贈与税が非課税となる特例枠</span>
+                    </div>
+                    <div>
+                      <label class="text-ceremony-gold-500 text-[10px] mb-1 block">④ 贈与を行っていた年数</label>
+                      <div class="relative flex items-center">
+                        <input type="number" min="1" value="${heir.seisanYears || 1}"
+                          onchange="updateHeirField('${heir.id}', 'seisanYears', this.value)"
+                          class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-3 pr-8 py-1 text-xs text-ceremony-silver-100 font-bold focus:outline-none focus:border-ceremony-gold-500 transition-colors w-full text-right">
+                        <span class="absolute right-2.5 text-[10px] text-ceremony-silver-400 font-bold">年</span>
+                      </div>
+                      <span class="text-[9px] text-ceremony-silver-400 block mt-0.5">※毎年110万円の控除をこの年数分自動計算します</span>
+                    </div>
+                  </div>
+                `}
+              </div>
+            ` : ''}
           </div>
         `;
         container.appendChild(card);
@@ -1975,7 +2045,6 @@
       modal.classList.remove('flex');
     }
 
-    /* 💡 小規模宅地等の特例手引きポップアップの開閉制御関数群 */
     function openShokuboHelpModal() {
       const modal = document.getElementById('shokubo-help-modal');
       modal.classList.remove('hidden');
