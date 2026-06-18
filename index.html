@@ -108,21 +108,15 @@
             <i class="fa-solid fa-ribbon text-ceremony-purple-950 text-xl animate-pulse"></i>
           </div>
 
-
-
-<div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 plip-noble-bubble bg-purple-950 border border-ceremony-gold-500 text-[9px] font-black tracking-widest px-2.5 py-1 rounded-md whitespace-nowrap shadow-2xl shadow-black pointer-events-none select-none z-50">
-  
-  <span class="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-[5px] border-x-transparent border-b-[6px] border-b-ceremony-gold-500"></span>
-  <span class="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-[4px] border-x-transparent border-b-[5px] border-b-purple-950 z-10"></span>
-  
-  <span class="relative inline-block w-3.5 h-3.5 mr-1 align-middle">
-    <i class="fa-solid fa-lightbulb plip-rainbow-text-bulb text-[10px] absolute left-0 top-0.5"></i>
-    <i class="fa-solid fa-bolt text-yellow-300 text-[8px] absolute right-0 -top-0.5 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]"></i>
-  </span>
-  <span class="text-ceremony-gold-400 font-black drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">PLIP!</span>
-</div>
-
-
+          <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 plip-noble-bubble bg-purple-950 border border-ceremony-gold-500 text-[9px] font-black tracking-widest px-2.5 py-1 rounded-md whitespace-nowrap shadow-2xl shadow-black pointer-events-none select-none z-50">
+            <span class="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-[5px] border-x-transparent border-b-[6px] border-b-ceremony-gold-500"></span>
+            <span class="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-[4px] border-x-transparent border-b-[5px] border-b-purple-950 z-10"></span>
+            <span class="relative inline-block w-3.5 h-3.5 mr-1 align-middle">
+              <i class="fa-solid fa-lightbulb plip-rainbow-text-bulb text-[10px] absolute left-0 top-0.5"></i>
+              <i class="fa-solid fa-bolt text-yellow-300 text-[8px] absolute right-0 -top-0.5 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]"></i>
+            </span>
+            <span class="text-ceremony-gold-400 font-black drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">PLIP!</span>
+          </div>
         </div>
 
         <div>
@@ -296,6 +290,12 @@
     </div>
 
   </main>
+
+  <div id="secondary-inheritance-btn" 
+       class="hidden fixed bottom-6 right-6 bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-5 py-3 rounded-xl shadow-2xl z-40 flex items-center gap-2 border border-cyan-400/30">
+    <i class="fa-solid fa-water"></i>
+    <span>二次相続の結果もみる（改築中）</span>
+  </div>
 
   <div id="distribution-modal" class="fixed inset-0 bg-ceremony-purple-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
     <div class="bg-ceremony-purple-900 border border-ceremony-gold-500/30 rounded-2xl p-6 w-full max-w-lg shadow-2xl space-y-4">
@@ -824,6 +824,7 @@
           }
         } 
         else if (asset.splitMode === 'auto') {
+          const totalShareInput = state.heirs.reduce((sum, h) => sum + h.share, 0);
           if (totalShareInput > 0) {
             state.heirs.forEach(h => {
               const shareRatio = h.share / totalShareInput;
@@ -908,6 +909,21 @@
       renderLegalSpouseSelector();
       renderResultTable(totalEstate, taxableEstate, totalTax);
       renderCharts();
+
+      // ==========================================
+      // 🌊 二次相続ボタンの表示・非表示判定
+      // ==========================================
+      const hasSpouse = state.heirs.some(h => h.relation === 'spouse_legal');
+      const hasChild = state.heirs.some(h => h.relation === 'child');
+      const secondaryBtn = document.getElementById('secondary-inheritance-btn');
+
+      if (secondaryBtn) {
+        if (hasSpouse && hasChild) {
+          secondaryBtn.classList.remove('hidden');
+        } else {
+          secondaryBtn.classList.add('hidden');
+        }
+      }
     }
 
     function setTaxMode(mode) {
