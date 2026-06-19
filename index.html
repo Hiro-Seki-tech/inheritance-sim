@@ -810,7 +810,6 @@
       });
 
       let taxableTotalAssets = Math.max(0, totalEstate - totalSpecialReduction);
-      let taxableEstate = Math.max(0, taxableTotalAssets - deduction);
 
       state.heirs.forEach(h => {
         h.specialExemptionAppliedAmount = 0; 
@@ -836,6 +835,49 @@
           heir.specialExemptionAppliedAmount += (appliedArea * part.efficiency);
         }
       });
+
+      // ==========================================
+      // 🟥【ステップ2＆3：生前贈与持ち戻し計算ロジックの本陣】
+      // ==========================================
+      let totalGiftAnbunAssets = 0;
+
+      state.heirs.forEach(h => {
+        h.giftCarrybackAmount = 0; // 初期化
+        
+        if (h.useZoyo) {
+          if (h.zoyoMode === 'rekinen') {
+            // 【ステップ2ルート：暦年課税】
+            // UI入力値は「万円」単位のため、10000倍して円換算
+            const reki3AmountYen = (h.reki3Year || 0) * 10000;
+            const reki7AmountYen = (h.reki7Year || 0) * 10000;
+
+            // 直近3年分は全額、4〜7年前分は一律100万円控除（最低0円）
+            const carryback3y = reki3AmountYen;
+            const carryback47y = Math.max(0, reki7AmountYen - 1000000);
+
+            h.giftCarrybackAmount = carryback3y + carryback47y;
+          } 
+          else if (h.zoyoMode === 'seisan') {
+            // 【ステップ3ルート：相続時精算課税制度】
+            // UI入力値の贈与総額（万円）を円単位に換算
+            const seisanTotalYen = (h.seisanTotal || 0) * 10000;
+            // 贈与年数（最低1年）を取得
+            const seisanYearsVal = Math.max(1, h.seisanYears || 1);
+
+            // ルール③：年110万円の基礎控除を「年数分」差し引いて持ち戻し（最低0円）
+            const seisanExemption = 1100000 * seisanYearsVal;
+            h.giftCarrybackAmount = Math.max(0, seisanTotalYen - seisanExemption);
+          }
+
+          totalGiftAnbunAssets += h.giftCarrybackAmount;
+        }
+      });
+
+      // 課税対象遺産額に生前贈与の持ち戻し総額を加算
+      taxableTotalAssets += totalGiftAnbunAssets;
+
+      // 調停価格から基礎控除額を引き、正しき課税対象遺産総額(taxableEstate)を決定
+      let taxableEstate = Math.max(0, taxableTotalAssets - deduction);
 
       state.heirs.forEach(h => {
         h.actualAcquisition = 0;
@@ -880,14 +922,17 @@
 
       if (totalEstate > 0) {
         state.heirs.forEach(h => {
-          h.share = Math.round((h.actualAcquisition / totalEstate) * 100);
+          // 分配割合のインジケーター表示にも持ち戻し分を含める（財産全体の合計に対する比率）
+          const totalAcquiredWithGift = h.actualAcquisition + (h.giftCarrybackAmount || 0);
+          const totalEstateWithGift = totalEstate + totalGiftAnbunAssets;
+          h.share = totalEstateWithGift > 0 ? Math.round((totalAcquiredWithGift / totalEstateWithGift) * 100) : 0;
         });
       }
 
-      const totalActualAcquisition = state.heirs.reduce((sum, h) => sum + h.actualAcquisition, 0);
-
+      // 各自の実際の取得金額（現物）に持ち戻し価格を上乗せして個人の課税価格を確定
       state.heirs.forEach(h => {
-        h.individualTaxablePrice = Math.max(0, h.actualAcquisition - h.specialExemptionAppliedAmount);
+        const basePrice = h.actualAcquisition + (h.giftCarrybackAmount || 0);
+        h.individualTaxablePrice = Math.max(0, basePrice - h.specialExemptionAppliedAmount);
       });
       const finalTaxablePriceSum = state.heirs.reduce((sum, h) => sum + h.individualTaxablePrice, 0);
 
@@ -1637,7 +1682,7 @@
             const rColor = heirColors[hIdx % heirColors.length] || '#d4af37';
             
             heirsRadioHTML += `
-              <label class="flex items-center gap-2 cursor-pointer select-none text-[11px] text-ceremony-silver-200 bg-ceremony-purple-950/40 px-2.5 py-1.5 rounded-lg border border-ceremony-purple-900/60 hover:border-ceremony-gold-500/20 transition-all">
+              <label class="flex items-center gap-2 cursor-pointer select-none text-[11px] text-ceremony-silver-200 bg-ceremony-purple-950/40 px-2.5 py-1.5 rounded-lg border border-ceremony-purple-800/60 hover:border-ceremony-gold-500/20 transition-all">
                 <input type="radio" name="singleOwner_${asset.id}" value="${h.id}" ${isChecked}
                   onchange="updateAssetSingleOwner('${asset.id}', '${h.id}')"
                   class="accent-ceremony-gold-500 cursor-pointer">
@@ -1717,7 +1762,7 @@
       const asset = state.assets.find(a => a.id === assetId);
       if (!asset) return;
 
-      document.getElementById('modal-asset-title').innerHTML = `資産「<strong>${asset.name}</strong> (評価額: ${formatStandardCurrency(asset.amount)}) の分割比率を設定してください。`;
+      document.getElementById('modal-asset-title').innerHTML = `資産「<strong>${asset.name}</strong> (評価額: ${formatStandardCurrency(asset.amount)}) Brenner: 比率を設定してください。`;
       const container = document.getElementById('modal-heirs-list');
       container.innerHTML = '';
 
@@ -1829,6 +1874,7 @@
             <span class="text-[10px] text-rose-300 block">${formatJapaneseCurrency(h.taxAmount)}</span>
             ${h.spouseExemptionApplied ? '<span class="text-[9px] text-emerald-400 block font-bold mt-0.5"><i class="fa-solid fa-gift"></i> 配偶者控除が適用されました</span>' : ''}
             ${h.specialExemptionAppliedAmount > 0 ? `<span class="text-[9px] text-amber-400 block font-bold mt-0.5"><i class="fa-solid fa-house-shield"></i> 小規模宅地特例：${formatJapaneseCurrency(h.specialExemptionAppliedAmount)}控除</span>` : ''}
+            ${h.giftCarrybackAmount > 0 ? `<span class="text-[9px] text-purple-400 block font-bold mt-0.5"><i class="fa-solid fa-gift"></i> ${h.zoyoMode === 'seisan' ? '精算課税持ち戻し' : '暦年贈与持ち戻し'}：+${formatJapaneseCurrency(h.giftCarrybackAmount)}加算</span>` : ''}
             <span class="text-[9px] text-ceremony-silver-400 block">税率: ${Math.round(h.taxRate * 100)}%</span>
           </td>
         `;
