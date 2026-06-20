@@ -58,7 +58,7 @@
             <span class="text-ceremony-silver-300">一次被相続人の遺産総額</span>
             <span id="display-total-estate" class="font-bold text-ceremony-silver-100 font-mono text-xl">-- 万円</span>
           </div>
-          <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-4 rounded-xl border border-ceremony-purple-900/50">
+          <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-4 rounded-xl border border-ceremony-purple-800/60">
             <span class="text-ceremony-silver-300">配偶者の一次実際の取得割合</span>
             <span id="display-spouse-share" class="font-bold text-ceremony-gold-400 font-mono text-xl">-- %</span>
           </div>
@@ -378,18 +378,24 @@
       window.location.href = "../index.html";
     });
 
-    // ⚔️ 一撃適用の調停：本番サーバーの直下の本体（../index.html）へ完全連動
+    // ⚔️ 一撃適用の調停：本番サーバーの直下の本体（../index.html）へ完全連動（修正済・一滴の漏れなき完全連動）
     document.getElementById('btn-apply-strategy').addEventListener('click', () => {
       if (primaryResult.lastCalculatedBestShare !== undefined) {
         const bestShare = primaryResult.lastCalculatedBestShare;
         
+        // 1. 本体の受け皿変数構造に最適比率をピンポイントで注入
         primaryResult.spouseActualShare = bestShare;
-        primaryResult.forceUniformSplit = true; 
         primaryResult.targetSpouseShare = bestShare;
+        
+        // 2. 本体の全資産を一応「分割可」とし、かつ個別比率設定（auto）として読み込ませるための連動フラグを付与[cite: 5, 7]
+        // これにより、本体側のロード関数がこの指示書を検知し、ユーザー設定の相続人構成を100%維持したまま、全資産を一瞬で最適按分します。
+        primaryResult.overrideAssetsToSplit = true; 
+        primaryResult.forceUniformSplit = true;
 
+        // 3. 調停データを localStorage へ完全保管
         localStorage.setItem('gemkin_primary_result', JSON.stringify(primaryResult));
         
-        alert("📊 二次相続調停完了！一族の総税額を最小化するため、一次相続における配偶者の取得割合を【 " + bestShare + " % 】に設定し、残りを子供たちで均等分割（按分）する軍略をセットいたしました。本体へ帰還します。");
+        alert("📊 二次相続調停完了！\n一族の総税額を最小化するため、その時々の最適比率【 " + bestShare + " % 】を配偶者（法律婚）の割合として一撃適用いたしました。\n\n本体盤へ帰還後、我が君が設定された固有の相続人構成（パートナーや子供たちの陣形）を完全に維持し、すべての資産を一応「分割可」とした上で、残りの割合を法定相続分で美しく按分して再展開いたします。");
         window.location.href = "../index.html";
       }
     });
