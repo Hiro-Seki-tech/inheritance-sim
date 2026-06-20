@@ -333,11 +333,13 @@
 
   </main>
 
-  <div id="secondary-inheritance-btn" 
-       class="hidden fixed bottom-6 right-6 bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-5 py-3 rounded-xl shadow-2xl z-40 flex items-center gap-2 border border-cyan-400/30">
-    <i class="fa-solid fa-water"></i>
+<* 二次相続ボタン *>
+<div id="secondary-inheritance-btn" 
+       class="hidden fixed bottom-6 right-6 bg-gradient-to-r from-emerald-600 via-teal-700 to-slate-300 text-white font-black px-5 py-3 rounded-xl shadow-2xl z-40 flex items-center gap-2 border border-emerald-400/30 hover:scale-[1.03] active:scale-[0.97] transition-all cursor-pointer">
+    <i class="fa-solid fa-gem text-emerald-300 animate-pulse"></i>
     <span>二次相続の結果もみる</span>
   </div>
+
 
   <div id="distribution-modal" class="fixed inset-0 bg-ceremony-purple-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
     <div class="bg-ceremony-purple-900 border border-ceremony-gold-500/30 rounded-2xl p-6 w-full max-w-lg shadow-2xl space-y-4">
@@ -2133,13 +2135,34 @@
       modal.classList.remove('flex');
     }
 
-    // ==========================================================================
+  // ==========================================================================
     // 🛡️ 二次相続調停盤（独立画面）への隠密データ連動 ＆ 画面跳躍ロジック
     // ==========================================================================
     document.addEventListener('DOMContentLoaded', () => {
       const secondaryBtn = document.getElementById('secondary-inheritance-btn');
       if (secondaryBtn) {
+        
+        // 🟢【軍師改築】右下のボタンの見た目を格調高い翡翠色と白金のグラデーションへ動的に強制昇華
+        secondaryBtn.className = "fixed bottom-6 right-6 bg-gradient-to-r from-emerald-600 via-teal-700 to-slate-300 text-white font-black px-5 py-3 rounded-xl shadow-2xl z-40 flex items-center gap-2 border border-emerald-400/30 hover:scale-[1.03] active:scale-[0.97] transition-all cursor-pointer";
+        secondaryBtn.innerHTML = `<i class="fa-solid fa-gem text-emerald-300 animate-pulse"></i><span>二次相続の結果もみる</span>`;
+
         secondaryBtn.addEventListener('click', () => {
+
+          // 🔔【音響調停】ブラウザのセキュリティを突破し、まず「ボーン…」という重低音を響かせる
+          try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'triangle'; 
+            osc.frequency.setValueAtTime(120, audioCtx.currentTime); // 重厚な低音（120Hz）
+            osc.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 2.0); // 余韻で低く
+            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.0); // 2秒の余韻
+            osc.start(); osc.stop(audioCtx.currentTime + 2.0);
+          } catch(err) { console.log("音響調停失敗:", err); }
+
+          // 📊【データ解析】画面上の最新テキストから数値を抽出
           const totalEstateText = document.getElementById('summary-total-estate').textContent;
           
           const parseYen = (text) => {
@@ -2157,15 +2180,23 @@
           const spouseSharePercent = spouseHeir ? spouseHeir.share : 0;
           const childCount = state.heirs.filter(h => h.relation === 'child').length;
 
+          // 🛡️【データセーブ】我が君の設定されたオリジナルの陣形（heirs / assets）を完全退避
           const primaryResultData = {
             totalEstate: totalEstateYen,
             spouseActualShare: spouseSharePercent,
             spouseAcquisition: totalEstateYen * (spouseSharePercent / 100),
-            childCount: Math.max(1, childCount)
+            childCount: Math.max(1, childCount),
+            heirs: JSON.parse(JSON.stringify(state.heirs)),
+            assets: JSON.parse(JSON.stringify(state.assets)),
+            legalSpouseId: state.legalSpouseId
           };
 
           localStorage.setItem('gemkin_primary_result', JSON.stringify(primaryResultData));
-          window.location.href = './second-inheritance/index.html';
+
+          // ⏳【時間差の軍略】音が耳へ「ボーン…」と響いた直後（250ミリ秒後）に、満を持して独立盤へ跳躍
+          setTimeout(() => {
+            window.location.href = './second-inheritance/index.html';
+          }, 250);
         });
       }
     });
