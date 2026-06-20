@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
+
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +14,8 @@
         extend: {
           colors: {
             ceremony: {
-              purple: { 50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 300: '#c084fc', 400: '#a855f7', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', 800: '#4c1d95', 900: '#2e1065', 950: '#0c0514' },
+              // 🟩【軍師調停】本体ボタンと同期する、瑞々しく明るい「ミント・ライム緑」のパレット
+              purple: { 50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5dd5c4', 400: '#2dd4bf', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b', 950: '#022c22' },
               silver: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b' },
               gold: { 50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 300: '#fcd34d', 400: '#facc15', 500: '#d4af37', 600: '#ca8a04', 700: '#a16207' }
             }
@@ -22,11 +25,41 @@
     }
   </script>
   <style>
-    body { background-color: #0c0514; color: #f1f5f9; }
-    input[type="range"]::-webkit-slider-thumb { background: #d4af37; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; }
-    input[type="range"]::-moz-range-thumb { background: #d4af37; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; }
+    /* 🟩 全体背景：気品ある深みを持たせたティールブラック */
+    body { background-color: #0f2d2a; color: #f1f5f9; }
+    
+    /* 🖤【特命調停】数字が書かれている枠・入力エリア・背景パネルをクッキリとした「漆黒（ブラック）」に強制書き換え */
+    .bg-ceremony-purple-950\/60,
+    .bg-ceremony-purple-950\/80,
+    .bg-ceremony-purple-950,
+    .bg-ceremony-purple-900\/20,
+    section, 
+    input[type="number"],
+    table {
+      background-color: #000000 !important; /* 漆黒 */
+      border-color: rgba(16, 185, 129, 0.4) !important; /* 美しい明るい緑の細枠 */
+    }
+
+    /* 🟩 巨大な上部パーツなどは、明るい緑とプラチナの優美なグラデーションを維持 */
+    .bg-gradient-to-r.from-ceremony-purple-700 {
+      background: linear-gradient(135deg, #10b981 0%, #0d9488 50%, #cbd5e1 100%) !important;
+    }
+    .bg-gradient-to-b.from-ceremony-purple-900\/40 {
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.15) 0%, #000000 100%) !important;
+      border-color: rgba(16, 185, 129, 0.5) !important;
+    }
+    
+    /* フォントサイズを本体水準のすっきりサイズ（text-sm）へ強制同期 */
+    .text-base { font-size: 0.875rem !important; }
+    
+    input[type="range"]::-webkit-slider-thumb { background: #d4af37; cursor: pointer; width: 20px; height: 20px; border-radius: 50%; }
+    input[type="range"]::-moz-range-thumb { background: #d4af37; cursor: pointer; width: 20px; height: 20px; border-radius: 50%; }
   </style>
 </head>
+
+
+
+
 <body class="min-h-screen font-sans flex flex-col selection:bg-ceremony-purple-500/30 selection:text-ceremony-gold-400 text-base">
 
   <header class="border-b border-ceremony-gold-500/20 bg-ceremony-purple-900/40 backdrop-blur-md p-5 sticky top-0 z-50">
@@ -378,27 +411,81 @@
       window.location.href = "../index.html";
     });
 
-    // ⚔️ 一撃適用の調停：本番サーバーの直下の本体（../index.html）へ完全連動（修正済・一滴の漏れなき完全連動）
+
+
+// ⚔️ 一撃適用の調停：本番サーバーの直下の本体へ完全連動（我が君の設定された陣形を完全守護する最終版）
     document.getElementById('btn-apply-strategy').addEventListener('click', () => {
       if (primaryResult.lastCalculatedBestShare !== undefined) {
         const bestShare = primaryResult.lastCalculatedBestShare;
+        const remainingShare = 100 - bestShare;
         
-        // 1. 本体の受け皿変数構造に最適比率をピンポイントで注入
-        primaryResult.spouseActualShare = bestShare;
-        primaryResult.targetSpouseShare = bestShare;
-        
-        // 2. 本体の全資産を一応「分割可」とし、かつ個別比率設定（auto）として読み込ませるための連動フラグを付与[cite: 5, 7]
-        // これにより、本体側のロード関数がこの指示書を検知し、ユーザー設定の相続人構成を100%維持したまま、全資産を一瞬で最適按分します。
-        primaryResult.overrideAssetsToSplit = true; 
-        primaryResult.forceUniformSplit = true;
+        // 1. 一次相続盤が退避させておいてくれた「本物のセーブデータ」を無傷で再取得
+        let savedData = JSON.parse(localStorage.getItem('gemkin_primary_result'));
+        if (!savedData) savedData = primaryResult;
 
-        // 3. 調停データを localStorage へ完全保管
-        localStorage.setItem('gemkin_primary_result', JSON.stringify(primaryResult));
+        // 2. 基本数値を最新の黄金比率へ更新
+        savedData.spouseActualShare = bestShare;
+        savedData.targetSpouseShare = bestShare;
+        savedData.spouseAcquisition = savedData.totalEstate * (bestShare / 100);
+
+        // 3. 【資産の調停】すべての資産を一応「分割可」にし、かつ個別比率の％を黄金比に強制同期
+        if (savedData.assets && Array.isArray(savedData.assets)) {
+          savedData.assets.forEach(asset => {
+            asset.canSplit = true; 
+            if (!asset.customSplit) asset.customSplit = {};
+            
+            if (savedData.heirs && Array.isArray(savedData.heirs)) {
+              const otherHeirs = savedData.heirs.filter(h => h.id !== savedData.legalSpouseId);
+              asset.customSplit[savedData.legalSpouseId] = bestShare;
+
+              if (otherHeirs.length > 0) {
+                let assignedAssetSum = 0;
+                otherHeirs.forEach((heir, idx) => {
+                  if (idx === otherHeirs.length - 1) {
+                    asset.customSplit[heir.id] = remainingShare - assignedAssetSum;
+                  } else {
+                    const calculatedShare = Math.round((1 / otherHeirs.length) * remainingShare);
+                    asset.customSplit[heir.id] = calculatedShare;
+                    assignedAssetSum += calculatedShare;
+                  }
+                });
+              }
+            }
+          });
+        }
+
+        // 4. 【相続人全体の調停】我が君の設定した構成（heirs）を100%維持しつつ、全体の取得割合（share）も完全同期
+        if (savedData.heirs && Array.isArray(savedData.heirs)) {
+          const legalSpouse = savedData.heirs.find(h => h.id === savedData.legalSpouseId);
+          const otherHeirs = savedData.heirs.filter(h => h.id !== savedData.legalSpouseId);
+
+          if (legalSpouse) legalSpouse.share = bestShare;
+
+          if (otherHeirs.length > 0) {
+            let assignedShareSum = 0;
+            otherHeirs.forEach((heir, idx) => {
+              if (idx === otherHeirs.length - 1) {
+                heir.share = remainingShare - assignedShareSum;
+              } else {
+                const calculatedShare = Math.round((1 / otherHeirs.length) * remainingShare);
+                heir.share = calculatedShare;
+                assignedShareSum += calculatedShare;
+              }
+            });
+          }
+        }
+
+        // 5. 調停指示書を内包した完全なセーブデータを localStorage へ再保管
+        localStorage.setItem('gemkin_primary_result', JSON.stringify(savedData));
         
-        alert("📊 二次相続調停完了！\n一族の総税額を最小化するため、その時々の最適比率【 " + bestShare + " % 】を配偶者（法律婚）の割合として一撃適用いたしました。\n\n本体盤へ帰還後、我が君が設定された固有の相続人構成（パートナーや子供たちの陣形）を完全に維持し、すべての資産を一応「分割可」とした上で、残りの割合を法定相続分で美しく按分して再展開いたします。");
+        alert("📊 二次相続調停完了！\n一族の総税額を最小化するため、すべての資産を「分割可」に調停し、配偶者の取得割合を【 " + bestShare + " % 】に設定。\n\n我が君が構築された相続人構成の陣形を100%維持したまま、本体の一次相続盤へ堂々帰還いたします！");
         window.location.href = "../index.html";
       }
     });
+
+
+
+
 
     window.onload = () => {
       updateSimulation();
