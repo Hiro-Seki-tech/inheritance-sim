@@ -200,18 +200,16 @@
   </footer>
 
   <script>
-    // 1. 一次相続からの引き継ぎデータの展開（LocalStorage優先、無ければ仮データ展開）
     let primaryResult = JSON.parse(localStorage.getItem('gemkin_primary_result'));
     if (!primaryResult) {
       primaryResult = {
-        totalEstate: 107000000,       // 一次遺産総額(円単位)
-        spouseActualShare: 50,         // 配偶者取得割合(%)
-        spouseAcquisition: 53500000,  // 配偶者取得額(円単位)
-        childCount: 2                 // 子供の人数
+        totalEstate: 107000000,       
+        spouseActualShare: 50,         
+        spouseAcquisition: 53500000,  
+        childCount: 2                 
       };
     }
 
-    // 2. 相続税速算表（2026年現行法準拠）
     const taxBrackets = [
       { limit: 10000000, rate: 0.10, deduction: 0 },
       { limit: 30000000, rate: 0.15, deduction: 500000 },
@@ -223,7 +221,6 @@
       { limit: Infinity, rate: 0.55, deduction: 72000000 }
     ];
 
-    // 3. 単発の相続税総額を精密計算する関数
     function calculateInheritanceTax(totalNetEstate, heirCount, isSpousePresent = false, spouseSharePercent = 0) {
       const baseDeduction = 30000000 + 6000000 * (heirCount + (isSpousePresent ? 1 : 0));
       const taxableEstate = totalNetEstate - baseDeduction;
@@ -276,7 +273,6 @@
       };
     }
 
-    // 4. 画面連動および101回高速スキャンロジック（すべて整数万円単位に調停）
     function updateSimulation() {
       let ownPropertyMan = parseFloat(document.getElementById('input-own-property').value);
       if (isNaN(ownPropertyMan) || ownPropertyMan < 0) ownPropertyMan = 0;
@@ -287,7 +283,6 @@
       const pSpouseAcquisition = pTotalEstate * (pSpouseShare / 100);
       const childCount = primaryResult.childCount;
 
-      // 現在の設定での一次・二次相続税計算
       const pTaxResult = calculateInheritanceTax(pTotalEstate, childCount, true, pSpouseShare);
       const pTotalTax = pTaxResult.finalTax;
 
@@ -297,12 +292,10 @@
 
       const grandTotalTax = pTotalTax + sTotalTax;
 
-      // 手取り計算（一次子供枠 ＋ 二次全枠 － 各自の税額）
       const pChildrenTotalEstate = pTotalEstate - pSpouseAcquisition;
-      const childrenTotalNet = (pChildrenTotalEstate - pTotalTax) + (sTotalEstate - sTotalTax);
+      const childrenTotalNet = (pChildrenTotalEstate - pTotalTax) + (sTotalEstate - sTaxResult.finalTax);
       const childNetAvg = childrenTotalNet / childCount;
 
-      // --- 【裏方：0%〜100% 高速101回連続走査ループ】 ---
       let bestShare = 50;
       let minGrandTax = Infinity;
 
@@ -321,10 +314,8 @@
         }
       }
 
-      // 円から万円への丸め関数（四捨五入）
       const toMan = (yen) => Math.round(yen / 10000);
 
-      // --- 【UI表示への反映】 ---
       document.getElementById('display-total-estate').innerText = toMan(pTotalEstate).toLocaleString() + " 万円";
       document.getElementById('display-spouse-share').innerText = Math.round(pSpouseShare) + " %";
       document.getElementById('display-spouse-acquisition').innerText = toMan(pSpouseAcquisition).toLocaleString() + " 万円";
@@ -334,7 +325,6 @@
       document.getElementById('child-net-avg').innerText = toMan(childNetAvg).toLocaleString() + " 万円";
       document.getElementById('children-total-net').innerText = toMan(childrenTotalNet).toLocaleString() + " 万円";
 
-      // 明細テーブルへの反映
       document.getElementById('table-p-estate').innerText = toMan(pTotalEstate).toLocaleString() + " 万円";
       document.getElementById('table-p-tax').innerText = toMan(pTotalTax).toLocaleString() + " 万円";
       document.getElementById('table-p-c-tax').innerText = toMan(pTotalTax / childCount).toLocaleString() + " 万円";
@@ -346,7 +336,6 @@
       document.getElementById('table-g-tax').innerText = toMan(grandTotalTax).toLocaleString() + " 万円";
       document.getElementById('table-g-c-tax').innerText = toMan(grandTotalTax / childCount).toLocaleString() + " 万円";
 
-      // 最適化レポート＆差分明示
       document.getElementById('best-share-badge').innerText = bestShare + " ％";
       document.getElementById('current-strategy-tax').innerText = toMan(grandTotalTax).toLocaleString() + " 万円";
       document.getElementById('best-strategy-tax').innerText = toMan(minGrandTax).toLocaleString() + " 万円";
@@ -354,11 +343,9 @@
       const saving = grandTotalTax - minGrandTax;
       document.getElementById('tax-saving-effect').innerText = toMan(saving).toLocaleString() + " 万円";
 
-      // 主のご要望：一人あたりいくら減ったのかの計算と表示（差分総額 ÷ 子供人数）
       const savingPerChild = Math.round(saving / childCount);
       document.getElementById('tax-saving-per-child').innerText = "(子供1人あたり: " + toMan(savingPerChild).toLocaleString() + " 万円削減)";
 
-      // 比率が完全に一致している場合のアナウンス調整
       const btn = document.getElementById('btn-apply-strategy');
       if (bestShare === Math.round(pSpouseShare)) {
         btn.innerText = "✓ 現在すでに最適配分比率です";
@@ -370,11 +357,9 @@
         btn.className = "bg-gradient-to-r from-ceremony-gold-600 to-ceremony-gold-400 hover:from-ceremony-gold-500 hover:to-ceremony-gold-300 text-ceremony-purple-950 font-black px-6 py-3.5 rounded-xl text-base shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 inline-flex";
       }
 
-      // 一撃適用処理用に一時保持
       primaryResult.lastCalculatedBestShare = bestShare;
     }
 
-    // 5. イベントリスナー陣の配備（入力に即座に反応）
     const inputProp = document.getElementById('input-own-property');
     const sliderProp = document.getElementById('slider-own-property');
 
@@ -388,17 +373,16 @@
       updateSimulation();
     });
 
-    // 維持帰還ボタンの挙動（LocalStorageに何もしないまま戻る）
+    // ⚔️ 維持帰還の調停：本番サーバーの直下の本体（../index.html）へ完全連動
     document.getElementById('btn-return').addEventListener('click', () => {
-      window.location.href = "../v82生前贈与完了.html";
+      window.location.href = "../index.html";
     });
 
-    // 一撃適用ボタンの挙動（一括按分モードに強制調停してジャンプバック）
+    // ⚔️ 一撃適用の調停：本番サーバーの直下の本体（../index.html）へ完全連動
     document.getElementById('btn-apply-strategy').addEventListener('click', () => {
       if (primaryResult.lastCalculatedBestShare !== undefined) {
         const bestShare = primaryResult.lastCalculatedBestShare;
         
-        // 【軍師の調停】
         primaryResult.spouseActualShare = bestShare;
         primaryResult.forceUniformSplit = true; 
         primaryResult.targetSpouseShare = bestShare;
@@ -406,11 +390,10 @@
         localStorage.setItem('gemkin_primary_result', JSON.stringify(primaryResult));
         
         alert("📊 二次相続調停完了！一族の総税額を最小化するため、一次相続における配偶者の取得割合を【 " + bestShare + " % 】に設定し、残りを子供たちで均等分割（按分）する軍略をセットいたしました。本体へ帰還します。");
-        window.location.href = "../v82生前贈与完了.html";
+        window.location.href = "../index.html";
       }
     });
 
-    // 起動時の初撃計算
     window.onload = () => {
       updateSimulation();
     };
