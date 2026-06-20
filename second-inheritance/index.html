@@ -1,1 +1,419 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>宝均（Gem-Kin） - 二次相続最適化調停盤</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ceremony: {
+              purple: { 50: '#f5f3ff', 100: '#ede9fe', 200: '#ddd6fe', 300: '#c084fc', 400: '#a855f7', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', 800: '#4c1d95', 900: '#2e1065', 950: '#0c0514' },
+              silver: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b' },
+              gold: { 50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 300: '#fcd34d', 400: '#facc15', 500: '#d4af37', 600: '#ca8a04', 700: '#a16207' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #0c0514; color: #f1f5f9; }
+    input[type="range"]::-webkit-slider-thumb { background: #d4af37; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; }
+    input[type="range"]::-moz-range-thumb { background: #d4af37; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; }
+  </style>
+</head>
+<body class="min-h-screen font-sans flex flex-col selection:bg-ceremony-purple-500/30 selection:text-ceremony-gold-400 text-base">
 
+  <header class="border-b border-ceremony-gold-500/20 bg-ceremony-purple-900/40 backdrop-blur-md p-5 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold tracking-wider bg-gradient-to-r from-ceremony-silver-200 via-ceremony-gold-500 to-white bg-clip-text text-transparent">
+          <i class="fa-solid fa-crown text-ceremony-gold-500 text-2xl mr-2"></i>宝均（Gem-Kin） <span class="text-lg font-normal text-ceremony-silver-400">二次相続最適化調停盤</span>
+        </h1>
+        <p class="text-sm text-ceremony-silver-400 mt-1">一次被相続人 ＆ 配偶者逝去時の資産推移と、子供たちの最終納税額シミュレーション（2026年版）</p>
+      </div>
+      <div>
+        <button id="btn-return" class="text-base font-bold bg-ceremony-purple-900/60 hover:bg-ceremony-purple-800 border border-ceremony-gold-500/40 text-ceremony-gold-400 px-5 py-3 rounded-xl transition-all inline-flex items-center gap-2 shadow-lg hover:shadow-ceremony-gold-500/10">
+          <i class="fa-solid fa-arrow-left"></i> 一次相続（メイン画面）へ維持帰還
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <div class="lg:col-span-5 space-y-5">
+      
+      <section class="bg-ceremony-purple-900/20 border border-ceremony-purple-800/40 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
+        <h3 class="text-lg font-bold text-ceremony-gold-500 flex items-center gap-2 mb-4 border-b border-ceremony-purple-800/60 pb-3">
+          <i class="fa-solid fa-download"></i> 一次相続からの連動財産データ
+        </h3>
+        <div class="space-y-4 text-base">
+          <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-4 rounded-xl border border-ceremony-purple-900/50">
+            <span class="text-ceremony-silver-300">一次被相続人の遺産総額</span>
+            <span id="display-total-estate" class="font-bold text-ceremony-silver-100 font-mono text-xl">-- 万円</span>
+          </div>
+          <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-4 rounded-xl border border-ceremony-purple-900/50">
+            <span class="text-ceremony-silver-300">配偶者の一次実際の取得割合</span>
+            <span id="display-spouse-share" class="font-bold text-ceremony-gold-400 font-mono text-xl">-- %</span>
+          </div>
+          <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-4 rounded-xl border border-ceremony-purple-900/50">
+            <span class="text-ceremony-silver-300">配偶者の一次取得額</span>
+            <span id="display-spouse-acquisition" class="font-bold text-ceremony-gold-500 font-mono text-xl">-- 万円</span>
+          </div>
+          <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-4 rounded-xl border border-ceremony-purple-900/50">
+            <span class="text-ceremony-silver-300">子供の人数（固定）</span>
+            <span id="display-child-count" class="font-bold text-ceremony-silver-200 font-mono text-xl">-- 名</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-ceremony-purple-900/20 border border-ceremony-purple-800/40 rounded-2xl p-6 backdrop-blur-sm shadow-xl space-y-5">
+        <h3 class="text-lg font-bold text-ceremony-gold-500 flex items-center gap-2 border-b border-ceremony-purple-800/60 pb-3">
+          <i class="fa-solid fa-sliders"></i> 二次相続 固有変数調整
+        </h3>
+        
+        <div>
+          <label class="text-base text-ceremony-silver-200 block mb-2 font-bold flex justify-between">
+            <span>配偶者自身の固有財産（手元資産）</span>
+            <span class="text-ceremony-gold-400" id="range-hint">目安: 最大5億円</span>
+          </label>
+          <div class="relative flex items-center mb-4">
+            <input type="number" id="input-own-property" value="2000" min="0" max="50000" class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-xl px-4 py-3 text-xl text-ceremony-silver-100 font-mono font-bold focus:outline-none focus:border-ceremony-gold-500 text-right pr-16 shadow-inner">
+            <span class="absolute right-4 text-base text-ceremony-silver-400 font-bold">万円</span>
+          </div>
+          <input type="range" id="slider-own-property" min="0" max="20000" step="100" value="2000" class="w-full h-2.5 bg-ceremony-purple-950 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <div class="p-4 bg-ceremony-purple-950/60 border border-ceremony-purple-900 rounded-xl text-sm text-ceremony-silver-300 leading-relaxed flex items-start gap-2.5">
+          <i class="fa-solid fa-circle-info text-ceremony-gold-500 mt-1 text-base"></i>
+          <span>二次相続においては、配偶者の逝去に伴い、子供たちが法定相続分（均等分割）にて全遺産を取得するものとして自動試算します。なお、保守的試算（最悪の想定）のため相次相続控除は適用外といたします。</span>
+        </div>
+      </section>
+    </div>
+
+    <div class="lg:col-span-7 space-y-5">
+      
+      <section class="bg-gradient-to-b from-ceremony-purple-900/40 to-ceremony-purple-950/60 border border-ceremony-gold-500/30 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+        <h3 class="text-sm font-bold tracking-widest text-ceremony-gold-400 uppercase mb-4 flex items-center gap-1.5">
+          <i class="fa-solid fa-chart-pie"></i> 生涯相続税総額 ＆ 子供たちの手取り予測
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-ceremony-purple-950/80 border border-rose-500/20 p-5 rounded-xl text-center shadow-md">
+            <span class="text-xs text-ceremony-silver-400 block mb-1">一次＋二次 生涯税額総額</span>
+            <span id="sum-total-tax" class="text-2xl font-black text-rose-400 font-mono">-- 万円</span>
+          </div>
+          <div class="bg-ceremony-purple-950/80 border border-ceremony-purple-800/60 p-5 rounded-xl text-center shadow-md">
+            <span class="text-xs text-ceremony-silver-400 block mb-1">子供1人あたりの合計手取り</span>
+            <span id="child-net-avg" class="text-2xl font-black text-emerald-400 font-mono">-- 万円</span>
+          </div>
+          <div class="bg-ceremony-purple-950/80 border border-ceremony-purple-800/60 p-5 rounded-xl text-center shadow-md">
+            <span class="text-xs text-ceremony-silver-400 block mb-1">子供全員の合計最終手取り</span>
+            <span id="children-total-net" class="text-2xl font-black text-emerald-400 font-mono">-- 万円</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-ceremony-purple-900/20 border border-ceremony-purple-800/40 rounded-2xl p-6 shadow-xl">
+        <h3 class="text-lg font-bold text-ceremony-silver-100 flex items-center gap-2 mb-4">
+          <i class="fa-solid fa-table-list text-ceremony-gold-500"></i> 一次・二次相続税の重層明細
+        </h3>
+        <div class="overflow-x-auto border border-ceremony-purple-800/60 rounded-xl bg-ceremony-purple-950/70">
+          <table class="min-w-full divide-y divide-ceremony-purple-800/60 text-base text-left">
+            <thead class="bg-ceremony-purple-900/50">
+              <tr>
+                <th class="px-5 py-4 font-bold text-ceremony-silver-200">相続フェーズ</th>
+                <th class="px-5 py-4 font-bold text-ceremony-silver-200 text-right">遺産総額</th>
+                <th class="px-5 py-4 font-bold text-ceremony-silver-200 text-right">税額総額(子供等)</th>
+                <th class="px-5 py-4 font-bold text-ceremony-silver-200 text-right text-ceremony-gold-400">子供1人あたりの税額</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-ceremony-purple-800/40 font-mono text-base">
+              <tr>
+                <td class="px-5 py-4 font-sans font-medium">一次相続</td>
+                <td id="table-p-estate" class="px-5 py-4 text-right font-bold">-- 万円</td>
+                <td id="table-p-tax" class="px-5 py-4 text-right text-rose-300 font-bold">-- 万円</td>
+                <td id="table-p-c-tax" class="px-5 py-4 text-right">-- 万円</td>
+              </tr>
+              <tr>
+                <td class="px-5 py-4 font-sans font-medium">二次相続</td>
+                <td id="table-s-estate" class="px-4 py-4 text-right font-bold">-- 万円</td>
+                <td id="table-s-tax" class="px-5 py-4 text-right text-rose-300 font-bold">-- 万円</td>
+                <td id="table-s-c-tax" class="px-5 py-4 text-right">-- 万円</td>
+              </tr>
+              <tr class="bg-ceremony-purple-900/50 border-t-2 border-ceremony-purple-800/80 text-lg font-bold">
+                <td class="px-5 py-4 font-sans text-ceremony-gold-500">生涯トータル</td>
+                <td class="px-5 py-4 text-right text-ceremony-silver-400 font-normal">-</td>
+                <td id="table-g-tax" class="px-5 py-4 text-right text-rose-400 font-black">-- 万円</td>
+                <td id="table-g-c-tax" class="px-5 py-4 text-right text-ceremony-gold-400 font-black">-- 万円</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="bg-ceremony-purple-900/20 border border-ceremony-gold-500/30 rounded-2xl p-6 relative overflow-hidden shadow-xl">
+        <div class="absolute -top-6 -right-6 text-7xl text-ceremony-gold-500/5"><i class="fa-solid fa-graduation-cap"></i></div>
+        <h4 class="text-lg font-bold text-ceremony-gold-500 mb-3 flex items-center gap-1.5">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> 軍師ジェムキンの資産配分最適化献策
+        </h4>
+        <div class="text-base text-ceremony-silver-200 leading-relaxed space-y-4">
+          <p class="text-lg">一次相続における配偶者の生涯総税額を極小化する黄金の取得割合は全体の <strong id="best-share-badge" class="text-ceremony-purple-950 bg-ceremony-gold-400 px-3 py-1 rounded text-xl font-black mx-1">-- ％</strong> にございます。</p>
+          
+          <div class="p-5 bg-ceremony-purple-950/80 rounded-xl border border-ceremony-purple-900 space-y-2.5 font-mono text-base">
+            <div class="flex justify-between">
+              <span class="text-ceremony-silver-300">・現在の設定比率での生涯総税額:</span>
+              <span id="current-strategy-tax" class="text-rose-300 font-bold">-- 万円</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-ceremony-silver-300">・ジェムキン最適比率適用時の生涯総税額:</span>
+              <span id="best-strategy-tax" class="text-emerald-400 font-bold">-- 万円</span>
+            </div>
+            
+            <div class="border-t border-ceremony-purple-900 mt-3 pt-3 flex flex-col items-end gap-1">
+              <div class="text-ceremony-gold-400 font-bold text-sm">一族の財産からの無駄な税流出の阻止効果（差分削減額）:</div>
+              <div class="flex items-baseline gap-2">
+                <span id="tax-saving-effect" class="text-2xl underline decoration-double decoration-ceremony-gold-400 font-black text-emerald-400">-- 万円</span>
+                <span id="tax-saving-per-child" class="text-base font-bold text-ceremony-silver-200">(--)</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="pt-2 text-right">
+            <button id="btn-apply-strategy" class="bg-gradient-to-r from-ceremony-gold-600 to-ceremony-gold-400 hover:from-ceremony-gold-500 hover:to-ceremony-gold-300 text-ceremony-purple-950 font-black px-6 py-3.5 rounded-xl text-base shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 inline-flex">
+              <i class="fa-solid fa-gavel"></i> この最適解を一次相続（本体）へ一撃適用する
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="bg-ceremony-purple-900/20 text-ceremony-silver-400 text-xs py-5 px-4 text-center border-t border-ceremony-purple-800/40 mt-auto">
+    <p>© 2026 PLIP & 投資運用のジェムキン. 二次相続調停盤</p>
+  </footer>
+
+  <script>
+    // 1. 一次相続からの引き継ぎデータの展開（LocalStorage優先、無ければ仮データ展開）
+    let primaryResult = JSON.parse(localStorage.getItem('gemkin_primary_result'));
+    if (!primaryResult) {
+      primaryResult = {
+        totalEstate: 107000000,       // 一次遺産総額(円単位)
+        spouseActualShare: 50,         // 配偶者取得割合(%)
+        spouseAcquisition: 53500000,  // 配偶者取得額(円単位)
+        childCount: 2                 // 子供の人数
+      };
+    }
+
+    // 2. 相続税速算表（2026年現行法準拠）
+    const taxBrackets = [
+      { limit: 10000000, rate: 0.10, deduction: 0 },
+      { limit: 30000000, rate: 0.15, deduction: 500000 },
+      { limit: 50000000, rate: 0.20, deduction: 2000000 },
+      { limit: 100000000, rate: 0.30, deduction: 7000000 },
+      { limit: 200000000, rate: 0.40, deduction: 17000000 },
+      { limit: 300000000, rate: 0.45, deduction: 27000000 },
+      { limit: 600000000, rate: 0.50, deduction: 42000000 },
+      { limit: Infinity, rate: 0.55, deduction: 72000000 }
+    ];
+
+    // 3. 単発の相続税総額を精密計算する関数
+    function calculateInheritanceTax(totalNetEstate, heirCount, isSpousePresent = false, spouseSharePercent = 0) {
+      const baseDeduction = 30000000 + 6000000 * (heirCount + (isSpousePresent ? 1 : 0));
+      const taxableEstate = totalNetEstate - baseDeduction;
+      if (taxableEstate <= 0) return { totalTax: 0, spouseDeduction: 0, finalTax: 0 };
+
+      let totalBaseTax = 0;
+      const shares = [];
+      
+      if (isSpousePresent) {
+        shares.push({ role: 'spouse', portion: 0.5 });
+        const childPortion = 0.5 / heirCount;
+        for (let i = 0; i < heirCount; i++) {
+          shares.push({ role: 'child', portion: childPortion });
+        }
+      } else {
+        const childPortion = 1.0 / heirCount;
+        for (let i = 0; i < heirCount; i++) {
+          shares.push({ role: 'child', portion: childPortion });
+        }
+      }
+
+      shares.forEach(s => {
+        const individualNet = taxableEstate * s.portion;
+        let bracket = taxBrackets.find(b => individualNet <= b.limit);
+        let individualTax = individualNet * bracket.rate - bracket.deduction;
+        if (individualTax < 0) individualTax = 0;
+        totalBaseTax += individualTax;
+      });
+
+      let spouseDeduction = 0;
+      if (isSpousePresent && spouseSharePercent > 0) {
+        const spouseActualAmount = totalNetEstate * (spouseSharePercent / 100);
+        const legalSpouseAmount = totalNetEstate * 0.5;
+        const taxFreeLimit = Math.max(160000000, legalSpouseAmount);
+        
+        if (spouseActualAmount <= taxFreeLimit || totalNetEstate <= taxFreeLimit) {
+          spouseDeduction = totalBaseTax * (spouseSharePercent / 100);
+        } else {
+          spouseDeduction = totalBaseTax * (taxFreeLimit / totalNetEstate);
+        }
+      }
+
+      let finalTax = totalBaseTax - spouseDeduction;
+      if (finalTax < 0) finalTax = 0;
+
+      return {
+        totalTax: totalBaseTax,
+        spouseDeduction: spouseDeduction,
+        finalTax: Math.round(finalTax)
+      };
+    }
+
+    // 4. 画面連動および101回高速スキャンロジック（すべて整数万円単位に調停）
+    function updateSimulation() {
+      let ownPropertyMan = parseFloat(document.getElementById('input-own-property').value);
+      if (isNaN(ownPropertyMan) || ownPropertyMan < 0) ownPropertyMan = 0;
+      const ownPropertyYen = ownPropertyMan * 10000;
+
+      const pTotalEstate = primaryResult.totalEstate;
+      const pSpouseShare = primaryResult.spouseActualShare;
+      const pSpouseAcquisition = pTotalEstate * (pSpouseShare / 100);
+      const childCount = primaryResult.childCount;
+
+      // 現在の設定での一次・二次相続税計算
+      const pTaxResult = calculateInheritanceTax(pTotalEstate, childCount, true, pSpouseShare);
+      const pTotalTax = pTaxResult.finalTax;
+
+      const sTotalEstate = pSpouseAcquisition + ownPropertyYen;
+      const sTaxResult = calculateInheritanceTax(sTotalEstate, childCount, false, 0);
+      const sTotalTax = sTaxResult.finalTax;
+
+      const grandTotalTax = pTotalTax + sTotalTax;
+
+      // 手取り計算（一次子供枠 ＋ 二次全枠 － 各自の税額）
+      const pChildrenTotalEstate = pTotalEstate - pSpouseAcquisition;
+      const childrenTotalNet = (pChildrenTotalEstate - pTotalTax) + (sTotalEstate - sTotalTax);
+      const childNetAvg = childrenTotalNet / childCount;
+
+      // --- 【裏方：0%〜100% 高速101回連続走査ループ】 ---
+      let bestShare = 50;
+      let minGrandTax = Infinity;
+
+      for (let i = 0; i <= 100; i++) {
+        const testSpouseShare = i;
+        const testSpouseAcquisition = pTotalEstate * (testSpouseShare / 100);
+        
+        const testPTax = calculateInheritanceTax(pTotalEstate, childCount, true, testSpouseShare).finalTax;
+        const testSTotalEstate = testSpouseAcquisition + ownPropertyYen;
+        const testSTax = calculateInheritanceTax(testSTotalEstate, childCount, false, 0).finalTax;
+        
+        const testGrandTax = testPTax + testSTax;
+        if (testGrandTax < minGrandTax) {
+          minGrandTax = testGrandTax;
+          bestShare = testSpouseShare;
+        }
+      }
+
+      // 円から万円への丸め関数（四捨五入）
+      const toMan = (yen) => Math.round(yen / 10000);
+
+      // --- 【UI表示への反映】 ---
+      document.getElementById('display-total-estate').innerText = toMan(pTotalEstate).toLocaleString() + " 万円";
+      document.getElementById('display-spouse-share').innerText = Math.round(pSpouseShare) + " %";
+      document.getElementById('display-spouse-acquisition').innerText = toMan(pSpouseAcquisition).toLocaleString() + " 万円";
+      document.getElementById('display-child-count').innerText = childCount + " 名";
+
+      document.getElementById('sum-total-tax').innerText = toMan(grandTotalTax).toLocaleString() + " 万円";
+      document.getElementById('child-net-avg').innerText = toMan(childNetAvg).toLocaleString() + " 万円";
+      document.getElementById('children-total-net').innerText = toMan(childrenTotalNet).toLocaleString() + " 万円";
+
+      // 明細テーブルへの反映
+      document.getElementById('table-p-estate').innerText = toMan(pTotalEstate).toLocaleString() + " 万円";
+      document.getElementById('table-p-tax').innerText = toMan(pTotalTax).toLocaleString() + " 万円";
+      document.getElementById('table-p-c-tax').innerText = toMan(pTotalTax / childCount).toLocaleString() + " 万円";
+
+      document.getElementById('table-s-estate').innerText = toMan(sTotalEstate).toLocaleString() + " 万円";
+      document.getElementById('table-s-tax').innerText = toMan(sTotalTax).toLocaleString() + " 万円";
+      document.getElementById('table-s-c-tax').innerText = toMan(sTotalTax / childCount).toLocaleString() + " 万円";
+
+      document.getElementById('table-g-tax').innerText = toMan(grandTotalTax).toLocaleString() + " 万円";
+      document.getElementById('table-g-c-tax').innerText = toMan(grandTotalTax / childCount).toLocaleString() + " 万円";
+
+      // 最適化レポート＆差分明示
+      document.getElementById('best-share-badge').innerText = bestShare + " ％";
+      document.getElementById('current-strategy-tax').innerText = toMan(grandTotalTax).toLocaleString() + " 万円";
+      document.getElementById('best-strategy-tax').innerText = toMan(minGrandTax).toLocaleString() + " 万円";
+      
+      const saving = grandTotalTax - minGrandTax;
+      document.getElementById('tax-saving-effect').innerText = toMan(saving).toLocaleString() + " 万円";
+
+      // 主のご要望：一人あたりいくら減ったのかの計算と表示（差分総額 ÷ 子供人数）
+      const savingPerChild = Math.round(saving / childCount);
+      document.getElementById('tax-saving-per-child').innerText = "(子供1人あたり: " + toMan(savingPerChild).toLocaleString() + " 万円削減)";
+
+      // 比率が完全に一致している場合のアナウンス調整
+      const btn = document.getElementById('btn-apply-strategy');
+      if (bestShare === Math.round(pSpouseShare)) {
+        btn.innerText = "✓ 現在すでに最適配分比率です";
+        btn.disabled = true;
+        btn.className = "bg-ceremony-purple-900 border border-ceremony-purple-800 text-ceremony-silver-500 font-bold px-6 py-3.5 rounded-xl text-base cursor-not-allowed flex items-center gap-2 inline-flex";
+      } else {
+        btn.innerText = "⚔️ この最適解（" + bestShare + "％）を一次相続へ一撃適用する";
+        btn.disabled = false;
+        btn.className = "bg-gradient-to-r from-ceremony-gold-600 to-ceremony-gold-400 hover:from-ceremony-gold-500 hover:to-ceremony-gold-300 text-ceremony-purple-950 font-black px-6 py-3.5 rounded-xl text-base shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 inline-flex";
+      }
+
+      // 一撃適用処理用に一時保持
+      primaryResult.lastCalculatedBestShare = bestShare;
+    }
+
+    // 5. イベントリスナー陣の配備（入力に即座に反応）
+    const inputProp = document.getElementById('input-own-property');
+    const sliderProp = document.getElementById('slider-own-property');
+
+    inputProp.addEventListener('input', () => {
+      sliderProp.value = inputProp.value;
+      updateSimulation();
+    });
+
+    sliderProp.addEventListener('input', () => {
+      inputProp.value = sliderProp.value;
+      updateSimulation();
+    });
+
+    // 維持帰還ボタンの挙動（LocalStorageに何もしないまま戻る）
+    document.getElementById('btn-return').addEventListener('click', () => {
+      window.location.href = "../v82生前贈与完了.html";
+    });
+
+    // 一撃適用ボタンの挙動（一括按分モードに強制調停してジャンプバック）
+    document.getElementById('btn-apply-strategy').addEventListener('click', () => {
+      if (primaryResult.lastCalculatedBestShare !== undefined) {
+        const bestShare = primaryResult.lastCalculatedBestShare;
+        
+        // 【軍師の調停】
+        primaryResult.spouseActualShare = bestShare;
+        primaryResult.forceUniformSplit = true; 
+        primaryResult.targetSpouseShare = bestShare;
+
+        localStorage.setItem('gemkin_primary_result', JSON.stringify(primaryResult));
+        
+        alert("📊 二次相続調停完了！一族の総税額を最小化するため、一次相続における配偶者の取得割合を【 " + bestShare + " % 】に設定し、残りを子供たちで均等分割（按分）する軍略をセットいたしました。本体へ帰還します。");
+        window.location.href = "../v82生前贈与完了.html";
+      }
+    });
+
+    // 起動時の初撃計算
+    window.onload = () => {
+      updateSimulation();
+    };
+  </script>
+</body>
+</html>
