@@ -336,7 +336,7 @@
   <div id="secondary-inheritance-btn" 
        class="hidden fixed bottom-6 right-6 bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-5 py-3 rounded-xl shadow-2xl z-40 flex items-center gap-2 border border-cyan-400/30">
     <i class="fa-solid fa-water"></i>
-    <span>二次相続の結果もみる（改築中）</span>
+    <span>二次相続の結果もみる</span>
   </div>
 
   <div id="distribution-modal" class="fixed inset-0 bg-ceremony-purple-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
@@ -608,6 +608,52 @@
 
     window.onload = function() {
       initAppOnLoad();
+      
+      // ==========================================================================
+      // ⚔️ 二次相続画面からの「一撃適用」強制調停受け皿ロジック
+      // ==========================================================================
+      let primaryResultReturn = JSON.parse(localStorage.getItem('gemkin_primary_result'));
+      if (primaryResultReturn && primaryResultReturn.forceUniformSplit) {
+        const targetSpouseShare = primaryResultReturn.targetSpouseShare;
+        
+        // 1. 法律婚の配偶者のシェアを、二次相続側で算出された黄金比率に強制上書き
+        let spouseHeir = state.heirs.find(h => h.id === state.legalSpouseId);
+        if (spouseHeir) {
+          spouseHeir.share = targetSpouseShare;
+        }
+
+        // 2. 【ユーザー設定 of 破綻防止調停】個別資産の customSplit 比率をすべてリセットし、
+        //    配偶者に黄金比率％、残りの割合を子供の人数で均等按分する「自動モード（auto）」へ全アセットを強制調停
+        const children = state.heirs.filter(h => h.relation === 'child');
+        const remainingShare = 100 - targetSpouseShare;
+        
+        if (children.length > 0) {
+          state.heirs.forEach(h => {
+            if (h.relation === 'child') {
+              h.share = Math.round(remainingShare / children.length);
+            }
+          });
+        }
+
+        // 個別資産カード側のモードを auto (比率連動) に統一して customSplit による矛盾を完全に消滅させる
+        state.assets.forEach(asset => {
+          asset.canSplit = true;
+          asset.splitMode = 'auto'; // 比率連動モードへ強制リセット
+          asset.singleOwner = null;
+          asset.customSplit = {};
+        });
+
+        // 3. 使用済みの処理フラグを消去し、LocalStorage の状態を初期化（次回帰還への安全策）
+        delete primaryResultReturn.forceUniformSplit;
+        localStorage.setItem('gemkin_primary_result', JSON.stringify(primaryResultReturn));
+        
+        // 画面に調停成功のフィードバックを展開
+        setTimeout(() => {
+          showFeedback("📊 二次相続盤より黄金比率（配偶者 " + targetSpouseShare + "％ ＆ 子均等按分）を一撃適用し、本体資産を再調停いたしました。");
+        }, 500);
+      }
+      
+      updateApp();
     };
 
     function switchInputTab(tab) {
@@ -837,46 +883,32 @@
       });
 
       // ==========================================
-      // 🟥【ステップ2＆3：生前贈与持ち戻し計算ロジックの本陣】
+      // 🟥 生前贈与持ち戻し計算ロジック
       // ==========================================
       let totalGiftAnbunAssets = 0;
 
       state.heirs.forEach(h => {
-        h.giftCarrybackAmount = 0; // 初期化
+        h.giftCarrybackAmount = 0; 
         
         if (h.useZoyo) {
           if (h.zoyoMode === 'rekinen') {
-            // 【ステップ2ルート：暦年課税】
-            // UI入力値は「万円」単位のため、10000倍して円換算
             const reki3AmountYen = (h.reki3Year || 0) * 10000;
             const reki7AmountYen = (h.reki7Year || 0) * 10000;
-
-            // 直近3年分は全額、4〜7年前分は一律100万円控除（最低0円）
             const carryback3y = reki3AmountYen;
             const carryback47y = Math.max(0, reki7AmountYen - 1000000);
-
             h.giftCarrybackAmount = carryback3y + carryback47y;
           } 
           else if (h.zoyoMode === 'seisan') {
-            // 【ステップ3ルート：相続時精算課税制度】
-            // UI入力値の贈与総額（万円）を円単位に換算
             const seisanTotalYen = (h.seisanTotal || 0) * 10000;
-            // 贈与年数（最低1年）を取得
             const seisanYearsVal = Math.max(1, h.seisanYears || 1);
-
-            // ルール③：年110万円の基礎控除を「年数分」差し引いて持ち戻し（最低0円）
             const seisanExemption = 1100000 * seisanYearsVal;
             h.giftCarrybackAmount = Math.max(0, seisanTotalYen - seisanExemption);
           }
-
           totalGiftAnbunAssets += h.giftCarrybackAmount;
         }
       });
 
-      // 課税対象遺産額に生前贈与の持ち戻し総額を加算
       taxableTotalAssets += totalGiftAnbunAssets;
-
-      // 調停価格から基礎控除額を引き、正しき課税対象遺産総額(taxableEstate)を決定
       let taxableEstate = Math.max(0, taxableTotalAssets - deduction);
 
       state.heirs.forEach(h => {
@@ -922,14 +954,12 @@
 
       if (totalEstate > 0) {
         state.heirs.forEach(h => {
-          // 分配割合のインジケーター表示にも持ち戻し分を含める（財産全体の合計に対する比率）
           const totalAcquiredWithGift = h.actualAcquisition + (h.giftCarrybackAmount || 0);
           const totalEstateWithGift = totalEstate + totalGiftAnbunAssets;
           h.share = totalEstateWithGift > 0 ? Math.round((totalAcquiredWithGift / totalEstateWithGift) * 100) : 0;
         });
       }
 
-      // 各自の実際の取得金額（現物）に持ち戻し価格を上乗せして個人の課税価格を確定
       state.heirs.forEach(h => {
         const basePrice = h.actualAcquisition + (h.giftCarrybackAmount || 0);
         h.individualTaxablePrice = Math.max(0, basePrice - h.specialExemptionAppliedAmount);
@@ -1321,7 +1351,7 @@
                 onchange="updateHeirField('${heir.id}', 'useZoyo', this.checked)"
                 class="accent-ceremony-gold-500 cursor-pointer">
               <span class="flex items-center gap-1.5 text-ceremony-gold-400">
-                <i class="fa-solid fa-gift text-[10px]"></i> 生前贈与（持ち戻し分）を加算する
+                <i class="fa-solid fa-gift text-[10px]"></i> 与・生前贈与（持ち戻し分）を加算する
               </span>
             </label>
 
@@ -1762,7 +1792,7 @@
       const asset = state.assets.find(a => a.id === assetId);
       if (!asset) return;
 
-      document.getElementById('modal-asset-title').innerHTML = `資産「<strong>${asset.name}</strong> (評価額: ${formatStandardCurrency(asset.amount)}) Brenner: 比率を設定してください。`;
+      document.getElementById('modal-asset-title').innerHTML = `資産「<strong>${asset.name}</strong> (評価額: ${formatStandardCurrency(asset.amount)})」を分割する比率を設定してください。`;
       const container = document.getElementById('modal-heirs-list');
       container.innerHTML = '';
 
@@ -2102,6 +2132,43 @@
       modal.classList.add('hidden');
       modal.classList.remove('flex');
     }
+
+    // ==========================================================================
+    // 🛡️ 二次相続調停盤（独立画面）への隠密データ連動 ＆ 画面跳躍ロジック
+    // ==========================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      const secondaryBtn = document.getElementById('secondary-inheritance-btn');
+      if (secondaryBtn) {
+        secondaryBtn.addEventListener('click', () => {
+          const totalEstateText = document.getElementById('summary-total-estate').textContent;
+          
+          const parseYen = (text) => {
+            if (!text || text === "0円") return 0;
+            let num = 0;
+            const okuMatch = text.match(/(\d+)億/);
+            const wanMatch = text.match(/([\d,]+)万/);
+            if (okuMatch) num += parseInt(okuMatch[1], 10) * 100000000;
+            if (wanMatch) num += parseInt(wanMatch[1].replace(/,/g, ''), 10) * 10000;
+            return num;
+          };
+
+          const totalEstateYen = parseYen(totalEstateText);
+          const spouseHeir = state.heirs.find(h => h.id === state.legalSpouseId);
+          const spouseSharePercent = spouseHeir ? spouseHeir.share : 0;
+          const childCount = state.heirs.filter(h => h.relation === 'child').length;
+
+          const primaryResultData = {
+            totalEstate: totalEstateYen,
+            spouseActualShare: spouseSharePercent,
+            spouseAcquisition: totalEstateYen * (spouseSharePercent / 100),
+            childCount: Math.max(1, childCount)
+          };
+
+          localStorage.setItem('gemkin_primary_result', JSON.stringify(primaryResultData));
+          window.location.href = './second-inheritance/index.html';
+        });
+      }
+    });
   </script>
 </body>
 </html>
