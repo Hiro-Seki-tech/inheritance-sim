@@ -610,41 +610,75 @@
 
 
 
-window.onload = function() {
+
+// ==========================================================================
+    // 🛡️【軍師最終格築】二次相続調停盤からの完全復元・帰還防衛線
+    // ==========================================================================
+    window.onload = function() {
       initAppOnLoad();
       
-      // 🛡️【軍師調停】二次相続盤からの一撃適用・帰還データを完全復元
       let returnData = JSON.parse(localStorage.getItem('gemkin_primary_result'));
       if (returnData && (returnData.forceUniformSplit || returnData.targetSpouseShare !== undefined)) {
         const targetShare = returnData.targetSpouseShare;
         
-        // 1. 配偶者のシェアを黄金比率に強制同期
+        // 🔥【最重要・陣形復元】我が君が設定された相続人構成と資産構成の配列を分子レベルで完全復元
+        if (returnData.heirs) state.heirs = JSON.parse(JSON.stringify(returnData.heirs));
+        if (returnData.assets) state.assets = JSON.parse(JSON.stringify(returnData.assets));
+        if (returnData.legalSpouseId) state.legalSpouseId = returnData.legalSpouseId;
+
+        // 1. 配偶者のシェアを最新の黄金比率に強制同期
         let spouse = state.heirs.find(h => h.id === state.legalSpouseId || h.relation === 'spouse_legal');
         if (spouse) spouse.share = targetShare;
 
-        // 2. 子たちの割合も残りの枠へ均等按分
-        const children = state.heirs.filter(h => h.relation === 'child');
-        if (children.length > 0) {
-          children.forEach(c => {
-            c.share = Math.round((100 - targetShare) / children.length);
+        // 2. 残りの枠をその他の相続人へ均等按分（二次相続側の計算と完全同期）
+        const otherHeirs = state.heirs.filter(h => h.id !== state.legalSpouseId);
+        if (otherHeirs.length > 0) {
+          let assignedSum = 0;
+          otherHeirs.forEach((heir, idx) => {
+            if (idx === otherHeirs.length - 1) {
+              heir.share = (100 - targetShare) - assignedSum;
+            } else {
+              const calculatedShare = Math.round((1 / otherHeirs.length) * (100 - targetShare));
+              heir.share = calculatedShare;
+              assignedSum += calculatedShare;
+            }
           });
         }
 
-        // 3. 全アセットの分割モードを比率連動（auto）へ強制調停し、矛盾を完全破却
+        // 3. 全アセットの分割比率（customSplit）を黄金比に強制再同期
         state.assets.forEach(asset => {
           asset.canSplit = true;
-          asset.splitMode = 'auto';
-          asset.singleOwner = null;
-          asset.customSplit = {};
+          if (!asset.customSplit) asset.customSplit = {};
+          asset.customSplit[state.legalSpouseId] = targetShare;
+          
+          if (otherHeirs.length > 0) {
+            let assignedAssetSum = 0;
+            otherHeirs.forEach((heir, idx) => {
+              if (idx === otherHeirs.length - 1) {
+                asset.customSplit[heir.id] = (100 - targetShare) - assignedAssetSum;
+              } else {
+                const calculatedShare = Math.round((1 / otherHeirs.length) * (100 - targetShare));
+                asset.customSplit[heir.id] = calculatedShare;
+                assignedAssetSum += calculatedShare;
+              }
+            });
+          }
         });
 
-        // 4. 処理完了後、フラグを安全に除去
+        // 4. 処理完了後、調停用フラグを安全に除去
         delete returnData.forceUniformSplit;
         localStorage.setItem('gemkin_primary_result', JSON.stringify(returnData));
         
-        // 再計算とUI反映
+        // 全体の計算を再執行し、UIを美しく再描画
+        recalculateHeirSharesFromAssets();
         updateApp();
-        showFeedback("📊 二次相続盤より黄金比率（配偶者 " + targetShare + "%）の陣形を完全復元いたしました！");
+        
+        // 画面上部に軍師からの凱旋メッセージを表示
+        if (typeof showFeedback === 'function') {
+          showFeedback("📊 陣形守護完了！我が君が設定された相続人構成を100%維持し、配偶者割合 " + targetShare + "% の黄金比率を一撃適用いたしました！");
+        } else {
+          alert("📊 陣形守護完了！\n我が君が設定された相続人構成を100%維持し、配偶者割合 【 " + targetShare + " % 】 の黄金比率を一撃適用いたしました！");
+        }
       }
     };
 
