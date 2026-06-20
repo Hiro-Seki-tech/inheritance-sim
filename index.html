@@ -608,55 +608,47 @@
       updateApp(); 
     }
 
-    window.onload = function() {
+
+
+window.onload = function() {
       initAppOnLoad();
       
-      // ==========================================================================
-      // ⚔️ 二次相続画面からの「一撃適用」強制調停受け皿ロジック
-      // ==========================================================================
-      let primaryResultReturn = JSON.parse(localStorage.getItem('gemkin_primary_result'));
-      if (primaryResultReturn && primaryResultReturn.forceUniformSplit) {
-        const targetSpouseShare = primaryResultReturn.targetSpouseShare;
+      // 🛡️【軍師調停】二次相続盤からの一撃適用・帰還データを完全復元
+      let returnData = JSON.parse(localStorage.getItem('gemkin_primary_result'));
+      if (returnData && (returnData.forceUniformSplit || returnData.targetSpouseShare !== undefined)) {
+        const targetShare = returnData.targetSpouseShare;
         
-        // 1. 法律婚の配偶者のシェアを、二次相続側で算出された黄金比率に強制上書き
-        let spouseHeir = state.heirs.find(h => h.id === state.legalSpouseId);
-        if (spouseHeir) {
-          spouseHeir.share = targetSpouseShare;
-        }
+        // 1. 配偶者のシェアを黄金比率に強制同期
+        let spouse = state.heirs.find(h => h.id === state.legalSpouseId || h.relation === 'spouse_legal');
+        if (spouse) spouse.share = targetShare;
 
-        // 2. 【ユーザー設定 of 破綻防止調停】個別資産の customSplit 比率をすべてリセットし、
-        //    配偶者に黄金比率％、残りの割合を子供の人数で均等按分する「自動モード（auto）」へ全アセットを強制調停
+        // 2. 子たちの割合も残りの枠へ均等按分
         const children = state.heirs.filter(h => h.relation === 'child');
-        const remainingShare = 100 - targetSpouseShare;
-        
         if (children.length > 0) {
-          state.heirs.forEach(h => {
-            if (h.relation === 'child') {
-              h.share = Math.round(remainingShare / children.length);
-            }
+          children.forEach(c => {
+            c.share = Math.round((100 - targetShare) / children.length);
           });
         }
 
-        // 個別資産カード側のモードを auto (比率連動) に統一して customSplit による矛盾を完全に消滅させる
+        // 3. 全アセットの分割モードを比率連動（auto）へ強制調停し、矛盾を完全破却
         state.assets.forEach(asset => {
           asset.canSplit = true;
-          asset.splitMode = 'auto'; // 比率連動モードへ強制リセット
+          asset.splitMode = 'auto';
           asset.singleOwner = null;
           asset.customSplit = {};
         });
 
-        // 3. 使用済みの処理フラグを消去し、LocalStorage の状態を初期化（次回帰還への安全策）
-        delete primaryResultReturn.forceUniformSplit;
-        localStorage.setItem('gemkin_primary_result', JSON.stringify(primaryResultReturn));
+        // 4. 処理完了後、フラグを安全に除去
+        delete returnData.forceUniformSplit;
+        localStorage.setItem('gemkin_primary_result', JSON.stringify(returnData));
         
-        // 画面に調停成功のフィードバックを展開
-        setTimeout(() => {
-          showFeedback("📊 二次相続盤より黄金比率（配偶者 " + targetSpouseShare + "％ ＆ 子均等按分）を一撃適用し、本体資産を再調停いたしました。");
-        }, 500);
+        // 再計算とUI反映
+        updateApp();
+        showFeedback("📊 二次相続盤より黄金比率（配偶者 " + targetShare + "%）の陣形を完全復元いたしました！");
       }
-      
-      updateApp();
     };
+
+
 
     function switchInputTab(tab) {
       activeInputTab = tab;
