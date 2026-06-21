@@ -25,8 +25,11 @@
     }
   </script>
   <style>
-    /* 🟩 全体背景：気品ある深みを持たせたティールブラック */
-    body { background-color: #0f2d2a; color: #f1f5f9; }
+    /* 🟩 背景世界：エメラルドからプラチナシルバーへの格調高きグラデーション */
+    body { 
+      background: linear-gradient(135deg, #064e3b 0%, #047857 40%, #cbd5e1 100%) !important; 
+      color: #f1f5f9; 
+    }
     
     /* 🖤【特命調停】数字が書かれている枠・入力エリア・背景パネルをクッキリとした「漆黒（ブラック）」に強制書き換え */
     .bg-ceremony-purple-950\/60,
@@ -40,7 +43,7 @@
       border-color: rgba(16, 185, 129, 0.4) !important; /* 美しい明るい緑の細枠 */
     }
 
-    /* 🟩 巨大な上部パーツなどは、明るい緑とプラチナの優美なグラデーションを維持 */
+    /* 🟩 巨大な上部パーツなどは、明るい緑 and プラチナの優美なグラデーションを維持 */
     .bg-gradient-to-r.from-ceremony-purple-700 {
       background: linear-gradient(135deg, #10b981 0%, #0d9488 50%, #cbd5e1 100%) !important;
     }
@@ -54,13 +57,86 @@
     
     input[type="range"]::-webkit-slider-thumb { background: #d4af37; cursor: pointer; width: 20px; height: 20px; border-radius: 50%; }
     input[type="range"]::-moz-range-thumb { background: #d4af37; cursor: pointer; width: 20px; height: 20px; border-radius: 50%; }
+
+    /* 📜 巻物封印オーバーレイの特化意匠 */
+    #scroll-seal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: #051614; /* 厳かな超深緑漆黒 */
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    /* 左右に引き裂かれて消え去るアニメーション */
+    .scroll-open-left {
+      animation: splitLeft 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+    .scroll-open-right {
+      animation: splitRight 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    @keyframes splitLeft {
+      0% { transform: translateX(0) scaleX(1); opacity: 1; }
+      100% { transform: translateX(-100%) scaleX(0); opacity: 0; }
+    }
+    @keyframes splitRight {
+      0% { transform: translateX(0) scaleX(1); opacity: 1; }
+      100% { transform: translateX(100%) scaleX(0); opacity: 0; }
+    }
+
+    /* 封印ボタンの神聖なるパルス明滅 */
+    .pulse-seal {
+      animation: sealGlow 2s infinite ease-in-out;
+    }
+    @keyframes sealGlow {
+      0%, 100% { box-shadow: 0 0 15px rgba(20, 185, 129, 0.4); border-color: rgba(20, 185, 129, 0.4); }
+      50% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.8); border-color: rgba(212, 175, 55, 0.8); }
+    }
+
+    /* ✨ 献策枠：格調高き黄金の二重縁取り特化スタイル */
+    .border-gold-double {
+      border: 6px double #d4af37 !important;
+    }
+
+    /* 💡 アドバイス標識：アンバー（琥珀色）の優しい明滅パルス */
+    .pulse-amber {
+      animation: amberGlow 2s infinite ease-in-out;
+    }
+    @keyframes amberGlow {
+      0%, 100% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); background-color: rgba(245, 158, 11, 0.2); }
+      50% { box-shadow: 0 0 16px rgba(245, 158, 11, 0.8); background-color: rgba(245, 158, 11, 0.4); }
+    }
   </style>
 </head>
 
 
-
-
 <body class="min-h-screen font-sans flex flex-col selection:bg-ceremony-purple-500/30 selection:text-ceremony-gold-400 text-base">
+
+  <div id="scroll-seal-overlay">
+    <div class="text-center space-y-6 max-w-md px-4">
+      <div class="flex items-center justify-center space-x-0 relative h-32 w-64 mx-auto">
+        <div id="scroll-wing-l" class="absolute w-1/2 h-full bg-gradient-to-r from-teal-950 to-emerald-900 border-2 border-ceremony-gold-500 rounded-l-xl left-0 origin-right"></div>
+        <div id="scroll-wing-r" class="absolute w-1/2 h-full bg-gradient-to-l from-teal-950 to-emerald-900 border-2 border-ceremony-gold-500 rounded-r-xl right-0 origin-left"></div>
+        
+        <button id="btn-unseal" class="pulse-seal absolute z-10 w-20 h-20 rounded-full bg-black border-2 border-ceremony-gold-500 flex flex-col items-center justify-center transition-transform hover:scale-110 active:scale-[0.93] focus:outline-none">
+          <i class="fa-solid fa-gavel text-ceremony-gold-400 text-xl mb-0.5"></i>
+          <span class="text-[9px] font-black text-white tracking-widest">解く</span>
+        </button>
+      </div>
+      
+      <div class="space-y-2">
+        <p class="text-xs tracking-[0.2em] font-bold text-ceremony-gold-400 font-mono">SECONDARY INHERITANCE MEDIATION</p>
+        <p class="text-sm text-ceremony-silver-200 font-medium leading-relaxed">
+          これより先は、一族の富を二重課税から守護する禁忌の領域。<br>
+          軍師ジェムキンの算盤の裏に隠した【相次相続の秘策】、開帳の覚悟はよろしいか？
+        </p>
+      </div>
+    </div>
+  </div>
 
   <header class="border-b border-ceremony-gold-500/20 bg-ceremony-purple-900/40 backdrop-blur-md p-5 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -123,9 +199,29 @@
           <input type="range" id="slider-own-property" min="0" max="20000" step="100" value="2000" class="w-full h-2.5 bg-ceremony-purple-950 rounded-lg appearance-none cursor-pointer">
         </div>
 
+        <div class="mt-5 pt-4 border-t border-ceremony-purple-900/60">
+          <label class="text-base text-ceremony-silver-200 block mb-2 font-bold flex justify-between">
+            <span>一次相続からの経過年数</span>
+            <span class="text-ceremony-gold-400 font-mono" id="years-hint">現在: 5 年（控除率目安: 50%）</span>
+          </label>
+          <div class="relative flex items-center mb-4">
+            <input type="number" id="input-elapsed-years" value="5" min="1" max="10" class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-xl px-4 py-3 text-xl text-ceremony-silver-100 font-mono font-bold focus:outline-none focus:border-ceremony-gold-500 text-right pr-16 shadow-inner">
+            <span class="absolute right-4 text-base text-ceremony-silver-400 font-bold">年目</span>
+          </div>
+          <input type="range" id="slider-elapsed-years" min="1" max="10" step="1" value="5" class="w-full h-2.5 bg-ceremony-purple-950 rounded-lg appearance-none cursor-pointer">
+        </div>
+
+        <div class="p-4 bg-ceremony-purple-950/40 border border-ceremony-purple-900 rounded-xl text-xs text-ceremony-silver-300 leading-relaxed flex items-start gap-2.5 mt-3">
+          <i class="fa-solid fa-clock text-ceremony-gold-500 mt-0.5 text-sm"></i>
+          <span>
+            <strong class="text-ceremony-gold-400 block mb-1">【軍師の道標：経過年数とは？】</strong>
+            最初の被相続人が亡くなってから（例：夫の逝去）、配偶者様が亡くなる（今回の二次相続）までの「一族の歳月」にございます。ユーザー様が困惑されぬよう付言しますと、この期間が10年以内であれば、前回の相続税の一部を今回の税金から直接差し引くことができる重要特例<strong>「相次相続控除」</strong>が発動いたします。
+          </span>
+        </div>
+
         <div class="p-4 bg-ceremony-purple-950/60 border border-ceremony-purple-900 rounded-xl text-sm text-ceremony-silver-300 leading-relaxed flex items-start gap-2.5">
           <i class="fa-solid fa-circle-info text-ceremony-gold-500 mt-1 text-base"></i>
-          <span>二次相続においては、配偶者の逝去に伴い、子供たちが法定相続分（均等分割）にて全遺産を取得するものとして自動試算します。なお、保守的試算（最悪の想定）のため相次相続控除は適用外といたします。</span>
+          <span>二次相続においては、配偶者の逝去に伴い、子供たちが法定相続分（均等分割）にて全遺産を取得するものとして自動試算します。なお、本盤は経過年数に応じた相次相続控除の動的減算に対応済です。</span>
         </div>
       </section>
     </div>
@@ -190,7 +286,9 @@
         </div>
       </section>
 
-      <section class="bg-ceremony-purple-900/20 border border-ceremony-gold-500/30 rounded-2xl p-6 relative overflow-hidden shadow-xl">
+      <section id="optimization-section" class="bg-ceremony-purple-900/20 border border-ceremony-gold-500/30 rounded-2xl p-6 relative overflow-hidden shadow-xl transition-all duration-500">
+        <div id="advice-status-badge" class="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold font-mono tracking-wider border"></div>
+
         <div class="absolute -top-6 -right-6 text-7xl text-ceremony-gold-500/5"><i class="fa-solid fa-graduation-cap"></i></div>
         <h4 class="text-lg font-bold text-ceremony-gold-500 mb-3 flex items-center gap-1.5">
           <i class="fa-solid fa-wand-magic-sparkles"></i> 軍師ジェムキンの資産配分最適化献策
@@ -257,7 +355,7 @@
     function calculateInheritanceTax(totalNetEstate, heirCount, isSpousePresent = false, spouseSharePercent = 0) {
       const baseDeduction = 30000000 + 6000000 * (heirCount + (isSpousePresent ? 1 : 0));
       const taxableEstate = totalNetEstate - baseDeduction;
-      if (taxableEstate <= 0) return { totalTax: 0, spouseDeduction: 0, finalTax: 0 };
+      if (taxableEstate <= 0) return { totalTax: 0, spouseDeduction: 0, finalTax: 0, spouseFinalTax: 0 };
 
       let totalBaseTax = 0;
       const shares = [];
@@ -299,10 +397,19 @@
       let finalTax = totalBaseTax - spouseDeduction;
       if (finalTax < 0) finalTax = 0;
 
+      // ✨ 差分：相次相続控除のために、配偶者個人の実際の最終税額を逆算抽出
+      let spouseFinalTax = 0;
+      if (isSpousePresent && spouseSharePercent > 0) {
+        const spouseBaseTax = totalBaseTax * (spouseSharePercent / 100);
+        spouseFinalTax = spouseBaseTax - spouseDeduction;
+        if (spouseFinalTax < 0) spouseFinalTax = 0;
+      }
+
       return {
         totalTax: totalBaseTax,
         spouseDeduction: spouseDeduction,
-        finalTax: Math.round(finalTax)
+        finalTax: Math.round(finalTax),
+        spouseFinalTax: Math.round(spouseFinalTax) // 👈 追加口
       };
     }
 
@@ -311,6 +418,9 @@
       if (isNaN(ownPropertyMan) || ownPropertyMan < 0) ownPropertyMan = 0;
       const ownPropertyYen = ownPropertyMan * 10000;
 
+      // ⚔️ 経過年数の調停
+      const elapsedYears = parseInt(document.getElementById('input-elapsed-years').value) || 5;
+
       const pTotalEstate = primaryResult.totalEstate;
       const pSpouseShare = primaryResult.spouseActualShare;
       const pSpouseAcquisition = pTotalEstate * (pSpouseShare / 100);
@@ -318,17 +428,32 @@
 
       const pTaxResult = calculateInheritanceTax(pTotalEstate, childCount, true, pSpouseShare);
       const pTotalTax = pTaxResult.finalTax;
+      const pSpouseFinalTax = pTaxResult.spouseFinalTax; // 一次で配偶者が支払った生税額
+
+      // ⚔️ 相次相続控除（掃除相続）の動的減算回路
+      let soujiKoujo = 0;
+      if (pSpouseFinalTax > 0 && elapsedYears <= 10) {
+        const durationRatio = (10 - elapsedYears) / 10;
+        soujiKoujo = Math.round(pSpouseFinalTax * durationRatio);
+      }
 
       const sTotalEstate = pSpouseAcquisition + ownPropertyYen;
       const sTaxResult = calculateInheritanceTax(sTotalEstate, childCount, false, 0);
-      const sTotalTax = sTaxResult.finalTax;
+      
+      // 二次総額から控除を引き剥がす（破綻防止の床下0ガード）
+      let sFinalTaxAfterKoujo = sTaxResult.finalTax - soujiKoujo;
+      if (sFinalTaxAfterKoujo < 0) {
+        sFinalTaxAfterKoujo = 0;
+      }
+      const sTotalTax = sFinalTaxAfterKoujo;
 
       const grandTotalTax = pTotalTax + sTotalTax;
 
       const pChildrenTotalEstate = pTotalEstate - pSpouseAcquisition;
-      const childrenTotalNet = (pChildrenTotalEstate - pTotalTax) + (sTotalEstate - sTaxResult.finalTax);
+      const childrenTotalNet = (pChildrenTotalEstate - pTotalTax) + (sTotalEstate - sTotalTax);
       const childNetAvg = childrenTotalNet / childCount;
 
+      // ⚔️ 最適化ループ（相次相続控除の補正回路を完全内包）
       let bestShare = 50;
       let minGrandTax = Infinity;
 
@@ -336,11 +461,22 @@
         const testSpouseShare = i;
         const testSpouseAcquisition = pTotalEstate * (testSpouseShare / 100);
         
-        const testPTax = calculateInheritanceTax(pTotalEstate, childCount, true, testSpouseShare).finalTax;
-        const testSTotalEstate = testSpouseAcquisition + ownPropertyYen;
-        const testSTax = calculateInheritanceTax(testSTotalEstate, childCount, false, 0).finalTax;
+        const testPTaxResult = calculateInheritanceTax(pTotalEstate, childCount, true, testSpouseShare);
+        const testPTax = testPTaxResult.finalTax;
+        const testPSpouseFinalTax = testPTaxResult.spouseFinalTax;
         
-        const testGrandTax = testPTax + testSTax;
+        let testSoujiKoujo = 0;
+        if (testPSpouseFinalTax > 0 && elapsedYears <= 10) {
+          testSoujiKoujo = Math.round(testPSpouseFinalTax * ((10 - elapsedYears) / 10));
+        }
+
+        const testSTotalEstate = testSpouseAcquisition + ownPropertyYen;
+        const testSTaxResult = calculateInheritanceTax(testSTotalEstate, childCount, false, 0);
+        
+        let testSFinalTax = testSTaxResult.finalTax - testSoujiKoujo;
+        if (testSFinalTax < 0) testSFinalTax = 0;
+        
+        const testGrandTax = testPTax + testSFinalTax;
         if (testGrandTax < minGrandTax) {
           minGrandTax = testGrandTax;
           bestShare = testSpouseShare;
@@ -379,12 +515,24 @@
       const savingPerChild = Math.round(saving / childCount);
       document.getElementById('tax-saving-per-child').innerText = "(子供1人あたり: " + toMan(savingPerChild).toLocaleString() + " 万円削減)";
 
+      // 最適化献策セクションの二重黄金枠 ＆ 動的アドバイス標識のリアルタイム制御
+      const sectionBox = document.getElementById('optimization-section');
+      const statusBadge = document.getElementById('advice-status-badge');
       const btn = document.getElementById('btn-apply-strategy');
+
       if (bestShare === Math.round(pSpouseShare)) {
+        sectionBox.classList.remove('border-gold-double');
+        statusBadge.className = "absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold font-mono tracking-wider border border-emerald-500/40 text-emerald-400 bg-emerald-950/60";
+        statusBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i> 策略適用済`;
+
         btn.innerText = "✓ 現在すでに最適配分比率です";
         btn.disabled = true;
         btn.className = "bg-ceremony-purple-900 border border-ceremony-purple-800 text-ceremony-silver-500 font-bold px-6 py-3.5 rounded-xl text-base cursor-not-allowed flex items-center gap-2 inline-flex";
       } else {
+        sectionBox.classList.add('border-gold-double');
+        statusBadge.className = "absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold font-mono tracking-wider border border-amber-500/50 text-amber-400 pulse-amber";
+        statusBadge.innerHTML = `<i class="fa-solid fa-lightbulb text-amber-300"></i> 軍師の進言あり`;
+
         btn.innerText = "⚔️ この最適解（" + bestShare + "％）を一次相続へ一撃適用する";
         btn.disabled = false;
         btn.className = "bg-gradient-to-r from-ceremony-gold-600 to-ceremony-gold-400 hover:from-ceremony-gold-500 hover:to-ceremony-gold-300 text-ceremony-purple-950 font-black px-6 py-3.5 rounded-xl text-base shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 inline-flex";
@@ -411,25 +559,20 @@
       window.location.href = "../index.html";
     });
 
-
-
-// ⚔️ 一撃適用の調停：本番サーバーの本体へ完全連動（我が君の陣形を完全守護する最終版）
+    // ⚔️ 一撃適用の調停：本番サーバーの本体へ完全連動（我が君の陣形を完全守護する最終版）
     document.getElementById('btn-apply-strategy').addEventListener('click', () => {
       if (primaryResult.lastCalculatedBestShare !== undefined) {
         const bestShare = primaryResult.lastCalculatedBestShare;
         const remainingShare = 100 - bestShare;
         
-        // 1. 一次相続盤のセーブデータを無傷で取得
         let savedData = JSON.parse(localStorage.getItem('gemkin_primary_result'));
         if (!savedData) savedData = primaryResult;
 
-        // 2. 強制適用フラグと黄金比率を注入
         savedData.forceUniformSplit = true;
         savedData.spouseActualShare = bestShare;
         savedData.targetSpouseShare = bestShare;
         savedData.spouseAcquisition = savedData.totalEstate * (bestShare / 100);
 
-        // 3. 配偶者IDの厳格な同定（名札のズレを完全修正）
         let spouseId = savedData.legalSpouseId || "h1";
         if (savedData.heirs && Array.isArray(savedData.heirs)) {
           let foundSpouse = savedData.heirs.find(h => h.relation === 'spouse_legal' || h.id === spouseId);
@@ -438,7 +581,6 @@
           }
         }
 
-        // 4. 【相続人構成の陣形維持】全体の取得割合（share）を完全同期
         if (savedData.heirs && Array.isArray(savedData.heirs)) {
           const legalSpouse = savedData.heirs.find(h => h.id === spouseId);
           const otherHeirs = savedData.heirs.filter(h => h.id !== spouseId);
@@ -459,11 +601,10 @@
           }
         }
 
-        // 5. 【アセット分割の完全調停】
         if (savedData.assets && Array.isArray(savedData.assets)) {
           savedData.assets.forEach(asset => {
             asset.canSplit = true;
-            asset.splitMode = 'auto'; // 比率連動に統一して破綻を防止
+            asset.splitMode = 'auto'; 
             if (!asset.customSplit) asset.customSplit = {};
             asset.customSplit[spouseId] = bestShare;
 
@@ -483,7 +624,6 @@
           });
         }
 
-        // 6. 完璧なる指示書を localStorage へ保管し、本体へ進軍
         localStorage.setItem('gemkin_primary_result', JSON.stringify(savedData));
         
         alert("📊 二次相続調停完了！\n一族の総税額を最小化するため、配偶者の取得割合を【 " + bestShare + " % 】に設定。\n\n我が君が構築された相続人構成の陣形を100%維持したまま、本体の一次相続盤へ堂々帰還いたします！");
@@ -491,13 +631,99 @@
       }
     });
 
+    // 📜 【摩擦音錬成陣】Web Audio APIによる「シュルシュル」音リアルタイム合成
+    function playScrollSound() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const duration = 1.2;
+        const sampleRate = ctx.sampleRate;
+        const bufferSize = sampleRate * duration;
+        const buffer = ctx.createBuffer(1, bufferSize, sampleRate);
+        const data = buffer.getChannelData(0);
+        
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        
+        const noise = ctx.createBufferSource();
+        noise.buffer = buffer;
 
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1200, ctx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + duration);
+        filter.Q.setValueAtTime(2.0, ctx.currentTime);
 
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
 
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
 
-    window.onload = () => {
+        noise.start();
+        noise.stop(ctx.currentTime + duration);
+      } catch (e) {
+        console.log("音響錬成失敗:", e);
+      }
+    }
+
+    // ⚔️ 経過年数UIの双方向完全連動調停
+    const inputYears = document.getElementById('input-elapsed-years');
+    const sliderYears = document.getElementById('slider-elapsed-years');
+    const yearsHint = document.getElementById('years-hint');
+
+    function updateYearsHint(value) {
+      const pct = (10 - parseInt(value)) * 10;
+      yearsHint.innerText = `現在: ${value} 年（控除率目安: ${pct}%）`;
+    }
+
+    inputYears.addEventListener('input', () => {
+      let val = parseInt(inputYears.value);
+      if (isNaN(val)) val = 5;
+      if (val < 1) val = 1;
+      if (val > 10) val = 10;
+      sliderYears.value = val;
+      updateYearsHint(val);
+      updateSimulation(); 
+    });
+
+    sliderYears.addEventListener('input', () => {
+      inputYears.value = sliderYears.value;
+      updateYearsHint(sliderYears.value);
       updateSimulation();
-    };
+    });
+
+    // ⏳ 【時間差の軍略】巻物開帳トリガー制御
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnUnseal = document.getElementById('btn-unseal');
+      const overlay = document.getElementById('scroll-seal-overlay');
+      const wingL = document.getElementById('scroll-wing-l');
+      const wingR = document.getElementById('scroll-wing-r');
+
+      updateYearsHint(5);
+
+      if (btnUnseal) {
+        btnUnseal.addEventListener('click', () => {
+          playScrollSound();
+          
+          btnUnseal.style.display = 'none';
+          wingL.classList.add('scroll-open-left');
+          wingR.classList.add('scroll-open-right');
+          
+          overlay.style.opacity = '0';
+          overlay.style.pointerEvents = 'none';
+
+          setTimeout(() => {
+            overlay.style.display = 'none';
+            updateSimulation();
+          }, 1200);
+        });
+      }
+    });
   </script>
 </body>
 </html>
