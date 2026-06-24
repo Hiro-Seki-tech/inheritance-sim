@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemkin Ambient BGM Player - Hidden Edition</title>
+    <style>
+        /* 裏側（iframe）で動くため、基本は非表示でもOKですが、デバッグ用にシンプルなスタイルにしています */
+        body {
+            background-color: #1a1a2e;
+            color: #e2e2e7;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            background: #161625;
+            border: 1px solid #2a2a40;
+        }
+        h1 {
+            font-size: 1.1rem;
+            color: #c9a0dc;
+            margin: 0 0 5px 0;
+        }
+        .status {
+            font-size: 0.8rem;
+            color: #00ffcc;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>GEMKIN BGM SOURCE</h1>
+    <div id="statusText" class="status">初期化中...</div>
+</div>
+
+<script>
+    let audioCtx = null;
+    let isPlaying = false;
+    
+    let droneOsc1, droneOsc2, droneGain;
+    let bellTimeoutId = null;
+
+    const statusText = document.getElementById('statusText');
+
+    // 🎵 1. 開いた瞬間に自動でBGMを開始
+    // iframeが読み込まれたタイミングで即座に発火します
+    window.addEventListener('DOMContentLoaded', () => {
+        startBGM();
+    });
+
+    // 📩 2. 親画面（外部）からのストップ命令をキャッチする仕組み
+    // パターンA: window.postMessage('stop', '*') で呼び出された場合
+    window.addEventListener('message', (event) => {
+        if (event.data === 'stop') {
+            stopBGM();
+        }
+    });
+
+    // パターンB: 親側から iframe.contentWindow.stopBGM() と直接関数を実行された場合のために、
+    // グローバル関数としてアクセスできるように window に紐付けます
+    window.stopBGM = stopBGM;
+
+    function startBGM() {
+        if (isPlaying) return;
+
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            isPlaying = true;
+            statusText.innerText = '♪ 悠久の低音が響いています...';
+
+            // 低音ドローン
+            droneGain = audioCtx.createGain();
+            droneGain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+
+            droneOsc1 = audioCtx.createOscillator();
+            droneOsc1.type = 'sawtooth'; 
+            droneOsc1.frequency.setValueAtTime(65.41, audioCtx.currentTime); 
+            
+            droneOsc2 = audioCtx.createOscillator();
+            droneOsc2.type = 'sawtooth';
+            droneOsc2.frequency.setValueAtTime(65.51, audioCtx.currentTime); 
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(140, audioCtx.currentTime);
+
+            droneOsc1.connect(filter);
+            droneOsc2.connect(filter);
+            filter.connect(droneGain);
+            droneGain.connect(audioCtx.destination);
+
+            droneOsc1.start();
+            droneOsc2.start();
+
+            // 初回のイベントトリガー（鐘と音声）
+            triggerBellNext();
+        } catch (e) {
+            console.error("AudioContextの起動に失敗しました。ユーザーインタラクションが必要です。", e);
+            statusText.innerText = '起動失敗（親画面のクリックと連動させてください）';
+        }
+    }
+
+    function triggerBellNext() {
+        if (!isPlaying || !audioCtx) return;
+
+        playBell();
+        
+        setTimeout(() => {
+            if (isPlaying) playVoiceGemkin();
+        }, 2000);
+
+        const minDelay = 45000;
+        const maxDelay = 75000;
+        const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+
+        bellTimeoutId = setTimeout(triggerBellNext, randomDelay);
+    }
+
+    function playBell() {
+        if (!isPlaying || !audioCtx) return;
+        const now = audioCtx.currentTime;
+        const bellGain = audioCtx.createGain();
+        bellGain.gain.setValueAtTime(0, now);
+        bellGain.gain.linearRampToValueAtTime(0.12, now + 0.02);
+        bellGain.gain.exponentialRampToValueAtTime(0.0001, now + 14.0);
+
+        const frequencies = [220, 441.5, 593, 882]; 
+        
+        frequencies.forEach((freq, index) => {
+            const osc = audioCtx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now);
+            
+            const partialGain = audioCtx.createGain();
+            partialGain.gain.setValueAtTime(1.0 / (index + 1.8), now);
+            
+            osc.connect(partialGain);
+            partialGain.connect(bellGain);
+            
+            osc.start(now);
+            osc.stop(now + 14.0);
+        });
+
+        bellGain.connect(audioCtx.destination);
+    }
+
+    function playVoiceGemkin() {
+        if (!isPlaying || !audioCtx) return;
+        const now = audioCtx.currentTime;
+        const voiceGain = audioCtx.createGain();
+        
+        voiceGain.gain.setValueAtTime(0, now);
+        voiceGain.gain.linearRampToValueAtTime(0.15, now + 0.1);
+        voiceGain.gain.linearRampToValueAtTime(0.05, now + 0.5);
+        voiceGain.gain.linearRampToValueAtTime(0.18, now + 0.8);
+        voiceGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.0);
+
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        osc1.type = 'sawtooth';
+        osc2.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(85, now);
+        osc2.frequency.setValueAtTime(86, now);
+
+        const formantFilter = audioCtx.createBiquadFilter();
+        formantFilter.type = 'bandpass';
+        formantFilter.Q.setValueAtTime(8, now);
+
+        formantFilter.frequency.setValueAtTime(500, now);
+        formantFilter.frequency.linearRampToValueAtTime(320, now + 0.4);
+        formantFilter.frequency.linearRampToValueAtTime(450, now + 0.8);
+        formantFilter.frequency.linearRampToValueAtTime(250, now + 1.5);
+
+        const voiceFilter = audioCtx.createBiquadFilter();
+        voiceFilter.type = 'lowpass';
+        voiceFilter.frequency.setValueAtTime(800, now);
+
+        osc1.connect(formantFilter);
+        osc2.connect(formantFilter);
+        formantFilter.connect(voiceFilter);
+        voiceFilter.connect(voiceGain);
+        voiceGain.connect(audioCtx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 2.0);
+        osc2.stop(now + 2.0);
+    }
+
+    // 🛑 3. 命令が来たら完全に消音・停止する
+    function stopBGM() {
+        isPlaying = false;
+        statusText.innerText = '停止中（消音されました）';
+
+        if (bellTimeoutId) {
+            clearTimeout(bellTimeoutId);
+            bellTimeoutId = null;
+        }
+
+        // AudioContext自体を中断（サスペンド）させることで、
+        // その瞬間鳴っている全ての音（残響音やボイス）を完全に、かつ安全に即時消音します。
+        if (audioCtx && audioCtx.state !== 'closed') {
+            audioCtx.suspend();
+        }
+    }
+</script>
+
+</body>
+</html>
