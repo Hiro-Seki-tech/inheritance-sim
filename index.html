@@ -944,19 +944,25 @@ let state = {
         playPlatinumSong();
         showFeedback('🎵 【プラチナの陣】銀縁逆回転！賛歌（song.mp4）を一撃詠唱いたします。');
 
-      } else if (state.currentState === 'red') {
+} else if (state.currentState === 'red') {
         // 🔴 レッド陣：静寂なる赤縁・完全フリーズ
+        // 周りの枠（外枠）だけを鮮烈な赤にする
         if (ornateFrame) ornateFrame.setAttribute('stroke', 'url(#red-grad)');
         if (cornerFlourishes) cornerFlourishes.setAttribute('stroke', 'url(#red-grad)');
-        if (coreCircle) coreCircle.setAttribute('stroke', 'url(#red-grad)');
-        if (coreText) coreText.setAttribute('fill', 'url(#red-grad)');
+        
+        // 中央の円の枠と文字はゴールド（#gold-grad）のまま維持！
+        if (coreCircle) coreCircle.setAttribute('stroke', 'url(#gold-grad)');
+        if (coreText) coreText.setAttribute('fill', 'url(#gold-grad)');
+        
+        // 背景はプラチナの陣と同じ静かなダークブルー（rgb(30, 41, 59)）にする！
         if (svgBgRect) {
           svgBgRect.setAttribute('fill', 'none');
-          svgBgRect.style.fill = 'rgb(69, 10, 10)'; // 深い血の池のような赤黒
+          svgBgRect.style.fill = 'rgb(30, 41, 59)'; 
         }
 
         showFeedback('🔇 【無音の赤陣】資産回転フリーズ。すべての音響結界を解除いたしました。');
       }
+
 
       updateApp();
     }
@@ -998,7 +1004,8 @@ let state = {
       if (!activeAudioFile) {
         activeAudioFile = new Audio('./music/song.mp4');
         activeAudioFile.loop = false; // 🛑 ループなしの掟
-        
+        activeAudioFile.volume = 0.5;
+
         // 曲が終わったら自動的にゴールドの陣形へ帰還させる調停
         activeAudioFile.onended = function() {
           if (state.currentState === 'platinum') {
