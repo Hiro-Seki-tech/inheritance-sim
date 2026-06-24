@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>宝均（Gem-Kin） - 二次相続最適化調停盤</title>
+  <title>宝均（Gem-Kin） - 二次相続最適化シミュレータ</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script>
@@ -110,6 +110,65 @@
       0%, 100% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); background-color: rgba(245, 158, 11, 0.2); }
       50% { box-shadow: 0 0 16px rgba(245, 158, 11, 0.8); background-color: rgba(245, 158, 11, 0.4); }
     }
+
+/* 🌟 【仕様①】ボタン常時・ホバー演出用の特殊錬成 */
+    @keyframes shimmer-move {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .animate-shimmer {
+      background: linear-gradient(120deg, #ca8a04 0%, #facc15 25%, #fff4be 50%, #facc15 75%, #ca8a04 100%);
+      background-size: 200% 100%;
+      animation: shimmer-move 4s linear infinite;
+    }
+    .animate-shimmer:hover {
+      animation: shimmer-move 1.5s linear infinite; /* ホバー時は光が加速 */
+    }
+
+    @keyframes goldAuraGlow {
+      0%, 100% { box-shadow: 0 0 15px rgba(250, 204, 21, 0.4), inset 0 0 10px rgba(255,255,255,0.2); }
+      50% { box-shadow: 0 0 35px rgba(250, 204, 21, 0.8), inset 0 0 20px rgba(255,255,255,0.5); }
+    }
+    .pulse-gold-aura:hover:not(:disabled) {
+      animation: goldAuraGlow 1.5s infinite ease-in-out !important;
+    }
+
+/* 💥 【仕様②】一撃必殺・全画面衝撃波＆シェイク（演出強化版） */
+    .shock-ring {
+      position: fixed;
+      border: 4px solid #facc15;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999 !important; /* 👈 z-indexを最前面へ引き上げて視覚効果を最大化 */
+      transform: translate(-50%, -50%);
+      animation: ringBlow 0.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    }
+    @keyframes ringBlow {
+      0% { width: 0; height: 0; opacity: 1; border-width: 20px; }
+      100% { width: 300vmax; height: 300vmax; opacity: 0; border-width: 1px; }
+    }
+
+    .screen-shake {
+      animation: cameraShake 0.4s forwards !important; /* 👈 activeからforwardsに修正して連続発動を保証 */
+    }
+
+
+
+    @keyframes cameraShake {
+      0% { transform: translate(0, 0); }
+      10% { transform: translate(-4px, 3px) rotate(-0.5deg); }
+      20% { transform: translate(3px, -2px) rotate(0.5deg); }
+      30% { transform: translate(-3px, -3px) rotate(0deg); }
+      40% { transform: translate(4px, 2px) rotate(0.5deg); }
+      50% { transform: translate(-2px, 3px) rotate(-0.5deg); }
+      60% { transform: translate(3px, -2px) rotate(0deg); }
+      70% { transform: translate(-3px, 1px) rotate(0.5deg); }
+      80% { transform: translate(2px, -3px) rotate(-0.5deg); }
+      90% { transform: translate(-1px, 2px) rotate(0deg); }
+      100% { transform: translate(0, 0); }
+    }
+
+
   </style>
 </head>
 
@@ -132,7 +191,7 @@
         <p class="text-xs tracking-[0.2em] font-bold text-ceremony-gold-400 font-mono">SECONDARY INHERITANCE MEDIATION</p>
         <p class="text-sm text-ceremony-silver-200 font-medium leading-relaxed">
           これより先は、一族の富を二重課税から守護する禁忌の領域。<br>
-          軍師ジェムキンの算盤の裏に隠した【相次相続の秘策】、開帳の覚悟はよろしいか？
+          【相次相続の秘策】、開帳の覚悟はよろしいか？
         </p>
       </div>
     </div>
@@ -141,9 +200,273 @@
   <header class="border-b border-ceremony-gold-500/20 bg-ceremony-purple-900/40 backdrop-blur-md p-5 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-wider bg-gradient-to-r from-ceremony-silver-200 via-ceremony-gold-500 to-white bg-clip-text text-transparent">
-          <i class="fa-solid fa-crown text-ceremony-gold-500 text-2xl mr-2"></i>宝均（Gem-Kin） <span class="text-lg font-normal text-ceremony-silver-400">二次相続最適化調停盤</span>
+
+<h1 class="text-3xl font-bold tracking-wider bg-gradient-to-r from-ceremony-silver-200 via-ceremony-gold-500 to-white bg-clip-text text-transparent flex items-center gap-4">
+          <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" id="symbol-svg" viewBox="0 0 800 800" class="w-20 h-20 drop-shadow-[0_0_35px_rgba(212,175,55,0.25)] flex-shrink-0">
+            <defs>
+                <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#fff4be"/>
+                    <stop offset="35%" stop-color="#ffd700"/>
+                    <stop offset="70%" stop-color="#ab820a"/>
+                    <stop offset="100%" stop-color="#e2ba39"/>
+                </linearGradient>
+
+                <radialGradient id="bg-glow" cx="50%" cy="50%" r="50%">
+                    <stop id="glow-start" offset="0%" stop-color="#10b981" stop-opacity="0.25"/>
+                    <stop id="glow-mid" offset="50%" stop-color="#064e3b" stop-opacity="0.05"/>
+                    <stop id="glow-end" offset="100%" stop-color="#021e14" stop-opacity="0"/>
+                </radialGradient>
+
+                <linearGradient id="silver-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="25%" stop-color="#f1f5f9"/>
+                    <stop offset="65%" stop-color="#94a3b8"/>
+                    <stop offset="100%" stop-color="#334155"/>
+                </linearGradient>
+
+                <linearGradient id="gem-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="20%" stop-color="#e0f7fa"/>
+                    <stop offset="55%" stop-color="#00e5ff"/>
+                    <stop offset="100%" stop-color="#006064"/>
+                </linearGradient>
+
+                <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                    <feGaussianBlur stdDeviation="6" result="blur"/>
+                    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                </filter>
+            </defs>
+
+            <rect id="svg-bg-rect" width="800" height="800" fill="url(#bg-glow)" style="transition: fill 0.8s; fill: rgb(2, 11, 5);"/>
+
+            <g id="ornate-frame" stroke="#34d399" fill="none" class="transition-all duration-500">
+                <rect x="35" y="35" width="730" height="730" stroke-width="2.5" rx="365"/>
+                <rect x="42" y="42" width="716" height="716" stroke-width="1" stroke-dasharray="8, 8" rx="358"/>
+                <polygon points="400,25 665,110 775,400 665,690 400,775 135,690 25,400 135,110" stroke-width="1" opacity="0.6"/>
+                <polygon points="400,35 765,400 400,765 35,400" stroke-width="1" opacity="0.4"/>
+                <circle cx="35" cy="35" r="5" fill="#34d399" class="corner-dot"/>
+                <circle cx="765" cy="35" r="5" fill="#34d399" class="corner-dot"/>
+                <circle cx="35" cy="765" r="5" fill="#34d399" class="corner-dot"/>
+                <circle cx="765" cy="765" r="5" fill="#34d399" class="corner-dot"/>
+            </g>
+
+            <g id="core-system-group" transform="translate(400, 400)">
+                <circle cx="0" cy="0" r="150" fill="#000" opacity="0.4"/>
+                <circle cx="0" cy="0" r="130" fill="url(#gold-grad)" opacity="0.15" filter="url(#glow)"/>
+                <circle id="core-circle" cx="0" cy="0" r="145" fill="#150f03" stroke="url(#gold-grad)" stroke-width="6" style="transition: fill 0.8s; fill: rgb(3, 18, 8); filter: drop-shadow(rgba(3, 18, 8, 0.5) 0px 0px 25px);"/>
+                <circle cx="0" cy="0" r="125" fill="none" stroke="url(#gold-grad)" stroke-width="1" opacity="0.3"/>
+                <circle cx="0" cy="0" r="120" fill="none" stroke="url(#gold-grad)" stroke-width="1.5" opacity="0.5"/>
+                
+                <text id="core-text" x="0" y="38" font-family="'Noto Serif JP', serif" font-weight="900" font-size="110" fill="url(#gold-grad)" text-anchor="middle" filter="url(#glow)">宝均</text>
+            </g>
+
+            <g id="orbit-system-group">
+
+                <g class="orbit-arm" data-angle="0" transform="translate(400, 400) rotate(0) translate(0, -275) rotate(0)">
+                    <g class="counter-rotator">
+                        <g class="kanji-scalable-group" transform="scale(2.325)">
+                            <g class="kanji-pulse">
+                                <polygon points="0,-33 23,-23 33,0 23,23 0,33 -23,23 -33,0 -23,-23" fill="#150f03" stroke="url(#gold-grad)" stroke-width="2.5"/>
+                                <polygon points="0,-29 20,-20 29,0 20,20 0,29 -20,20 -29,0 -20,-20" fill="none" stroke="url(#gold-grad)" stroke-width="0.8" opacity="0.6"/>
+                                <text x="0" y="13" font-family="'Noto Serif JP', serif" font-weight="900" font-size="36" fill="url(#gold-grad)" text-anchor="middle" filter="url(#glow)">宝</text>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+
+                <g class="orbit-arm" data-angle="60" transform="translate(400, 400) rotate(60) translate(0, -275) rotate(-60)">
+                    <g class="counter-rotator">
+                        <g class="asset-scalable-group" transform="scale(1.55)">
+                            <g class="cash-breathe">
+                                <rect x="-38" y="-22" width="76" height="44" rx="4" fill="#144d1a" stroke="url(#gold-grad)" stroke-width="2.5"/>
+                                <rect x="-32" y="-17" width="64" height="34" rx="2" fill="none" stroke="#66bb6a" stroke-width="1" opacity="0.5"/>
+                                <circle cx="0" cy="0" r="11" fill="none" stroke="#ffca28" stroke-width="1.5"/>
+                                <text x="0" y="4" font-family="'Cinzel', sans-serif" font-size="11" fill="#ffd54f" text-anchor="middle" font-weight="900">10k</text>
+                                <rect x="-9" y="-22" width="18" height="44" fill="#e65100" opacity="0.85"/>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+
+                <g class="orbit-arm" data-angle="120" transform="translate(400, 400) rotate(120) translate(0, -275) rotate(-120)">
+                    <g class="counter-rotator">
+                        <g class="asset-scalable-group" transform="scale(1.55)">
+                            <g class="key-swing">
+                                <path d="M 0,-32 C -12,-32 -20,-24 -20,-14 C -20,-6 -12,-2 0,-5 C 12,-2 20,-6 20,-14 C 20,-24 12,-32 0,-32 Z" fill="none" stroke="url(#silver-grad)" stroke-width="3"/>
+                                <path d="M 0,-32 C -6,-44 -22,-40 -16,-26 C -20,-14 -6,-16 0,-16 C 6,-16 20,-14 16,-26 C 22,-40 6,-44 0,-32 Z" fill="none" stroke="url(#silver-grad)" stroke-width="2" opacity="0.8"/>
+                                <circle cx="0" cy="-21" r="5" fill="none" stroke="url(#silver-grad)" stroke-width="2"/>
+                                
+                                <rect x="-3.5" y="-14" width="7" height="6" fill="url(#silver-grad)" rx="1.5"/>
+                                <line x1="0" y1="-8" x2="0" y2="34" stroke="url(#silver-grad)" stroke-width="4.5" stroke-linecap="round"/>
+                                
+                                <rect x="-6" y="10" width="12" height="3.5" fill="url(#silver-grad)" rx="1"/>
+                                
+                                <path d="M 0,18 L 16,18 L 16,23 L 6,23 L 6,27 L 16,27 L 16,33 L 0,33 Z" fill="url(#silver-grad)" stroke="url(#silver-grad)" stroke-width="1.5" stroke-linejoin="round"/>
+                                <rect id="key-hollow-rect" x="5" y="22" width="6" height="5" fill="#051109" class="transition-all duration-500"/>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+
+                <g class="orbit-arm" data-angle="180" transform="translate(400, 400) rotate(180) translate(0, -275) rotate(-180)">
+                    <g class="counter-rotator">
+                        <g class="kanji-scalable-group" transform="scale(2.325)">
+                            <g class="kanji-glow">
+                                <polygon points="0,-33 23,-23 33,0 23,23 0,33 -23,23 -33,0 -23,-23" fill="#150f03" stroke="url(#gold-grad)" stroke-width="2.5"/>
+                                <polygon points="0,-29 20,-20 29,0 20,20 0,29 -20,20 -29,0 -20,-20" fill="none" stroke="url(#gold-grad)" stroke-width="0.8" opacity="0.6"/>
+                                <text x="0" y="13" font-family="'Noto Serif JP', serif" font-weight="900" font-size="34" fill="url(#gold-grad)" text-anchor="middle" filter="url(#glow)">均</text>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+
+                <g class="orbit-arm" data-angle="240" transform="translate(400, 400) rotate(240) translate(0, -275) rotate(-240)">
+                    <g class="counter-rotator">
+                        <g class="asset-scalable-group" transform="scale(1.55)">
+                            <g class="gem-shimmer" transform="translate(0, -5)">
+                                <polygon points="0,-30 26,-12 16,22 -16,22 -26,-12" fill="url(#gem-grad)" opacity="0.25" filter="url(#glow)"/>
+                                
+                                <polygon points="-12,-12 12,-12 18,-4 12,6 -12,6 -18,-4" fill="#e0f7fa" opacity="0.9"/>
+                                <polygon points="0,-30 -12,-12 -18,-4 -26,-12" fill="#b2ebf2" opacity="0.6" stroke="#ffffff" stroke-width="1"/>
+                                <polygon points="0,-30 12,-12 18,-4 26,-12" fill="#ffffff" opacity="0.8" stroke="#ffffff" stroke-width="1"/>
+                                <polygon points="-12,6 -16,22 0,26 0,6" fill="#00838f" opacity="0.75" stroke="#ffffff" stroke-width="0.8"/>
+                                <polygon points="12,6 16,22 0,26 0,6" fill="#00acc1" opacity="0.85" stroke="#ffffff" stroke-width="0.8"/>
+                                <polygon points="0,-30 -12,-12 12,-12" fill="#ffffff" opacity="0.95" stroke="#ffffff" stroke-width="1.2"/>
+                                
+                                <polygon points="0,-30 26,-12 16,22 -16,22 -26,-12" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+                                
+                                <path class="gem-star-flash" d="M 0,-18 Q 0,0 18,0 Q 0,0 0,18 Q 0,0 -18,0 Q 0,0 0,-18 Z" fill="#ffffff"/>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+
+                <g class="orbit-arm" data-angle="300" transform="translate(400, 400) rotate(300) translate(0, -275) rotate(-300)">
+                    <g class="counter-rotator">
+                        <g class="asset-scalable-group" transform="scale(1.55)">
+                            <g class="koban-sparkle">
+                                <ellipse cx="0" cy="0" rx="30" ry="42" fill="url(#gold-grad)" opacity="0.15" filter="url(#glow)"/>
+                                
+                                <ellipse cx="0" cy="0" rx="24" ry="36" fill="url(#gold-grad)" stroke="#664604" stroke-width="2.5"/>
+                                
+                                <line x1="-15" y1="-26" x2="15" y2="-26" stroke="#664604" stroke-width="1.2" opacity="0.6"/>
+                                <line x1="-18" y1="-20" x2="18" y2="-20" stroke="#664604" stroke-width="1.2" opacity="0.6"/>
+                                <line x1="-21" y1="-14" x2="21" y2="-14" stroke="#664604" stroke-width="1.2" opacity="0.6"/>
+                                <line x1="-22" y1="-8" x2="22" y2="-8" stroke="#664604" stroke-width="1.2" opacity="0.6"/>
+                                <line x1="-23" y1="-2" x2="23" y2="-2" stroke="#664604" stroke-width="1.2" opacity="0.6"/>
+                                <line x1="-23" y1="4" x2="23" y2="4" stroke="#664604" stroke-width="1.2" opacity="0.6"/>
+                                <line x1="-22" y1="10" x2="22" y2="10" stroke="#664604" stroke-width="1.2" opacity="0.6"/>
+                                <line x1="-21" y1="16" x2="21" y2="16" stroke="#664604" stroke-width="1.2" opacity="0.6"/>
+                                <line x1="-18" y1="22" x2="18" y2="22" stroke="#664604" stroke-width="1.2" opacity="0.6"/>
+                                <line x1="-15" y1="28" x2="15" y2="28" stroke="#664604" stroke-width="1.2" opacity="0.6"/>
+
+                                <path d="M-6,-30 C-3,-31 3,-31 6,-30 C4,-33 -4,-33 -6,-30 Z" fill="#664604"/>
+                                <circle cx="0" cy="-29" r="2" fill="#664604"/>
+                                <path d="M-6,30 C-3,31 3,31 6,30 C4,33 -4,33 -6,30 Z" fill="#664604"/>
+                                <circle cx="0" cy="29" r="2" fill="#664604"/>
+
+                                <rect x="-7" y="-7" width="14" height="14" fill="#1b1202" stroke="#664604" stroke-width="1.2"/>
+                                <text x="0" y="4" font-family="'Noto Serif JP', serif" font-size="10" font-weight="900" fill="url(#gold-grad)" text-anchor="middle">両</text>
+                                
+                                <path class="koban-star-flash" d="M 15,-43 Q 15,-25 33,-25 Q 15,-25 15,-7 Q 15,-25 -3,-25 Q 15,-25 15,-43 Z" fill="#ffd700"/>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+
+            </g>
+            <style>
+                #orbit-system-group {
+                    transform-origin: 400px 400px;
+                    animation: global-orbit 80s linear infinite;
+                }
+                .counter-rotator {
+                    transform-origin: 0px 0px;
+                    animation: cancel-orbit 80s linear infinite;
+                }
+                @keyframes global-orbit {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+                @keyframes cancel-orbit {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(-360deg); }
+                }
+
+                /* Active Emission Glow & Swing Cycles */
+                .koban-sparkle {
+                    animation: koban-glow 4.5s ease-in-out infinite;
+                }
+                @keyframes koban-glow {
+                    0%, 100% { opacity: 0.85; filter: drop-shadow(0 0 4px rgba(255,215,0,0.4)) brightness(0.95); }
+                    50% { opacity: 1; filter: drop-shadow(0 0 20px rgba(255,215,0,0.95)) brightness(1.25); }
+                }
+                .koban-star-flash {
+                    transform-origin: 15px -25px;
+                    animation: koban-star 4.5s ease-in-out infinite;
+                }
+                @keyframes koban-star {
+                    0%, 75%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
+                    85% { transform: scale(1.4) rotate(90deg); opacity: 1; filter: drop-shadow(0 0 10px #fff); }
+                    92% { transform: scale(0) rotate(180deg); opacity: 0; }
+                }
+
+                .cash-breathe {
+                    transform-origin: 0px 0px;
+                    animation: cash-glow 4.7s ease-in-out infinite;
+                }
+                @keyframes cash-glow {
+                    0%, 100% { transform: scale(1); opacity: 0.85; filter: brightness(0.9); }
+                    50% { transform: scale(1.12); opacity: 1; filter: brightness(1.2) drop-shadow(0 0 18px rgba(76,175,80,0.7)); }
+                }
+
+                .key-swing {
+                    transform-origin: 0px -28px;
+                    animation: key-swing-action 6s ease-in-out infinite;
+                }
+                @keyframes key-swing-action {
+                    0%, 100% { transform: rotate(-15deg); filter: brightness(0.9) drop-shadow(0 0 3px rgba(255,255,255,0.2)); }
+                    50% { transform: rotate(15deg); filter: brightness(1.2) drop-shadow(0 0 15px rgba(255,255,255,0.8)); }
+                }
+
+                .gem-shimmer {
+                    animation: gem-flash 3s ease-in-out infinite;
+                }
+                @keyframes gem-flash {
+                    0%, 100% { opacity: 0.8; filter: drop-shadow(0 0 4px rgba(0, 229, 255, 0.3)); }
+                    50% { opacity: 1; filter: drop-shadow(0 0 24px rgba(255, 255, 255, 0.95)); }
+                }
+                .gem-star-flash {
+                    transform-origin: 0px -5px;
+                    animation: gem-star 3s ease-in-out infinite;
+                }
+                @keyframes gem-star {
+                    0%, 65%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
+                    75% { transform: scale(1.6) rotate(45deg); opacity: 1; filter: drop-shadow(0 0 12px #fff); }
+                    85% { transform: scale(0) rotate(90deg); opacity: 0; }
+                }
+
+                .kanji-pulse {
+                    animation: pulse-crest 3.5s ease-in-out infinite;
+                }
+                @keyframes pulse-crest {
+                    0%, 100% { opacity: 0.8; filter: drop-shadow(0 0 4px rgba(212, 175, 55, 0.4)); }
+                    50% { opacity: 1; filter: drop-shadow(0 0 20px rgba(255, 242, 163, 0.9)); }
+                }
+
+                .kanji-glow {
+                    animation: glow-crest 3.5s ease-in-out infinite;
+                }
+                @keyframes glow-crest {
+                    0%, 100% { opacity: 0.8; filter: saturate(0.9) drop-shadow(0 0 4px rgba(212, 175, 55, 0.4)); }
+                    50% { opacity: 1; filter: saturate(1.5) drop-shadow(0 0 20px rgba(212,175,55,1)); }
+                }
+            </style>
+          </svg>
+          宝均（Gem-Kin） <span class="text-lg font-normal text-ceremony-silver-400">二次相続シミュレータ</span>
         </h1>
+
+
         <p class="text-sm text-ceremony-silver-400 mt-1">一次被相続人 ＆ 配偶者逝去時の資産推移と、子供たちの最終納税額シミュレーション（2026年版）</p>
       </div>
       <div>
@@ -215,13 +538,13 @@
           <i class="fa-solid fa-clock text-ceremony-gold-500 mt-0.5 text-sm"></i>
           <span>
             <strong class="text-ceremony-gold-400 block mb-1">【軍師の道標：経過年数とは？】</strong>
-            最初の被相続人が亡くなってから（例：夫の逝去）、配偶者様が亡くなる（今回の二次相続）までの「一族の歳月」にございます。ユーザー様が困惑されぬよう付言しますと、この期間が10年以内であれば、前回の相続税の一部を今回の税金から直接差し引くことができる重要特例<strong>「相次相続控除」</strong>が発動いたします。
+            最初の被相続人が亡くなってから（例：夫の逝去）、配偶者様が亡くなる（今回の二次相続）までの「一族の歳月」のこと。この期間が10年以内であれば、前回の相続税の一部を今回の税金から直接差し引くことができる重要特例<strong>「相次相続控除」</strong>が発動します。
           </span>
         </div>
 
         <div class="p-4 bg-ceremony-purple-950/60 border border-ceremony-purple-900 rounded-xl text-sm text-ceremony-silver-300 leading-relaxed flex items-start gap-2.5">
           <i class="fa-solid fa-circle-info text-ceremony-gold-500 mt-1 text-base"></i>
-          <span>二次相続においては、配偶者の逝去に伴い、子供たちが法定相続分（均等分割）にて全遺産を取得するものとして自動試算します。なお、本盤は経過年数に応じた相次相続控除の動的減算に対応済です。</span>
+          <span>二次相続においては、配偶者の逝去に伴い、子供たちが法定相続分（均等分割）にて全遺産を取得するものとして自動試算します。</span>
         </div>
       </section>
     </div>
@@ -291,10 +614,10 @@
 
         <div class="absolute -top-6 -right-6 text-7xl text-ceremony-gold-500/5"><i class="fa-solid fa-graduation-cap"></i></div>
         <h4 class="text-lg font-bold text-ceremony-gold-500 mb-3 flex items-center gap-1.5">
-          <i class="fa-solid fa-wand-magic-sparkles"></i> 軍師ジェムキンの資産配分最適化献策
+          <i class="fa-solid fa-wand-magic-sparkles"></i> 宝均による資産配分最適化についての献策
         </h4>
         <div class="text-base text-ceremony-silver-200 leading-relaxed space-y-4">
-          <p class="text-lg">一次相続における配偶者の生涯総税額を極小化する黄金の取得割合は全体の <strong id="best-share-badge" class="text-ceremony-purple-950 bg-ceremony-gold-400 px-3 py-1 rounded text-xl font-black mx-1">-- ％</strong> にございます。</p>
+          <p class="text-lg">生涯総税額を極小化する一次相続における配偶者の相続財産の取得割合は全体の <strong id="best-share-badge" class="text-ceremony-purple-950 bg-ceremony-gold-400 px-3 py-1 rounded text-xl font-black mx-1">-- ％</strong> にございます。</p>
           
           <div class="p-5 bg-ceremony-purple-950/80 rounded-xl border border-ceremony-purple-900 space-y-2.5 font-mono text-base">
             <div class="flex justify-between">
@@ -302,12 +625,12 @@
               <span id="current-strategy-tax" class="text-rose-300 font-bold">-- 万円</span>
             </div>
             <div class="flex justify-between">
-              <span class="text-ceremony-silver-300">・ジェムキン最適比率適用時の生涯総税額:</span>
+              <span class="text-ceremony-silver-300">・最適比率適用時の生涯総税額:</span>
               <span id="best-strategy-tax" class="text-emerald-400 font-bold">-- 万円</span>
             </div>
             
             <div class="border-t border-ceremony-purple-900 mt-3 pt-3 flex flex-col items-end gap-1">
-              <div class="text-ceremony-gold-400 font-bold text-sm">一族の財産からの無駄な税流出の阻止効果（差分削減額）:</div>
+              <div class="text-ceremony-gold-400 font-bold text-sm">財産からの無駄な税流出の阻止効果（差分削減額）:</div>
               <div class="flex items-baseline gap-2">
                 <span id="tax-saving-effect" class="text-2xl underline decoration-double decoration-ceremony-gold-400 font-black text-emerald-400">-- 万円</span>
                 <span id="tax-saving-per-child" class="text-base font-bold text-ceremony-silver-200">(--)</span>
@@ -327,7 +650,7 @@
   </main>
 
   <footer class="bg-ceremony-purple-900/20 text-ceremony-silver-400 text-xs py-5 px-4 text-center border-t border-ceremony-purple-800/40 mt-auto">
-    <p>© 2026 PLIP & 投資運用のジェムキン. 二次相続調停盤</p>
+    <p>© 2026 PLIP & 投資運用のジェムキン. 二次相続シミュレータ</p>
   </footer>
 
   <script>
@@ -351,6 +674,32 @@
       { limit: 600000000, rate: 0.50, deduction: 42000000 },
       { limit: Infinity, rate: 0.55, deduction: 72000000 }
     ];
+
+// 億・万・兆の単位を交えた、カンマ付き日本語表記に変換する関数
+function formatYen(yen) {
+  if (yen === 0) return "0円";
+  
+  const sign = yen < 0 ? "▲ " : "";
+  let absYen = Math.abs(yen);
+  
+  const cho = Math.floor(absYen / 1000000000000);
+  absYen %= 1000000000000;
+  
+  const oku = Math.floor(absYen / 100000000);
+  absYen %= 100000000;
+  
+  const man = Math.floor(absYen / 10000);
+  const remainder = absYen % 10000; // 円単位が残る場合
+
+  let result = "";
+  
+  if (cho > 0) result += cho.toLocaleString() + "兆";
+  if (oku > 0) result += oku.toLocaleString() + "億";
+  if (man > 0) result += man.toLocaleString() + "万";
+  if (remainder > 0 || result === "") result += remainder.toLocaleString();
+  
+  return sign + result + "円";
+}
 
     function calculateInheritanceTax(totalNetEstate, heirCount, isSpousePresent = false, spouseSharePercent = 0) {
       const baseDeduction = 30000000 + 6000000 * (heirCount + (isSpousePresent ? 1 : 0));
@@ -483,43 +832,46 @@
         }
       }
 
-      const toMan = (yen) => Math.round(yen / 10000);
-
-      document.getElementById('display-total-estate').innerText = toMan(pTotalEstate).toLocaleString() + " 万円";
+// 金額表示処理を新しいフォーマット関数へ完全同期
+      document.getElementById('display-total-estate').innerText = formatYen(pTotalEstate);
       document.getElementById('display-spouse-share').innerText = Math.round(pSpouseShare) + " %";
-      document.getElementById('display-spouse-acquisition').innerText = toMan(pSpouseAcquisition).toLocaleString() + " 万円";
+      document.getElementById('display-spouse-acquisition').innerText = formatYen(pSpouseAcquisition);
       document.getElementById('display-child-count').innerText = childCount + " 名";
 
-      document.getElementById('sum-total-tax').innerText = toMan(grandTotalTax).toLocaleString() + " 万円";
-      document.getElementById('child-net-avg').innerText = toMan(childNetAvg).toLocaleString() + " 万円";
-      document.getElementById('children-total-net').innerText = toMan(childrenTotalNet).toLocaleString() + " 万円";
+      document.getElementById('sum-total-tax').innerText = formatYen(grandTotalTax);
+      document.getElementById('child-net-avg').innerText = formatYen(childNetAvg);
+      document.getElementById('children-total-net').innerText = formatYen(childrenTotalNet);
 
-      document.getElementById('table-p-estate').innerText = toMan(pTotalEstate).toLocaleString() + " 万円";
-      document.getElementById('table-p-tax').innerText = toMan(pTotalTax).toLocaleString() + " 万円";
-      document.getElementById('table-p-c-tax').innerText = toMan(pTotalTax / childCount).toLocaleString() + " 万円";
+      document.getElementById('table-p-estate').innerText = formatYen(pTotalEstate);
+      document.getElementById('table-p-tax').innerText = formatYen(pTotalTax);
+      document.getElementById('table-p-c-tax').innerText = formatYen(pTotalTax / childCount);
 
-      document.getElementById('table-s-estate').innerText = toMan(sTotalEstate).toLocaleString() + " 万円";
-      document.getElementById('table-s-tax').innerText = toMan(sTotalTax).toLocaleString() + " 万円";
-      document.getElementById('table-s-c-tax').innerText = toMan(sTotalTax / childCount).toLocaleString() + " 万円";
+      document.getElementById('table-s-estate').innerText = formatYen(sTotalEstate);
+      document.getElementById('table-s-tax').innerText = formatYen(sTotalTax);
+      document.getElementById('table-s-c-tax').innerText = formatYen(sTotalTax / childCount);
 
-      document.getElementById('table-g-tax').innerText = toMan(grandTotalTax).toLocaleString() + " 万円";
-      document.getElementById('table-g-c-tax').innerText = toMan(grandTotalTax / childCount).toLocaleString() + " 万円";
+      document.getElementById('table-g-tax').innerText = formatYen(grandTotalTax);
+      document.getElementById('table-g-c-tax').innerText = formatYen(grandTotalTax / childCount);
 
       document.getElementById('best-share-badge').innerText = bestShare + " ％";
-      document.getElementById('current-strategy-tax').innerText = toMan(grandTotalTax).toLocaleString() + " 万円";
-      document.getElementById('best-strategy-tax').innerText = toMan(minGrandTax).toLocaleString() + " 万円";
+      document.getElementById('current-strategy-tax').innerText = formatYen(grandTotalTax);
+      document.getElementById('best-strategy-tax').innerText = formatYen(minGrandTax);
       
       const saving = grandTotalTax - minGrandTax;
-      document.getElementById('tax-saving-effect').innerText = toMan(saving).toLocaleString() + " 万円";
+      document.getElementById('tax-saving-effect').innerText = formatYen(saving);
 
       const savingPerChild = Math.round(saving / childCount);
-      document.getElementById('tax-saving-per-child').innerText = "(子供1人あたり: " + toMan(savingPerChild).toLocaleString() + " 万円削減)";
+      document.getElementById('tax-saving-per-child').innerText = "(子供1人あたり: " + formatYen(savingPerChild) + " 削減)";
+
 
       // 最適化献策セクションの二重黄金枠 ＆ 動的アドバイス標識のリアルタイム制御
       const sectionBox = document.getElementById('optimization-section');
       const statusBadge = document.getElementById('advice-status-badge');
       const btn = document.getElementById('btn-apply-strategy');
 
+
+
+// 差し替え対象：最適化献策セクションのボタン制御部分
       if (bestShare === Math.round(pSpouseShare)) {
         sectionBox.classList.remove('border-gold-double');
         statusBadge.className = "absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold font-mono tracking-wider border border-emerald-500/40 text-emerald-400 bg-emerald-950/60";
@@ -533,9 +885,10 @@
         statusBadge.className = "absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold font-mono tracking-wider border border-amber-500/50 text-amber-400 pulse-amber";
         statusBadge.innerHTML = `<i class="fa-solid fa-lightbulb text-amber-300"></i> 軍師の進言あり`;
 
+        // 🌟 常時黄金シマー ＆ ホバーオーラを完全付与
         btn.innerText = "⚔️ この最適解（" + bestShare + "％）を一次相続へ一撃適用する";
         btn.disabled = false;
-        btn.className = "bg-gradient-to-r from-ceremony-gold-600 to-ceremony-gold-400 hover:from-ceremony-gold-500 hover:to-ceremony-gold-300 text-ceremony-purple-950 font-black px-6 py-3.5 rounded-xl text-base shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 inline-flex";
+        btn.className = "animate-shimmer pulse-gold-aura text-ceremony-purple-950 font-black px-8 py-4 rounded-xl text-base shadow-lg transition-all hover:scale-[1.05] active:scale-[0.95] flex items-center gap-2 inline-flex tracking-wider cursor-pointer";
       }
 
       primaryResult.lastCalculatedBestShare = bestShare;
@@ -559,78 +912,95 @@
       window.location.href = "../index.html";
     });
 
-    // ⚔️ 一撃適用の調停：本番サーバーの本体へ完全連動（我が君の陣形を完全守護する最終版）
-    document.getElementById('btn-apply-strategy').addEventListener('click', () => {
+// ⚔️ 一撃適用の調停：本番サーバーの本体へ完全連動（我が君の陣形を完全守護する最終版）
+    document.getElementById('btn-apply-strategy').addEventListener('click', (e) => {
       if (primaryResult.lastCalculatedBestShare !== undefined) {
-        const bestShare = primaryResult.lastCalculatedBestShare;
-        const remainingShare = 100 - bestShare;
         
-        let savedData = JSON.parse(localStorage.getItem('gemkin_primary_result'));
-        if (!savedData) savedData = primaryResult;
+        // 💥 【仕様②】全画面衝撃波（リングエフェクト）の錬成
+        const ring = document.createElement('div');
+        ring.className = 'shock-ring';
+        ring.style.left = e.clientX + 'px';
+        ring.style.top = e.clientY + 'px';
+        document.body.appendChild(ring);
 
-        savedData.forceUniformSplit = true;
-        savedData.spouseActualShare = bestShare;
-        savedData.targetSpouseShare = bestShare;
-        savedData.spouseAcquisition = savedData.totalEstate * (bestShare / 100);
+        // 💥 【仕様②】天地鳴動（スクリーンシェイク）の発動
+        document.body.classList.add('screen-shake');
 
-        let spouseId = savedData.legalSpouseId || "h1";
-        if (savedData.heirs && Array.isArray(savedData.heirs)) {
-          let foundSpouse = savedData.heirs.find(h => h.relation === 'spouse_legal' || h.id === spouseId);
-          if (foundSpouse) {
-            spouseId = foundSpouse.id;
+        // エフェクト終了（0.5秒後）までデータを保持したまま待機、その後に遷移
+        setTimeout(() => {
+          // アニメーション用クラスの除去
+          ring.remove();
+          document.body.classList.remove('screen-shake');
+
+          const bestShare = primaryResult.lastCalculatedBestShare;
+          const remainingShare = 100 - bestShare;
+          
+          let savedData = JSON.parse(localStorage.getItem('gemkin_primary_result'));
+          if (!savedData) savedData = primaryResult;
+
+          savedData.forceUniformSplit = true;
+          savedData.spouseActualShare = bestShare;
+          savedData.targetSpouseShare = bestShare;
+          savedData.spouseAcquisition = savedData.totalEstate * (bestShare / 100);
+
+          let spouseId = savedData.legalSpouseId || "h1";
+          if (savedData.heirs && Array.isArray(savedData.heirs)) {
+            let foundSpouse = savedData.heirs.find(h => h.relation === 'spouse_legal' || h.id === spouseId);
+            if (foundSpouse) {
+              spouseId = foundSpouse.id;
+            }
           }
-        }
 
-        if (savedData.heirs && Array.isArray(savedData.heirs)) {
-          const legalSpouse = savedData.heirs.find(h => h.id === spouseId);
-          const otherHeirs = savedData.heirs.filter(h => h.id !== spouseId);
+          if (savedData.heirs && Array.isArray(savedData.heirs)) {
+            const legalSpouse = savedData.heirs.find(h => h.id === spouseId);
+            const otherHeirs = savedData.heirs.filter(h => h.id !== spouseId);
 
-          if (legalSpouse) legalSpouse.share = bestShare;
+            if (legalSpouse) legalSpouse.share = bestShare;
 
-          if (otherHeirs.length > 0) {
-            let assignedShareSum = 0;
-            otherHeirs.forEach((heir, idx) => {
-              if (idx === otherHeirs.length - 1) {
-                heir.share = remainingShare - assignedShareSum;
-              } else {
-                const calculatedShare = Math.round((1 / otherHeirs.length) * remainingShare);
-                heir.share = calculatedShare;
-                assignedShareSum += calculatedShare;
-              }
-            });
-          }
-        }
-
-        if (savedData.assets && Array.isArray(savedData.assets)) {
-          savedData.assets.forEach(asset => {
-            asset.canSplit = true;
-            asset.splitMode = 'auto'; 
-            if (!asset.customSplit) asset.customSplit = {};
-            asset.customSplit[spouseId] = bestShare;
-
-            const otherHeirs = savedData.heirs ? savedData.heirs.filter(h => h.id !== spouseId) : [];
             if (otherHeirs.length > 0) {
-              let assignedAssetSum = 0;
+              let assignedShareSum = 0;
               otherHeirs.forEach((heir, idx) => {
                 if (idx === otherHeirs.length - 1) {
-                  asset.customSplit[heir.id] = remainingShare - assignedAssetSum;
+                  heir.share = remainingShare - assignedShareSum;
                 } else {
                   const calculatedShare = Math.round((1 / otherHeirs.length) * remainingShare);
-                  asset.customSplit[heir.id] = calculatedShare;
-                  assignedAssetSum += calculatedShare;
+                  heir.share = calculatedShare;
+                  assignedShareSum += calculatedShare;
                 }
               });
             }
-          });
-        }
+          }
 
-        localStorage.setItem('gemkin_primary_result', JSON.stringify(savedData));
-        
-        alert("📊 二次相続調停完了！\n一族の総税額を最小化するため、配偶者の取得割合を【 " + bestShare + " % 】に設定。\n\n我が君が構築された相続人構成の陣形を100%維持したまま、本体の一次相続盤へ堂々帰還いたします！");
-        window.location.href = "../index.html";
+          if (savedData.assets && Array.isArray(savedData.assets)) {
+            savedData.assets.forEach(asset => {
+              asset.canSplit = true;
+              asset.splitMode = 'auto'; 
+              if (!asset.customSplit) asset.customSplit = {};
+              asset.customSplit[spouseId] = bestShare;
+
+              const otherHeirs = savedData.heirs ? savedData.heirs.filter(h => h.id !== spouseId) : [];
+              if (otherHeirs.length > 0) {
+                let assignedAssetSum = 0;
+                otherHeirs.forEach((heir, idx) => {
+                  if (idx === otherHeirs.length - 1) {
+                    asset.customSplit[heir.id] = remainingShare - assignedAssetSum;
+                  } else {
+                    const calculatedShare = Math.round((1 / otherHeirs.length) * remainingShare);
+                    asset.customSplit[heir.id] = calculatedShare;
+                    assignedAssetSum += calculatedShare;
+                  }
+                });
+              }
+            });
+          }
+
+          localStorage.setItem('gemkin_primary_result', JSON.stringify(savedData));
+          
+          alert("📊 二次相続調停完了！\n一族の総税額を最小化するため、配偶者の取得割合を【 " + bestShare + " % 】に設定。\n\nユーザが構築した相続人構成を100%維持したまま、本体の一次相続シミュレータへ帰還いたします！");
+          window.location.href = "../index.html";
+        }, 500); // 0.5秒のディレイ
       }
     });
-
     // 📜 【摩擦音錬成陣】Web Audio APIによる「シュルシュル」音リアルタイム合成
     function playScrollSound() {
       try {
