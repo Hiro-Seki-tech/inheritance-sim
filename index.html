@@ -104,8 +104,8 @@
       transform-origin: center;
     }
 
-    /* ========================================================================== */
-    /* 🛡️ 宝均シンボルマーク（再計算＆オーディオトグル）専用の高度アニメーション制御 */
+/* ========================================================================== */
+    /* 🛡️ 宝均シンボルマーク・ステートマシン専用の高度アニメーション制御 */
     /* ========================================================================== */
     #orbit-system-group {
       transform-origin: 400px 400px;
@@ -124,9 +124,25 @@
       to { transform: rotate(-360deg); }
     }
 
-    /* オーディオOFF（銀縁）の時は宇宙の軌道を静かに停止・フリーズさせる軍略 */
-    .audio-off-state #orbit-system-group,
-    .audio-off-state .counter-rotator {
+    /* 🔄 プラチナ状態：6つの資産を逆回転させる軍略 */
+    .state-platinum #orbit-system-group {
+      animation: global-orbit-reverse 80s linear infinite;
+    }
+    .state-platinum .counter-rotator {
+      animation: cancel-orbit-reverse 80s linear infinite;
+    }
+    @keyframes global-orbit-reverse {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+    @keyframes cancel-orbit-reverse {
+      from { transform: rotate(-360deg); }
+      to { transform: rotate(0deg); }
+    }
+
+    /* 🛑 レッド状態：宇宙の軌道を静かに停止・フリーズさせる軍略 */
+    .state-red #orbit-system-group,
+    .state-red .counter-rotator {
       animation-play-state: paused !important;
     }
 
@@ -216,7 +232,79 @@
     .symbol-button-wrapper:hover .gem-shimmer {
       animation-duration: 0.8s !important; /* 宝石のシマーも超連射 */
     }
+
+/* 🌟 ここから追加：シンボルマークの「キラーン」エフェクトの陣形 */
+    .symbol-button-wrapper {
+      position: relative;
+      overflow: hidden;
+    }
+    .symbol-button-wrapper::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -150%;
+      width: 50%;
+      height: 200%;
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 244, 190, 0) 30%,
+        rgba(255, 244, 190, 0.6) 50%,
+        rgba(255, 244, 190, 0) 70%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: rotate(30deg);
+      pointer-events: none;
+      animation: crest-shimmer 7s infinite ease-in-out;
+    }
+
+    /* ⚪ プラチナ（銀縁）の時は静かな光芒へ切り替え */
+    .symbol-button-wrapper.state-platinum::after {
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(226, 232, 240, 0) 30%,
+        rgba(255, 255, 255, 0.4) 50%,
+        rgba(226, 232, 240, 0) 70%,
+        rgba(255, 255, 255, 0) 100%
+      ) !important;
+    }
+
+    /* 🔴 レッド（赤縁）の時は不穏な紅い光芒へ切り替え */
+    .symbol-button-wrapper.state-red::after {
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(254, 226, 226, 0) 30%,
+        rgba(239, 68, 68, 0.5) 50%,
+        rgba(254, 226, 226, 0) 70%,
+        rgba(255, 255, 255, 0) 100%
+      ) !important;
+    }
+
+
+
+    /* ⚪ オーディオOFF（銀縁）の時は静かなプラチナの光芒へ切り替え */
+    .audio-off-state::after {
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(226, 232, 240, 0) 30%,
+        rgba(255, 255, 255, 0.4) 50%,
+        rgba(226, 232, 240, 0) 70%,
+        rgba(255, 255, 255, 0) 100%
+      ) !important;
+    }
+
+    @keyframes crest-shimmer {
+      0% { left: -150%; }
+      15% { left: 150%; }
+      100% { left: 150%; }
+    }
+    /* 🌟 ここまで追加 */
+
   </style>
+
 </head>
 <body class="bg-ceremony-purple-950 text-ceremony-silver-100 min-h-screen font-sans flex flex-col selection:bg-ceremony-purple-500 selection:text-white">
 
@@ -225,9 +313,11 @@
       <div class="flex items-center space-x-3 w-full sm:w-auto">
         
         <div class="relative flex flex-col items-center shrink-0">
-          <div onclick="handleSymbolCrestClick();" 
-               class="symbol-button-wrapper w-[clamp(64px,8vw,96px)] h-[clamp(64px,8vw,96px)] rounded-2xl shadow-xl shadow-ceremony-purple-500/10 flex items-center justify-center cursor-pointer hover:scale(102) active:scale-95 transition-all overflow-hidden" 
-               title="シミュレーション再計算 ＆ オーディオトグル">
+       
+
+<div onclick="handleSymbolCrestClick();" 
+     class="symbol-button-wrapper state-gold w-[clamp(64px,8vw,96px)] h-[clamp(64px,8vw,96px)] rounded-2xl shadow-xl shadow-ceremony-purple-500/10 flex items-center justify-center cursor-pointer hover:scale-[1.02] active:scale-95 transition-all" 
+     title="シミュレーション再計算 ＆ 陣形ステート切り替え">
 
             <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" id="symbol-svg" viewBox="0 0 800 800" class="w-full h-full drop-shadow-[0_0_35px_rgba(212,175,55,0.25)]">
               <defs>
@@ -436,9 +526,11 @@
       </div>
       
       <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto border-t sm:border-t-0 border-ceremony-purple-800/40 pt-2 sm:pt-0">
-        <div class="flex items-center bg-ceremony-purple-950/80 p-1 rounded-xl border border-ceremony-purple-700/40 text-[11px]">
+     
+
+  <div class="hidden sm:flex items-center bg-ceremony-purple-950/80 p-1 rounded-xl border border-ceremony-purple-700/40 text-[11px]">
           <button id="btn-mode-standard" onclick="setTaxMode('standard')" class="px-2.5 py-1 rounded-lg font-bold transition-all duration-200 bg-ceremony-gold-500 text-ceremony-purple-950 shadow">
-            総額按分 (実務)
+       総額按分 (実務)
           </button>
           <button id="btn-mode-direct" onclick="setTaxMode('direct')" class="px-2.5 py-1 rounded-lg text-ceremony-silver-400 hover:text-white transition-all duration-200">
             直接課税 (v1.5)
@@ -652,7 +744,7 @@
             <i class="fa-solid fa-users text-xs"></i> 1. 相続人の設定
           </strong>
           <p class="text-ceremony-silver-400 pl-4">
-            配偶者の有無、および子供や親、兄弟姉妹の人数を設定します。続柄（relation）を変更すると、法律上の基準となる「法定相続割合」が自動計算されます。
+            配偶者の有無、および子供や親、兄弟姉妹の人数を設定します。続柄を変更すると、法律上の基準となる「法定相続割合」が自動計算されます。
           </p>
         </div>
 
@@ -734,10 +826,14 @@
   </div>
 
   <script>
-    let state = {
+
+
+
+let state = {
       taxMode: 'standard',
       legalSpouseId: null,
-      audioEnabled: true, // 💰 将来的なオーディオオン・オフ状態を管理する新規布陣
+      currentState: 'gold', // 👑 'gold', 'platinum', 'red' の3状態を集中管理
+      hasInteracted: false, // 🔊 ユーザーが一度でもクリックしたかどうかの防壁
       heirs: [
         { id: "h1", name: "配偶者", relation: "spouse_legal", spouseType: "legal", share: 50, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1 },
         { id: "h2", name: "長男", relation: "child", spouseType: null, share: 25, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1 },
@@ -768,34 +864,58 @@
     let editingAssetId = null;
     let activeInputTab = 'heirs';
 
-    /* ========================================================================== */
-    /* 🔊 シンボルマーククリック時のオーディオトグル＆金銀縁変化＆再計算ロジック */
-    /* ========================================================================== */
-   
-
-
-
-// ==========================================================================
-    // 🔊 【音響最大調停】外部アセット（Kyo.html / Nen.mp4）ランダム連動システム
     // ==========================================================================
-    let activeAudioFile = null; // Nen.mp4 を裏で再生するためのオブジェクト保持器
-    let kyoIframe = null;       // Kyo.html を裏で隠密展開するための iframe 保持器
+    // 🔊 【音響最上位調停】ステートマシン＆ランダム外部連携オーディオシステム
+    // ==========================================================================
+    let activeAudioFile = null; // song.mp4 を再生するためのオブジェクト
+    let kyoIframe = null;       // BGM.html を裏で隠密展開するための iframe
+    
+    // 赤枠用のグラデーション定義を定義に追加（SVG動的制御用）
+    const redGradHTML = `
+      <linearGradient id="red-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#fee2e2"/>
+        <stop offset="35%" stop-color="#ef4444"/>
+        <stop offset="70%" stop-color="#991b1b"/>
+        <stop offset="100%" stop-color="#b91c1c"/>
+      </linearGradient>
+    `;
 
     function handleSymbolCrestClick() {
-      // 1. オーディオ状態をトグル反転
-      state.audioEnabled = !state.audioEnabled;
+      // ユーザーが操作を開始したフラグを点灯
+      state.hasInteracted = true;
 
-      // 2. SVG内部の要素を取得（フチ色切り替え用）
+      // 1. 次の状態へ遷移
+      if (state.currentState === 'gold') {
+        state.currentState = 'platinum';
+      } else if (state.currentState === 'platinum') {
+        state.currentState = 'red';
+      } else {
+        state.currentState = 'gold';
+      }
+
+      // 2. 音響の完全消滅・リセットの儀
+      stopAllAudio();
+
+      // 3. 各状態における外見と音響の調停
       const wrapper = document.querySelector('.symbol-button-wrapper');
       const ornateFrame = document.getElementById('ornate-frame');
       const cornerFlourishes = document.getElementById('corner-flourishes');
       const coreCircle = document.getElementById('core-circle');
       const coreText = document.getElementById('core-text');
       const svgBgRect = document.getElementById('svg-bg-rect');
+      const svgEl = document.getElementById('symbol-svg');
 
-      if (state.audioEnabled) {
-        // 🟢 オーディオON：きらびやかな金縁（ゴールドグラデーション）へ一斉帰還
-        wrapper.classList.remove('audio-off-state');
+      // 動的デフ挿入チェック（赤縁用グラデーションがなければ追加）
+      if (svgEl && !document.getElementById('red-grad')) {
+        svgEl.querySelector('defs').insertAdjacentHTML('beforeend', redGradHTML);
+      }
+
+      // クラスの初期化
+      wrapper.classList.remove('state-gold', 'state-platinum', 'state-red');
+      wrapper.classList.add('state-' + state.currentState);
+
+      if (state.currentState === 'gold') {
+        // 🟡 ゴールド陣：絢爛なる金縁
         if (ornateFrame) ornateFrame.setAttribute('stroke', 'url(#gold-grad)');
         if (cornerFlourishes) cornerFlourishes.setAttribute('stroke', 'url(#gold-grad)');
         if (coreCircle) coreCircle.setAttribute('stroke', 'url(#gold-grad)');
@@ -805,64 +925,92 @@
           svgBgRect.style.fill = 'rgb(119, 82, 19)';
         }
 
-        // 🎲 【50%のサイコロ】どちらの外部音楽を召喚するか運命の調停
-        if (Math.random() < 0.5) {
-          // 🏯 パターンA：『Kyo.html（詠唱シンセ）』を iframe で隠密展開
-          if (!kyoIframe) {
-            kyoIframe = document.createElement('iframe');
-            kyoIframe.src = './music/Kyo.html';
-            // 完全に隠すためのステルス結界
-            kyoIframe.style.position = 'absolute';
-            kyoIframe.style.width = '0';
-            kyoIframe.style.height = '0';
-            kyoIframe.style.border = 'none';
-            kyoIframe.style.visibility = 'hidden';
-            document.body.appendChild(kyoIframe);
-          }
-          showFeedback('🔊 我が君、金縁の陣へ！【外部詠唱盤：Kyo.html】をランダム召喚いたしました。');
-        } else {
-          // 🌲 パターンB：『Nen.mp4（念仏の庭）』を裏側オーディオとして駆動
-          if (!activeAudioFile) {
-            activeAudioFile = new Audio('./music/Nen.mp4');
-            activeAudioFile.loop = true; // 無限ループの結界
-          }
-          activeAudioFile.play().catch(err => console.log("音響駆動失敗:", err));
-          showFeedback('🔊 我が君、金縁の陣へ！【念仏の庭：Nen.mp4】をランダム召喚いたしました。');
-        }
+        // 高らかに BGM.html を詠唱（初回ロード時以外、またはクリックされたので確実に再生）
+        playGoldBGM();
+        showFeedback('🔊 【ゴールドの陣】金縁順回転。背後で儀式曲（BGM.html）が響き始めました。');
 
-        updateApp();
-      } else {
-        // ⚪ オーディオOFF：重厚な銀縁（白金グラデーション）の静寂へ移行
-        wrapper.classList.add('audio-off-state');
+      } else if (state.currentState === 'platinum') {
+        // ⚪ プラチナ陣：重厚なる銀縁・資産逆回転
         if (ornateFrame) ornateFrame.setAttribute('stroke', 'url(#audio-off-silver-grad)');
         if (cornerFlourishes) cornerFlourishes.setAttribute('stroke', 'url(#audio-off-silver-grad)');
         if (coreCircle) coreCircle.setAttribute('stroke', 'url(#audio-off-silver-grad)');
         if (coreText) coreText.setAttribute('fill', 'url(#audio-off-silver-grad)');
         if (svgBgRect) {
           svgBgRect.setAttribute('fill', 'none');
-          svgBgRect.style.fill = 'rgb(30, 41, 59)'; // 落ち着いた鋼色
+          svgBgRect.style.fill = 'rgb(30, 41, 59)'; 
         }
 
-        // 🛑 すべての外部音響を完全に遮断・消滅させる
-        // ① Kyo.html の消音（iframe内部の stopBGM 関数を直接叩いてから消滅させる）
-        if (kyoIframe) {
-          try {
-            if (kyoIframe.contentWindow && kyoIframe.contentWindow.stopBGM) {
-              kyoIframe.contentWindow.stopBGM();
-            }
-          } catch(e) { console.log("iframe消音失敗:", e); }
-          kyoIframe.remove();
-          kyoIframe = null;
+        // song.mp4 を一発限定（ループなし）で召喚
+        playPlatinumSong();
+        showFeedback('🎵 【プラチナの陣】銀縁逆回転！賛歌（song.mp4）を一撃詠唱いたします。');
+
+      } else if (state.currentState === 'red') {
+        // 🔴 レッド陣：静寂なる赤縁・完全フリーズ
+        if (ornateFrame) ornateFrame.setAttribute('stroke', 'url(#red-grad)');
+        if (cornerFlourishes) cornerFlourishes.setAttribute('stroke', 'url(#red-grad)');
+        if (coreCircle) coreCircle.setAttribute('stroke', 'url(#red-grad)');
+        if (coreText) coreText.setAttribute('fill', 'url(#red-grad)');
+        if (svgBgRect) {
+          svgBgRect.setAttribute('fill', 'none');
+          svgBgRect.style.fill = 'rgb(69, 10, 10)'; // 深い血の池のような赤黒
         }
 
-        // ② Nen.mp4 の停止
-        if (activeAudioFile) {
-          activeAudioFile.pause();
-        }
-
-        updateApp();
-        showFeedback('🔇 我が君、銀縁の静寂へ。すべての音響結界を解除（ミュート）いたしました。');
+        showFeedback('🔇 【無音の赤陣】資産回転フリーズ。すべての音響結界を解除いたしました。');
       }
+
+      updateApp();
+    }
+
+    // 全音響を完全に遮断・消滅させる呪文
+    function stopAllAudio() {
+      if (kyoIframe) {
+        try {
+          if (kyoIframe.contentWindow && kyoIframe.contentWindow.stopBGM) {
+            kyoIframe.contentWindow.stopBGM();
+          }
+        } catch(e) { console.log("iframe消音失敗:", e); }
+        kyoIframe.remove();
+        kyoIframe = null;
+      }
+      if (activeAudioFile) {
+        activeAudioFile.pause();
+        activeAudioFile.onended = null;
+        activeAudioFile = null;
+      }
+    }
+
+    // ゴールド時の BGM.html 再生ロジック
+    function playGoldBGM() {
+      if (!kyoIframe) {
+        kyoIframe = document.createElement('iframe');
+        kyoIframe.src = './music/BGM.html';
+        kyoIframe.style.position = 'absolute';
+        kyoIframe.style.width = '0';
+        kyoIframe.style.height = '0';
+        kyoIframe.style.border = 'none';
+        kyoIframe.style.visibility = 'hidden';
+        document.body.appendChild(kyoIframe);
+      }
+    }
+
+    // プラチナ時の song.mp4 再生ロジック（終了後に自動でゴールドへ戻る）
+    function playPlatinumSong() {
+      if (!activeAudioFile) {
+        activeAudioFile = new Audio('./music/song.mp4');
+        activeAudioFile.loop = false; // 🛑 ループなしの掟
+        
+        // 曲が終わったら自動的にゴールドの陣形へ帰還させる調停
+        activeAudioFile.onended = function() {
+          if (state.currentState === 'platinum') {
+            // 現在がプラチナのまま維持されていれば、強制的にゴールドへ移行させる
+            handleSymbolCrestClick(); // 遷移：platinum -> red -> gold になるのを防ぐため、ステートを直接書き換えて呼び出し
+            state.currentState = 'red'; // 次のクリックでredにするための帳尻合わせ
+            handleSymbolCrestClick(); // 最終的にゴールドへ着地
+            showFeedback('✨ 賛歌の結了。自動的に【ゴールドの陣】へ無傷帰還いたしました。');
+          }
+        };
+      }
+      activeAudioFile.play().catch(err => console.log("音響駆動失敗:", err));
     }
 
 
@@ -935,6 +1083,9 @@
 
     function initAppOnLoad() {
       state.legalSpouseId = "h1";
+state.currentState = 'gold';       // 🌟 これを追記（初期はゴールド）
+      state.hasInteracted = false;      // 🌟 これを追記（まだクリックしてない）
+
       const totalShareInput = state.heirs.reduce((sum, h) => sum + h.share, 0);
 
       if (!state.assets || state.assets.length === 0) {
