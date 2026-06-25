@@ -675,31 +675,36 @@
       { limit: Infinity, rate: 0.55, deduction: 72000000 }
     ];
 
-// 億・万・兆の単位を交えた、カンマ付き日本語表記に変換する関数
+
+
+// 億・万の単位を交えた、万単位（万未満四捨五入）の日本語表記に変換する関数
 function formatYen(yen) {
   if (yen === 0) return "0円";
   
   const sign = yen < 0 ? "▲ " : "";
   let absYen = Math.abs(yen);
   
-  const cho = Math.floor(absYen / 1000000000000);
-  absYen %= 1000000000000;
+  // 基準となる「円」を「万」ベースに変換（千円の位で四捨五入して万単位にする）
+  let manValue = Math.round(absYen / 10000);
   
-  const oku = Math.floor(absYen / 100000000);
-  absYen %= 100000000;
+  if (manValue === 0) return "0円";
+
+  const cho = Math.floor(manValue / 100000000);
+  manValue %= 100000000;
   
-  const man = Math.floor(absYen / 10000);
-  const remainder = absYen % 10000; // 円単位が残る場合
+  const oku = Math.floor(manValue / 10000);
+  const man = manValue % 10000;
 
   let result = "";
   
   if (cho > 0) result += cho.toLocaleString() + "兆";
   if (oku > 0) result += oku.toLocaleString() + "億";
   if (man > 0) result += man.toLocaleString() + "万";
-  if (remainder > 0 || result === "") result += remainder.toLocaleString();
   
-  return sign + result + "円";
+  return sign + result + "万円";
 }
+
+
 
     function calculateInheritanceTax(totalNetEstate, heirCount, isSpousePresent = false, spouseSharePercent = 0) {
       const baseDeduction = 30000000 + 6000000 * (heirCount + (isSpousePresent ? 1 : 0));
