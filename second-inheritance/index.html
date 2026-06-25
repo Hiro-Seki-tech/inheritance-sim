@@ -467,7 +467,7 @@
         </h1>
 
 
-        <p class="text-sm text-ceremony-silver-400 mt-1">一次被相続人 ＆ 配偶者逝去時の資産推移と、子供たちの最終納税額シミュレーション（2026年版）</p>
+        <p class="text-sm text-ceremony-silver-400 mt-1">一次被相続人 ＆ 配偶者逝去時の子供たちの最終納税額シミュレーション（2026年版）</p>
       </div>
       <div>
         <button id="btn-return" class="text-base font-bold bg-ceremony-purple-900/60 hover:bg-ceremony-purple-800 border border-ceremony-gold-500/40 text-ceremony-gold-400 px-5 py-3 rounded-xl transition-all inline-flex items-center gap-2 shadow-lg hover:shadow-ceremony-gold-500/10">
@@ -481,133 +481,143 @@
     
     <div class="lg:col-span-5 space-y-5">
       
-      <section class="bg-ceremony-purple-900/20 border border-ceremony-purple-800/40 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
-        <h3 class="text-lg font-bold text-ceremony-gold-500 flex items-center gap-2 mb-4 border-b border-ceremony-purple-800/60 pb-3">
+	  
+	  
+	  
+<section class="bg-ceremony-purple-900/20 border border-ceremony-purple-800/40 rounded-2xl p-4 backdrop-blur-sm shadow-xl">
+        <h3 class="text-sm font-bold text-ceremony-gold-500 flex items-center gap-2 mb-3 border-b border-ceremony-purple-800/60 pb-2">
           <i class="fa-solid fa-download"></i> 一次相続からの連動財産データ
         </h3>
-        <div class="space-y-4 text-base">
-          <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-4 rounded-xl border border-ceremony-purple-900/50">
+        <div class="space-y-2.5 text-xs">
+          <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-2.5 rounded-xl border border-ceremony-purple-900/50">
             <span class="text-ceremony-silver-300">一次被相続人の遺産総額</span>
-            <span id="display-total-estate" class="font-bold text-ceremony-silver-100 font-mono text-xl">-- 万円</span>
+            <span id="display-total-estate" class="font-bold text-ceremony-silver-100 font-mono text-base">-- 万円</span>
           </div>
-          <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-4 rounded-xl border border-ceremony-purple-800/60">
+          <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-2.5 rounded-xl border border-ceremony-purple-800/60">
             <span class="text-ceremony-silver-300">配偶者の一次実際の取得割合</span>
-            <span id="display-spouse-share" class="font-bold text-ceremony-gold-400 font-mono text-xl">-- %</span>
+            <span id="display-spouse-share" class="font-bold text-ceremony-gold-400 font-mono text-base">-- %</span>
           </div>
-          <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-4 rounded-xl border border-ceremony-purple-900/50">
+          <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-2.5 rounded-xl border border-ceremony-purple-900/50">
             <span class="text-ceremony-silver-300">配偶者の一次取得額</span>
-            <span id="display-spouse-acquisition" class="font-bold text-ceremony-gold-500 font-mono text-xl">-- 万円</span>
+            <span id="display-spouse-acquisition" class="font-bold text-ceremony-gold-500 font-mono text-base">-- 万円</span>
           </div>
-          <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-4 rounded-xl border border-ceremony-purple-900/50">
+          <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-2.5 rounded-xl border border-ceremony-purple-900/50">
             <span class="text-ceremony-silver-300">子供の人数（固定）</span>
-            <span id="display-child-count" class="font-bold text-ceremony-silver-200 font-mono text-xl">-- 名</span>
+            <span id="display-child-count" class="font-bold text-ceremony-silver-200 font-mono text-base">-- 名</span>
           </div>
         </div>
       </section>
 
-      <section class="bg-ceremony-purple-900/20 border border-ceremony-purple-800/40 rounded-2xl p-6 backdrop-blur-sm shadow-xl space-y-5">
-        <h3 class="text-lg font-bold text-ceremony-gold-500 flex items-center gap-2 border-b border-ceremony-purple-800/60 pb-3">
+
+
+<section class="bg-ceremony-purple-900/20 border border-ceremony-purple-800/40 rounded-2xl p-4 backdrop-blur-sm shadow-xl space-y-4">
+        <h3 class="text-sm font-bold text-ceremony-gold-500 flex items-center gap-2 border-b border-ceremony-purple-800/60 pb-2">
           <i class="fa-solid fa-sliders"></i> 二次相続 固有変数調整
         </h3>
         
         <div>
-          <label class="text-base text-ceremony-silver-200 block mb-2 font-bold flex justify-between">
+          <label class="text-xs text-ceremony-silver-200 block mb-1 font-bold flex justify-between">
             <span>配偶者自身の固有財産（手元資産）</span>
             <span class="text-ceremony-gold-400" id="range-hint">目安: 最大5億円</span>
           </label>
-          <div class="relative flex items-center mb-4">
-            <input type="number" id="input-own-property" value="2000" min="0" max="50000" class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-xl px-4 py-3 text-xl text-ceremony-silver-100 font-mono font-bold focus:outline-none focus:border-ceremony-gold-500 text-right pr-16 shadow-inner">
-            <span class="absolute right-4 text-base text-ceremony-silver-400 font-bold">万円</span>
+          <div class="relative flex items-center mb-2">
+            <input type="number" id="input-own-property" value="2000" min="0" max="50000" class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-xl px-3 py-1.5 text-base text-ceremony-silver-100 font-mono font-bold focus:outline-none focus:border-ceremony-gold-500 text-right pr-12 shadow-inner">
+            <span class="absolute right-3 text-xs text-ceremony-silver-400 font-bold">万円</span>
           </div>
-          <input type="range" id="slider-own-property" min="0" max="20000" step="100" value="2000" class="w-full h-2.5 bg-ceremony-purple-950 rounded-lg appearance-none cursor-pointer">
+          <input type="range" id="slider-own-property" min="0" max="20000" step="100" value="2000" class="w-full h-2 bg-ceremony-purple-950 rounded-lg appearance-none cursor-pointer">
         </div>
 
-        <div class="mt-5 pt-4 border-t border-ceremony-purple-900/60">
-          <label class="text-base text-ceremony-silver-200 block mb-2 font-bold flex justify-between">
-            <span>一次相続からの経過年数</span>
+        <div class="mt-3 pt-3 border-t border-ceremony-purple-900/60">
+          <label class="text-xs text-ceremony-silver-200 block mb-1 font-bold flex justify-between items-center">
+            <span class="flex items-center gap-1">
+              一次相続からの経過年数
+              <span class="group relative inline-block cursor-help text-ceremony-silver-400 hover:text-ceremony-gold-400 transition-colors">
+                <i class="fa-regular fa-circle-question text-xs"></i>
+                <span class="pointer-events-none opacity-0 group-hover:opacity-100 absolute bottom-full left-0 mb-2 w-72 p-4 bg-black border border-ceremony-gold-500/40 text-xs text-ceremony-silver-200 rounded-xl shadow-2xl transition-all duration-200 z-50 font-normal normal-case leading-relaxed">
+                  <strong class="text-ceremony-gold-400 block mb-1">【経過年数とは？】</strong>
+                  最初の被相続人が亡くなってから（例：夫の逝去）、配偶者様が亡くなる（今回の二次相続）までの「一族の歳月」のこと。この期間が10年以内であれば、前回の相続税の一部を税額控除できる重要特例<strong>「相次相続控除」</strong>が発動します。
+                  <span class="absolute top-full left-3 border-4 border-transparent border-t-black"></span>
+                </span>
+              </span>
+            </span>
             <span class="text-ceremony-gold-400 font-mono" id="years-hint">現在: 5 年（控除率目安: 50%）</span>
           </label>
-          <div class="relative flex items-center mb-4">
-            <input type="number" id="input-elapsed-years" value="5" min="1" max="10" class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-xl px-4 py-3 text-xl text-ceremony-silver-100 font-mono font-bold focus:outline-none focus:border-ceremony-gold-500 text-right pr-16 shadow-inner">
-            <span class="absolute right-4 text-base text-ceremony-silver-400 font-bold">年目</span>
+          <div class="relative flex items-center mb-2">
+            <input type="number" id="input-elapsed-years" value="5" min="1" max="10" class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-xl px-3 py-1.5 text-base text-ceremony-silver-100 font-mono font-bold focus:outline-none focus:border-ceremony-gold-500 text-right pr-12 shadow-inner">
+            <span class="absolute right-3 text-xs text-ceremony-silver-400 font-bold">年目</span>
           </div>
-          <input type="range" id="slider-elapsed-years" min="1" max="10" step="1" value="5" class="w-full h-2.5 bg-ceremony-purple-950 rounded-lg appearance-none cursor-pointer">
+          <input type="range" id="slider-elapsed-years" min="1" max="10" step="1" value="5" class="w-full h-2 bg-ceremony-purple-950 rounded-lg appearance-none cursor-pointer">
         </div>
 
-        <div class="p-4 bg-ceremony-purple-950/40 border border-ceremony-purple-900 rounded-xl text-xs text-ceremony-silver-300 leading-relaxed flex items-start gap-2.5 mt-3">
-          <i class="fa-solid fa-clock text-ceremony-gold-500 mt-0.5 text-sm"></i>
-          <span>
-            <strong class="text-ceremony-gold-400 block mb-1">【軍師の道標：経過年数とは？】</strong>
-            最初の被相続人が亡くなってから（例：夫の逝去）、配偶者様が亡くなる（今回の二次相続）までの「一族の歳月」のこと。この期間が10年以内であれば、前回の相続税の一部を今回の税金から直接差し引くことができる重要特例<strong>「相次相続控除」</strong>が発動します。
-          </span>
-        </div>
-
-        <div class="p-4 bg-ceremony-purple-950/60 border border-ceremony-purple-900 rounded-xl text-sm text-ceremony-silver-300 leading-relaxed flex items-start gap-2.5">
-          <i class="fa-solid fa-circle-info text-ceremony-gold-500 mt-1 text-base"></i>
+        <div class="p-3 bg-ceremony-purple-950/60 border border-ceremony-purple-900 rounded-xl text-xs text-ceremony-silver-300 leading-relaxed flex items-start gap-2">
+          <i class="fa-solid fa-circle-info text-ceremony-gold-500 mt-0.5 text-sm"></i>
           <span>二次相続においては、配偶者の逝去に伴い、子供たちが法定相続分（均等分割）にて全遺産を取得するものとして自動試算します。</span>
         </div>
       </section>
     </div>
 
+
+
     <div class="lg:col-span-7 space-y-5">
       
-      <section class="bg-gradient-to-b from-ceremony-purple-900/40 to-ceremony-purple-950/60 border border-ceremony-gold-500/30 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
-        <h3 class="text-sm font-bold tracking-widest text-ceremony-gold-400 uppercase mb-4 flex items-center gap-1.5">
-          <i class="fa-solid fa-chart-pie"></i> 生涯相続税総額 ＆ 子供たちの手取り予測
+<div class="hidden">
+        <span id="sum-total-tax"></span>
+        <span id="child-net-avg"></span>
+        <span id="children-total-net"></span>
+      </div>
+	  
+	  
+	  
+     <!-- 🟩 【変更後】背景を絶対的な漆黒にし、プラチナシルバーの枠線と生涯トータルの発光演出を追加 -->
+   <section class="bg-[#020617] rounded-2xl p-6 shadow-[0_0_30px_rgba(255,255,255,0.08)] backdrop-blur-md relative" 
+               style="border: 2px solid transparent; border-image: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 50%, #cbd5e1 100%) 1;">
+        <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2 mb-4">
+          <i class="fa-solid fa-table-list text-slate-400"></i> 一次・二次相続税の明細
         </h3>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="bg-ceremony-purple-950/80 border border-rose-500/20 p-5 rounded-xl text-center shadow-md">
-            <span class="text-xs text-ceremony-silver-400 block mb-1">一次＋二次 生涯税額総額</span>
-            <span id="sum-total-tax" class="text-2xl font-black text-rose-400 font-mono">-- 万円</span>
-          </div>
-          <div class="bg-ceremony-purple-950/80 border border-ceremony-purple-800/60 p-5 rounded-xl text-center shadow-md">
-            <span class="text-xs text-ceremony-silver-400 block mb-1">子供1人あたりの合計手取り</span>
-            <span id="child-net-avg" class="text-2xl font-black text-emerald-400 font-mono">-- 万円</span>
-          </div>
-          <div class="bg-ceremony-purple-950/80 border border-ceremony-purple-800/60 p-5 rounded-xl text-center shadow-md">
-            <span class="text-xs text-ceremony-silver-400 block mb-1">子供全員の合計最終手取り</span>
-            <span id="children-total-net" class="text-2xl font-black text-emerald-400 font-mono">-- 万円</span>
-          </div>
-        </div>
-      </section>
-
-      <section class="bg-ceremony-purple-900/20 border border-ceremony-purple-800/40 rounded-2xl p-6 shadow-xl">
-        <h3 class="text-lg font-bold text-ceremony-silver-100 flex items-center gap-2 mb-4">
-          <i class="fa-solid fa-table-list text-ceremony-gold-500"></i> 一次・二次相続税の重層明細
-        </h3>
-        <div class="overflow-x-auto border border-ceremony-purple-800/60 rounded-xl bg-ceremony-purple-950/70">
-          <table class="min-w-full divide-y divide-ceremony-purple-800/60 text-base text-left">
-            <thead class="bg-ceremony-purple-900/50">
+		
+        <div class="overflow-x-auto border border-slate-800 rounded-xl bg-[#030712]">
+          <table class="min-w-full divide-y divide-slate-900 text-base text-left">
+            <thead class="bg-slate-950">
               <tr>
-                <th class="px-5 py-4 font-bold text-ceremony-silver-200">相続フェーズ</th>
-                <th class="px-5 py-4 font-bold text-ceremony-silver-200 text-right">遺産総額</th>
-                <th class="px-5 py-4 font-bold text-ceremony-silver-200 text-right">税額総額(子供等)</th>
-                <th class="px-5 py-4 font-bold text-ceremony-silver-200 text-right text-ceremony-gold-400">子供1人あたりの税額</th>
+                <th class="px-5 py-4 font-bold text-slate-400">相続フェーズ</th>
+                <th class="px-5 py-4 font-bold text-slate-400 text-right">遺産総額</th>
+                <th class="px-5 py-4 font-bold text-ceremony-gold-400 text-right">子供の納税額</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-ceremony-purple-800/40 font-mono text-base">
-              <tr>
-                <td class="px-5 py-4 font-sans font-medium">一次相続</td>
-                <td id="table-p-estate" class="px-5 py-4 text-right font-bold">-- 万円</td>
-                <td id="table-p-tax" class="px-5 py-4 text-right text-rose-300 font-bold">-- 万円</td>
-                <td id="table-p-c-tax" class="px-5 py-4 text-right">-- 万円</td>
+
+
+  <!-- 🛠 変更後（ここへ差し替え） -->
+            <tbody class="font-mono text-base">
+              <tr class="border-b border-purple-950/40" style="background: linear-gradient(90deg, rgba(79,70,229,0.07) 0%, rgba(0,0,0,0) 100%);">
+                <td class="px-5 py-4 font-sans font-bold" style="color: #c084fc;">一次相続</td>
+                <td id="table-p-estate" class="px-5 py-4 text-right font-bold text-purple-200">-- 万円</td>
+                <td id="table-p-tax" class="px-5 py-4 text-right font-black !text-xl" style="color: #f472b6;">-- 万円</td>
+                <td id="table-p-c-tax" class="hidden"></td>
               </tr>
-              <tr>
-                <td class="px-5 py-4 font-sans font-medium">二次相続</td>
-                <td id="table-s-estate" class="px-4 py-4 text-right font-bold">-- 万円</td>
-                <td id="table-s-tax" class="px-5 py-4 text-right text-rose-300 font-bold">-- 万円</td>
-                <td id="table-s-c-tax" class="px-5 py-4 text-right">-- 万円</td>
+              <tr class="border-b border-emerald-950/40" style="background: linear-gradient(90deg, rgba(16,185,129,0.07) 0%, rgba(0,0,0,0) 100%);">
+                <td class="px-5 py-4 font-sans font-bold" style="color: #34d399;">二次相続</td>
+                <td id="table-s-estate" class="px-4 py-4 text-right font-bold text-emerald-200">-- 万円</td>
+                <td id="table-s-tax" class="px-5 py-4 text-right font-black !text-xl" style="color: #a7f3d0;">-- 万円</td>
+                <td id="table-s-c-tax" class="hidden"></td>
               </tr>
-              <tr class="bg-ceremony-purple-900/50 border-t-2 border-ceremony-purple-800/80 text-lg font-bold">
-                <td class="px-5 py-4 font-sans text-ceremony-gold-500">生涯トータル</td>
-                <td class="px-5 py-4 text-right text-ceremony-silver-400 font-normal">-</td>
-                <td id="table-g-tax" class="px-5 py-4 text-right text-rose-400 font-black">-- 万円</td>
-                <td id="table-g-c-tax" class="px-5 py-4 text-right text-ceremony-gold-400 font-black">-- 万円</td>
+              <tr class="bg-[#05070c] text-lg font-bold">
+                <td class="px-5 py-4 font-sans text-ceremony-gold-400">子供の生涯トータル相続税 納税額</td>
+                <td class="px-5 py-4 text-right text-slate-700 font-normal">-</td>
+                <td id="table-g-tax" class="px-5 py-4 text-right font-black !text-2xl" 
+                    style="color: #f43f5e; text-shadow: 0 0 6px rgba(244, 63, 94, 0.6); filter: drop-shadow(0 0 2px rgba(244,63,94,0.3));">-- 万円</td>
+                <td id="table-g-c-tax" class="hidden"></td>
               </tr>
             </tbody>
+<!-- 🛠 変更後（ここまで） -->
+
+
           </table>
         </div>
       </section>
+
+
+
+
 
       <section id="optimization-section" class="bg-ceremony-purple-900/20 border border-ceremony-gold-500/30 rounded-2xl p-6 relative overflow-hidden shadow-xl transition-all duration-500">
         <div id="advice-status-badge" class="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold font-mono tracking-wider border"></div>
@@ -617,11 +627,11 @@
           <i class="fa-solid fa-wand-magic-sparkles"></i> 宝均による資産配分最適化についての献策
         </h4>
         <div class="text-base text-ceremony-silver-200 leading-relaxed space-y-4">
-          <p class="text-lg">生涯総税額を極小化する一次相続における配偶者の相続財産の取得割合は全体の <strong id="best-share-badge" class="text-ceremony-purple-950 bg-ceremony-gold-400 px-3 py-1 rounded text-xl font-black mx-1">-- ％</strong> にございます。</p>
+          <p class="text-lg">生涯トータル相続税の納税額を極小化する一次相続における配偶者の相続財産の取得割合は全体の <strong id="best-share-badge" class="text-ceremony-purple-950 bg-ceremony-gold-400 px-3 py-1 rounded text-xl font-black mx-1">-- ％</strong> にございます。</p>
           
           <div class="p-5 bg-ceremony-purple-950/80 rounded-xl border border-ceremony-purple-900 space-y-2.5 font-mono text-base">
             <div class="flex justify-between">
-              <span class="text-ceremony-silver-300">・現在の設定比率での生涯総税額:</span>
+              <span class="text-ceremony-silver-300">・現在の設定比率での子供の生涯トータル納税額:</span>
               <span id="current-strategy-tax" class="text-rose-300 font-bold">-- 万円</span>
             </div>
             <div class="flex justify-between">
@@ -629,11 +639,11 @@
               <span id="best-strategy-tax" class="text-emerald-400 font-bold">-- 万円</span>
             </div>
             
-            <div class="border-t border-ceremony-purple-900 mt-3 pt-3 flex flex-col items-end gap-1">
-              <div class="text-ceremony-gold-400 font-bold text-sm">財産からの無駄な税流出の阻止効果（差分削減額）:</div>
+ <div class="border-t border-ceremony-purple-900 mt-3 pt-3 flex flex-col items-end gap-1">
+              <div class="text-ceremony-gold-400 font-bold text-sm">無駄な税流出の阻止効果（差分削減額）:</div>
               <div class="flex items-baseline gap-2">
                 <span id="tax-saving-effect" class="text-2xl underline decoration-double decoration-ceremony-gold-400 font-black text-emerald-400">-- 万円</span>
-                <span id="tax-saving-per-child" class="text-base font-bold text-ceremony-silver-200">(--)</span>
+                <span id="tax-saving-per-child" class="text-xs font-bold text-ceremony-silver-300 bg-ceremony-purple-950 px-2 py-1 rounded border border-ceremony-purple-800/60 ml-1"></span>
               </div>
             </div>
           </div>
@@ -866,7 +876,7 @@ function formatYen(yen) {
       document.getElementById('tax-saving-effect').innerText = formatYen(saving);
 
       const savingPerChild = Math.round(saving / childCount);
-      document.getElementById('tax-saving-per-child').innerText = "(子供1人あたり: " + formatYen(savingPerChild) + " 削減)";
+      document.getElementById('tax-saving-per-child').innerText = "(子供1人あたり: " + formatYen(savingPerChild) + " 削減（目安）)";
 
 
       // 最適化献策セクションの二重黄金枠 ＆ 動的アドバイス標識のリアルタイム制御
