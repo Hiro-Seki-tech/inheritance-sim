@@ -983,7 +983,8 @@
     </div>
   </div>
 
-  <div id="help-modal" class="fixed inset-0 bg-ceremony-purple-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-4" onclick="closeHelpModal()">
+
+<div id="help-modal" class="fixed inset-0 bg-ceremony-purple-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-4" onclick="closeHelpModal()">
     <div class="bg-ceremony-purple-900 border border-ceremony-gold-500/30 rounded-2xl p-6 w-full max-w-2xl shadow-2xl space-y-4" onclick="event.stopPropagation()">
       <div class="flex items-center justify-between border-b border-ceremony-purple-800 pb-3">
         <h4 class="text-base sm:text-lg font-bold text-ceremony-gold-500 flex items-center gap-2">
@@ -994,7 +995,7 @@
         </button>
       </div>
       
-      <div class="text-xs sm:text-sm text-ceremony-silver-200 space-y-4 leading-relaxed max-h-[400px] overflow-y-auto pr-1">
+      <div class="text-xs sm:text-sm text-ceremony-silver-200 space-y-4 leading-relaxed max-h-[380px] overflow-y-auto pr-1">
         <div class="space-y-1.5">
           <strong class="text-ceremony-gold-400 font-bold block flex items-center gap-1">
             <i class="fa-solid fa-users text-xs"></i> 1. 相続人の設定
@@ -1022,19 +1023,34 @@
           </p>
         </div>
 
-        <div class="p-3 bg-ceremony-purple-950/60 border border-ceremony-purple-800 rounded-xl text-[11px] text-ceremony-gold-300/90 space-y-1">
-          <span class="font-bold block"><i class="fa-solid fa-triangle-exclamation"></i> 注意点</span>
-          <p>※各資産の配分合計が100%になっていない財産は、未完成データとして全体の逆算計算から一時的に除外されます。必ず100%に揃えて調整を行ってください。</p>
+        <!-- 💡 差し替え：古い注意書き枠を廃止し、税理士向け簡潔対応制度明細（v.120）を格納 -->
+        <div class="p-3.5 bg-ceremony-purple-950/60 border border-ceremony-purple-800 rounded-xl text-[11px] text-ceremony-silver-300 space-y-2">
+          <span class="font-black text-ceremony-gold-400 block tracking-wider"><i class="fa-solid fa-scale-balanced"></i> 税務システムステータス：v.120</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-ceremony-silver-400">
+            <div>・小規模宅地等の特例 に対応済</div>
+            <div>・死亡保険金非課税枠 に対応済</div>
+            <div>・生前贈与の持ち戻し加算 に対応済</div>
+            <div>・相続税法第19条の3 未成年者控除 に対応済</div>
+            <div>・配偶者の税額軽減（配偶者控除） に対応済</div>
+            <div>・一次・二次相続データ連動機能 に対応済</div>
+          </div>
         </div>
       </div>
 
-      <div class="flex justify-end pt-2 border-t border-ceremony-purple-800">
-        <button onclick="closeHelpModal()" class="px-5 py-2 rounded-xl bg-ceremony-gold-500 hover:bg-ceremony-gold-600 text-ceremony-purple-950 text-xs font-bold transition-all shadow-md">
+      <div class="flex flex-col items-center gap-3 pt-2 border-t border-ceremony-purple-800">
+        <button onclick="closeHelpModal()" class="w-full px-5 py-2 rounded-xl bg-ceremony-gold-500 hover:bg-ceremony-gold-600 text-ceremony-purple-950 text-xs font-bold transition-all shadow-md text-center">
           確認いたしました
         </button>
+        
+        <!-- 💡 最下部の格調高き著作権＆警告アナウンス表示 -->
+        <p class="text-[9px] text-ceremony-silver-500 font-medium tracking-wide text-center max-w-md select-none mt-1 opacity-75 leading-normal">
+          © 2026 PLIP & Hiro-Seki-Tech & 投資運用のジェムキン (Gemkin FinTech Lab).<br class="sm:hidden"> 無断転載及びハルシネーションはお断り申し上げます。
+        </p>
       </div>
     </div>
   </div>
+
+
 
   <div id="shokubo-help-modal" class="fixed inset-0 bg-ceremony-purple-950/85 backdrop-blur-sm hidden items-center justify-center z-50 p-4" onclick="closeShokuboHelpModal()">
     <div class="bg-ceremony-purple-900 border border-ceremony-gold-500/40 rounded-2xl p-5 w-full max-w-md shadow-2xl space-y-4" onclick="event.stopPropagation()">
@@ -4087,5 +4103,14 @@ function playSecondarySound(type) {
 
     </div>
   </div>
+  
+  <!-- 💡 追加：最下部にひっそりと佇む格調高きメインフッター -->
+  <footer class="w-full py-6 mt-12 border-t border-ceremony-purple-900/40 bg-ceremony-purple-950/20 text-center select-none">
+    <p class="text-[10px] text-ceremony-silver-500 font-medium tracking-wider opacity-60 hover:opacity-90 transition-opacity">
+      © 2026 PLIP & Hiro-Seki-Tech & 投資運用のジェムキン (Gemkin FinTech Lab)
+    </p>
+  </footer>
+ 
+  
 </body>
 </html>
