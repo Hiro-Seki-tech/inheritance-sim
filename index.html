@@ -751,14 +751,40 @@
             <h3 class="text-base sm:text-lg font-bold text-ceremony-silver-100 flex items-center gap-2">
               <span class="text-ceremony-gold-500"><i class="fa-solid fa-users"></i></span> 1. 相続人の設定
             </h3>
-            <div class="flex gap-2">
+			
+<div class="flex gap-2">
               <button onclick="resetToStatutoryShares()" class="text-xs text-ceremony-gold-500 hover:text-ceremony-gold-300 transition-colors flex items-center gap-1 bg-ceremony-gold-500/10 px-2.5 py-1.5 rounded-lg border border-ceremony-gold-500/20">
                 <i class="fa-solid fa-rotate"></i> 法定相続分に初期化
               </button>
-              <button onclick="addHeir()" class="text-xs bg-ceremony-gold-500 hover:bg-ceremony-gold-600 text-ceremony-purple-950 font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 shadow-md shadow-ceremony-gold-500/10">
-                <i class="fa-solid fa-plus"></i> 追加
-              </button>
+              <!-- 💡改築：相続人ドロップダウンメニューを内包する相対配置コンテナ -->
+              <div class="relative inline-block text-left" id="heir-dropdown-container">
+                <button onclick="toggleHeirDropdown(event)" class="text-xs bg-ceremony-gold-500 hover:bg-ceremony-gold-600 text-ceremony-purple-950 font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 shadow-md shadow-ceremony-gold-500/10">
+                  <i class="fa-solid fa-plus"></i> 相続人を追加 <i class="fa-solid fa-caret-down text-[10px] ml-0.5"></i>
+                </button>
+                <!-- 👑宝均特製・リッチドロップダウンメニュー -->
+<div id="heir-dropdown-menu" class="hidden absolute right-0 mt-2 w-48 rounded-xl shadow-2xl bg-purple-950 border border-ceremony-gold-500/40 z-50 py-1 font-sans">
+                  <button onclick="executeAddHeir('spouse_legal')" class="w-full text-left px-4 py-2 text-xs text-ceremony-gold-400 font-bold hover:text-white hover:bg-ceremony-purple-900/60 transition-colors flex items-center gap-2 border-b border-ceremony-purple-900/40">
+                    <i class="fa-solid fa-ring text-ceremony-gold-500"></i> 配偶者 (法律婚)
+                  </button>
+                  <button onclick="executeAddHeir('spouse_partner')" class="w-full text-left px-4 py-2 text-xs text-ceremony-silver-200 hover:text-white hover:bg-ceremony-purple-900/60 transition-colors flex items-center gap-2 border-b border-ceremony-purple-900/40">
+                    <i class="fa-solid fa-user-group text-ceremony-gold-500"></i> 配偶者 (パートナー)
+                  </button>
+                  <button onclick="executeAddHeir('child')" class="w-full text-left px-4 py-2 text-xs text-ceremony-silver-200 hover:text-white hover:bg-ceremony-purple-900/60 transition-colors flex items-center gap-2 border-b border-ceremony-purple-900/40">
+                    <i class="fa-solid fa-child text-ceremony-gold-500"></i> 子を追加
+                  </button>
+                  <button onclick="executeAddHeir('parent')" class="w-full text-left px-4 py-2 text-xs text-ceremony-silver-200 hover:text-white hover:bg-ceremony-purple-900/60 transition-colors flex items-center gap-2 border-b border-ceremony-purple-900/40">
+                    <i class="fa-solid fa-user-tie text-ceremony-gold-500"></i> 直系尊属を追加
+                  </button>
+                  <button onclick="executeAddHeir('sibling')" class="w-full text-left px-4 py-2 text-xs text-ceremony-silver-200 hover:text-white hover:bg-ceremony-purple-900/60 transition-colors flex items-center gap-2 border-b border-ceremony-purple-900/40">
+                    <i class="fa-solid fa-people-roof text-ceremony-gold-500"></i> 兄弟姉妹を追加
+                  </button>
+                  <button onclick="executeAddHeir('other')" class="w-full text-left px-4 py-2 text-xs text-ceremony-silver-200 hover:text-white hover:bg-ceremony-purple-900/60 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-ellipsis text-ceremony-gold-500"></i> その他を追加
+                  </button>
+                </div>
+              </div>
             </div>
+			
           </div>
 
           <div id="heirs-container" class="space-y-4 max-h-[420px] overflow-y-auto pr-1"></div>
@@ -769,9 +795,30 @@
             <h3 class="text-base sm:text-lg font-bold text-ceremony-silver-100 flex items-center gap-2">
               <span class="text-ceremony-gold-500"><i class="fa-solid fa-coins"></i></span> 2. 資産の入力 & 取得者設定
             </h3>
-            <button onclick="addAsset()" class="text-xs bg-ceremony-gold-500 hover:bg-ceremony-gold-600 text-ceremony-purple-950 font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 shadow-md shadow-ceremony-gold-500/10">
-              <i class="fa-solid fa-plus"></i> 資産を追加
-            </button>
+			
+ <div class="relative inline-block text-left" id="asset-dropdown-container">
+              <button onclick="toggleAssetDropdown(event)" class="text-xs bg-ceremony-gold-500 hover:bg-ceremony-gold-600 text-ceremony-purple-950 font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 shadow-md shadow-ceremony-gold-500/10">
+                <i class="fa-solid fa-plus"></i> 資産を追加 <i class="fa-solid fa-caret-down text-[10px] ml-0.5"></i>
+              </button>
+              <div id="asset-dropdown-menu" class="hidden absolute right-0 mt-2 w-48 rounded-xl shadow-2xl bg-purple-950 border border-ceremony-gold-500/40 z-50 py-1 font-sans">
+                <button onclick="executeAddAsset('cash')" class="w-full text-left px-4 py-2 text-xs text-ceremony-silver-200 hover:text-white hover:bg-ceremony-purple-900/60 transition-colors flex items-center gap-2 border-b border-ceremony-purple-900/40">
+                  <i class="fa-solid fa-money-bill-wave text-ceremony-gold-500"></i> 現金・預貯金
+                </button>
+                <button onclick="executeAddAsset('stock')" class="w-full text-left px-4 py-2 text-xs text-ceremony-silver-200 hover:text-white hover:bg-ceremony-purple-900/60 transition-colors flex items-center gap-2 border-b border-ceremony-purple-900/40">
+                  <i class="fa-solid fa-chart-line text-ceremony-gold-500"></i> 株式・投資信託
+                </button>
+                <button onclick="executeAddAsset('land')" class="w-full text-left px-4 py-2 text-xs text-ceremony-silver-200 hover:text-white hover:bg-ceremony-purple-900/60 transition-colors flex items-center gap-2 border-b border-ceremony-purple-900/40">
+                  <i class="fa-solid fa-map-location-dot text-ceremony-gold-500"></i> 不動産（土地）
+                </button>
+                <button onclick="executeAddAsset('building')" class="w-full text-left px-4 py-2 text-xs text-ceremony-silver-200 hover:text-white hover:bg-ceremony-purple-900/60 transition-colors flex items-center gap-2 border-b border-ceremony-purple-900/40">
+                  <i class="fa-solid fa-building text-ceremony-gold-500"></i> 不動産（建物）
+                </button>
+                <button onclick="executeAddAsset('other')" class="w-full text-left px-4 py-2 text-xs text-ceremony-silver-200 hover:text-white hover:bg-ceremony-purple-900/60 transition-colors flex items-center gap-2">
+                  <i class="fa-solid fa-box-open text-ceremony-gold-500"></i> その他資産・債務
+                </button>
+              </div>
+            </div>
+			
           </div>
 
           <div id="assets-container" class="space-y-4 max-h-[500px] overflow-y-auto pr-1"></div>
@@ -1225,9 +1272,9 @@ let state = {
       currentState: 'gold', // 👑 'gold', 'platinum', 'red' の3状態を集中管理
       hasInteracted: false, // 🔊 ユーザーが一度でもクリックしたかどうかの防壁
  heirs: [
-        { id: "h1", name: "配偶者", relation: "spouse_legal", spouseType: "legal", share: 50, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1, useHoken: false, hokenAmount: 0 },
-        { id: "h2", name: "長男", relation: "child", spouseType: null, share: 25, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1, useHoken: false, hokenAmount: 0 },
-        { id: "h3", name: "長女", relation: "child", spouseType: null, share: 25, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1, useHoken: false, hokenAmount: 0 }
+        { id: "h1", name: "配偶者", relation: "spouse_legal", spouseType: "legal", share: 50, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1, useHoken: false, hokenAmount: 0, age: 20 },
+        { id: "h2", name: "長男", relation: "child", spouseType: null, share: 25, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1, useHoken: false, hokenAmount: 0, age: 20 },
+        { id: "h3", name: "長女", relation: "child", spouseType: null, share: 25, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1, useHoken: false, hokenAmount: 0, age: 20 }
       ],
       assets: [
         { id: "a1", name: "代々木の土地", type: "land", landEvaluationType: "fixedAsset", area: 120, rosenka: 450000, amount: 54000000, canSplit: true, splitMode: "custom", singleOwner: null, customSplit: {}, shokuboType: "none", shokuboApplicableHeirs: [] },
@@ -1510,35 +1557,38 @@ let state = {
       return { rate: 0.55, deduction: 72000000 };
     }
 
-    function resetAllAssetsToStatutoryShare() {
-      const statutoryShares = getStatutorySharesRatio();
+// 👑【修正版】どんなIDの相続人が増減しても、完璧に法定相続分を資産に配分する防壁
+function resetAllAssetsToStatutoryShare() {
+  const statutoryShares = getStatutorySharesRatio(); // 最新の法定割合を取得
 
-      state.assets.forEach(asset => {
-        asset.canSplit = true;
-        asset.splitMode = 'custom';
-        asset.singleOwner = null;
-        asset.customSplit = {};
+  state.assets.forEach(asset => {
+    asset.canSplit = true;
+    asset.splitMode = 'custom';
+    asset.singleOwner = null;
+    asset.customSplit = {};
 
-        state.heirs.forEach(h => {
-          const shareRatio = statutoryShares[h.id] || 0;
-          asset.customSplit[h.id] = Math.round(shareRatio * 100);
-        });
+    // 💡現在いるすべての相続人のIDに対して、動的に割合を配分する！
+    state.heirs.forEach(h => {
+      const shareRatio = statutoryShares[h.id] || 0;
+      asset.customSplit[h.id] = Math.round(shareRatio * 100);
+    });
 
-        let currentTotal = state.heirs.reduce((sum, h) => sum + (asset.customSplit[h.id] || 0), 0);
-        if (currentTotal !== 100 && state.heirs.length > 0) {
-          const diff = 100 - currentTotal;
-          let maxHeirId = state.heirs[0].id;
-          let maxVal = -1;
-          state.heirs.forEach(h => {
-            if ((asset.customSplit[h.id] || 0) > maxVal) {
-              maxVal = asset.customSplit[h.id] || 0;
-              maxHeirId = h.id;
-            }
-          });
-          asset.customSplit[maxHeirId] += diff;
+    // 100%への端数微調整
+    let currentTotal = state.heirs.reduce((sum, h) => sum + (asset.customSplit[h.id] || 0), 0);
+    if (currentTotal !== 100 && state.heirs.length > 0) {
+      const diff = 100 - currentTotal;
+      let maxHeirId = state.heirs[0].id;
+      let maxVal = -1;
+      state.heirs.forEach(h => {
+        if ((asset.customSplit[h.id] || 0) > maxVal) {
+          maxVal = asset.customSplit[h.id] || 0;
+          maxHeirId = h.id;
         }
       });
+      asset.customSplit[maxHeirId] += diff;
     }
+  });
+}
 
     function initAppOnLoad() {
       state.legalSpouseId = "h1";
@@ -2033,9 +2083,65 @@ function switchInputTab(tab) {
         }
       });
 
-      const totalTax = state.heirs.reduce((sum, h) => sum + h.taxAmount, 0);
+// ==========================================================================
+      // 🛡️ 【新設】未成年者控除（相続税法第19条の3）＆扶養義務者移転調停システム
+      // ==========================================================================
+      state.heirs.forEach(h => {
+        h.minorDeductionApplied = 0;       // 本人に適用された控除額
+        h.minorTransferDeduction = 0;     // 他人から移転されて適用された控除額
+      });
 
+      let totalMinorSurplusPool = 0; // 引ききれずにプールされた余剰控除金の合計
+
+      // 一次調停：未成年者本人の税額から直接控除を執行
+      state.heirs.forEach(h => {
+        if (h.relation === 'child' && h.age !== undefined && h.age < 18) {
+          const rawMinorQuota = (18 - h.age) * 100000; // 控除可能枠の算出
+          
+          if (h.taxAmount >= rawMinorQuota) {
+            // 税額が控除枠以上の場合は、全額引ききって終了
+            h.taxAmount -= rawMinorQuota;
+            h.minorDeductionApplied = rawMinorQuota;
+          } else {
+            // 控除枠が上回った場合、税額は0円になり、余りはプールへ
+            h.minorDeductionApplied = h.taxAmount; 
+            totalMinorSurplusPool += (rawMinorQuota - h.taxAmount);
+            h.taxAmount = 0;
+          }
+        }
+      });
+
+      // 二次調停：プールされた余剰金を大人の扶養義務者（配偶者、18歳以上の子）へ自動移転相殺
+      if (totalMinorSurplusPool > 0) {
+        // 扶養義務者となる大人たち（税額がまだ残っている者）を抽出
+        const protectors = state.heirs.filter(h => 
+          (h.relation === 'spouse_legal' || (h.relation === 'child' && (h.age === undefined || h.age >= 18))) && h.taxAmount > 0
+        );
+
+        // 税額が重い順に控除をぶつけて相殺の効率を最大化する軍略
+        protectors.sort((a, b) => b.taxAmount - a.taxAmount);
+
+        protectors.forEach(p => {
+          if (totalMinorSurplusPool <= 0) return;
+
+          if (p.taxAmount >= totalMinorSurplusPool) {
+            // 大人の税額が余りプール以上の場合は、プールを吸い尽くして終了
+            p.taxAmount -= totalMinorSurplusPool;
+            p.minorTransferDeduction = totalMinorSurplusPool;
+            totalMinorSurplusPool = 0;
+          } else {
+            // 大人の税額を上回る余りがある場合は、その大人の税額を0にし、次へ
+            p.minorTransferDeduction = p.taxAmount;
+            totalMinorSurplusPool -= p.taxAmount;
+            p.taxAmount = 0;
+          }
+        });
+      }
+      // ==========================================================================
+
+      const totalTax = state.heirs.reduce((sum, h) => sum + h.taxAmount, 0);
       document.getElementById('summary-total-estate').textContent = formatJapaneseCurrency(totalEstate);
+	  
       document.getElementById('summary-deduction').textContent = formatJapaneseCurrency(deduction);
       document.getElementById('summary-taxable-estate').textContent = formatJapaneseCurrency(taxableEstate);
       document.getElementById('summary-total-tax').textContent = formatJapaneseCurrency(totalTax);
@@ -2143,30 +2249,36 @@ const hasSpouse = state.heirs.some(h => h.relation === 'spouse_legal');
       return ratios;
     }
 
-    function resetToStatutoryShares() {
-      const ratios = getStatutorySharesRatio();
-      
-      state.heirs.forEach(h => {
-        const ratio = ratios[h.id] || 0;
-        h.share = Math.round(ratio * 100);
-      });
+// 👑【バグ修理・演出救出完全版】法定相続分に初期化する大黒柱コマンド
+function resetToStatutoryShares() {
+  const ratios = getStatutorySharesRatio(); // 修理した割合計算を呼び出す
+  
+  // 現在いるすべての相続人に、計算された正しい法定割合（0.5や0.25など）を配備
+  state.heirs.forEach(h => {
+    const ratio = ratios[h.id] || 0;
+    h.share = Math.round(ratio * 100);
+  });
 
-      let totalShare = state.heirs.reduce((sum, h) => sum + h.share, 0);
-      if (totalShare !== 100 && state.heirs.length > 0) {
-        const diff = 100 - totalShare;
-        let maxHeir = state.heirs[0];
-        state.heirs.forEach(h => {
-          if (h.share > maxHeir.share) {
-            maxHeir = h;
-          }
-        });
-        maxHeir.share += diff;
-      }
+  // 💡調整：100%への端数微調整ロジックを、画面に存在する有効な相続人から動的に選ぶ形に修正
+  let totalShare = state.heirs.reduce((sum, h) => sum + h.share, 0);
+  if (totalShare !== 100 && state.heirs.length > 0) {
+    const diff = 100 - totalShare;
+    let maxHeir = state.heirs[0];
+    state.heirs.forEach(h => {
+      if (h.share > maxHeir.share) { maxHeir = h; }
+    });
+    maxHeir.share += diff;
+  }
 
-      resetAllAssetsToStatutoryShare();
-      updateApp();
-      showFeedback("📊 相続人設定および全資産の個別割合を法定相続分に同期初期化しました。");
-    }
+  // 最新の相続人IDに基づいて、すべての資産の配分割合も法定％に強制リセット
+  resetAllAssetsToStatutoryShare();
+  
+  // 画面全体を再計算・再描画
+  updateApp();
+
+  // ✨Hiro殿の指摘通り、大切な演出文言をここに死守！
+  showFeedback("📊 相続人設定および全資産の個別割合を法定相続分に同期初期化しました。");
+}
 
     function calculateStatutoryShares(triggerUpdate = true) {
       const ratios = getStatutorySharesRatio();
@@ -2213,6 +2325,182 @@ const hasSpouse = state.heirs.some(h => h.relation === 'spouse_legal');
         targetHeir.share += diff;
       }
     }
+
+
+// ==========================================
+// 💡 改築：ドロップダウンメニュー制御ロジック
+// ==========================================
+
+// --- 1. 【防壁強化版】相続人ドロップダウンの開閉 ＆ 法律婚重複防止調停 ---
+function toggleHeirDropdown(event) {
+  event.stopPropagation(); // イベントのバブリングを阻止
+  const menu = document.getElementById('heir-dropdown-menu');
+  const assetMenu = document.getElementById('asset-dropdown-menu');
+  
+  // 資産メニューが開いていたら閉じる
+  if (assetMenu) assetMenu.classList.add('hidden');
+  
+  if (menu) {
+    // 🛡️ 鉄壁の事前検知：現在、すでに法律婚の配偶者がいるか部隊（配列）を走査
+    const hasLegalSpouse = state.heirs.some(h => h.relation === 'spouse_legal');
+    
+    // メニュー内の「法律婚を追加」ボタンの要素を特定するため、onclick属性で逆引き検索
+    const legalSpouseBtn = menu.querySelector("button[onclick*='spouse_legal']");
+    
+    if (legalSpouseBtn) {
+      if (hasLegalSpouse) {
+        // 🔒 すでに法律婚がいるなら：ボタンを暗くし、クリックを完全に無効化！
+        legalSpouseBtn.disabled = true;
+        legalSpouseBtn.style.opacity = "0.4";
+        legalSpouseBtn.style.cursor = "not-allowed";
+        legalSpouseBtn.innerHTML = `<i class="fa-solid fa-lock text-ceremony-silver-500"></i> 配偶者 (法律婚) ※1名のみ`;
+      } else {
+        // 🔓 法律婚がいないなら（初期状態、または消された後）：元の絢爛たる姿で解放！
+        legalSpouseBtn.disabled = false;
+        legalSpouseBtn.style.opacity = "1";
+        legalSpouseBtn.style.cursor = "pointer";
+        legalSpouseBtn.innerHTML = `<i class="fa-solid fa-ring text-ceremony-gold-500"></i> 配偶者 (法律婚)`;
+      }
+    }
+
+    // メニューの開閉を切り替え
+    menu.classList.toggle('hidden');
+  }
+}
+
+// --- 2. 資産ドロップダウンの開閉 ---
+function toggleAssetDropdown(event) {
+  event.stopPropagation();
+  const menu = document.getElementById('asset-dropdown-menu');
+  const heirMenu = document.getElementById('heir-dropdown-menu');
+  
+  // 相続人メニューが開いていたら閉じる
+  if (heirMenu) heirMenu.classList.add('hidden');
+  
+  // 資産メニューの開閉を切り替え
+  if (menu) menu.classList.toggle('hidden');
+}
+
+// --- 3. メニューの外側をクリックした時に閉じる処理 ---
+window.addEventListener('click', function(event) {
+  const heirMenu = document.getElementById('heir-dropdown-menu');
+  const assetMenu = document.getElementById('asset-dropdown-menu');
+  
+  // 相続人メニューの外側なら閉じる
+  if (heirMenu && !event.target.closest('#heir-dropdown-container')) {
+    heirMenu.classList.add('hidden');
+  }
+  // 資産メニューの外側なら閉じる
+  if (assetMenu && !event.target.closest('#asset-dropdown-container')) {
+    assetMenu.classList.add('hidden');
+  }
+});
+
+// 👑【シンプル完全版】相続人を追加し、ただ法定相続分に初期化するだけの美しい陣形
+function executeAddHeir(type) {
+  const menu = document.getElementById('heir-dropdown-menu');
+  if (menu) menu.classList.add('hidden');
+
+  const newHeir = {
+    id: "h_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
+    name: "",
+    relation: type,
+    spouseType: type === 'spouse_legal' ? 'legal' : (type === 'spouse_partner' ? 'partner' : null),
+    share: 0,
+    useZoyo: false,
+    zoyoMode: 'rekinen',
+    reki3Year: 0,
+    reki7Year: 0,
+    seisanTotal: 0,
+    seisanYears: 1,
+    useHoken: false,
+    hokenAmount: 0,
+    age: 20
+  };
+
+  if (type === 'spouse_legal') { newHeir.name = '配偶者 (法律婚)'; newHeir.age = 50; }
+  else if (type === 'spouse_partner') { newHeir.name = '配偶者 (パートナー)'; newHeir.age = 50; }
+  else if (type === 'child') { newHeir.name = '子'; newHeir.age = 20; }
+  else if (type === 'parent') { newHeir.name = '親（直系尊属）'; newHeir.age = 75; }
+  else if (type === 'sibling') { newHeir.name = '兄弟姉妹'; newHeir.age = 60; }
+  else { newHeir.name = 'その他相続人'; newHeir.age = 30; }
+
+  // 配列に格納
+  state.heirs.push(newHeir);
+  
+  if (type === 'spouse_legal') {
+    state.legalSpouseId = newHeir.id;
+  }
+
+  // 💡ただ真っ直ぐに初期化コマンドを叩き、個別資産割合まで完全に同期させる！
+  resetToStatutoryShares();
+}
+
+// --- 5. 【修正版】指定された種類の資産を追加する実行関数 ---
+function executeAddAsset(type) {
+  // メニューを閉じる
+  const menu = document.getElementById('asset-dropdown-menu');
+  if (menu) menu.classList.add('hidden');
+
+  // 法定相続分に基づいた初期配分を計算する陣
+  const statutoryShares = getStatutorySharesRatio();
+  const initialCustomSplit = {};
+
+  state.heirs.forEach(h => {
+    const shareRatio = statutoryShares[h.id] || 0;
+    initialCustomSplit[h.id] = Math.round(shareRatio * 100);
+  });
+
+  // 💡 【新設】100%への端数微調整ロジック（これで警告を完全に遮断する）
+  let currentTotal = state.heirs.reduce((sum, h) => sum + (initialCustomSplit[h.id] || 0), 0);
+  if (currentTotal !== 100 && state.heirs.length > 0) {
+    const diff = 100 - currentTotal;
+    let maxHeirId = state.heirs[0].id;
+    let maxVal = -1;
+    
+    // 一番取り分の大きい相続人を特定
+    state.heirs.forEach(h => {
+      if ((initialCustomSplit[h.id] || 0) > maxVal) {
+        maxVal = initialCustomSplit[h.id] || 0;
+        maxHeirId = h.id;
+      }
+    });
+    // 端数分の差分（+1% や -1% など）をドッキング
+    initialCustomSplit[maxHeirId] += diff;
+  }
+
+  // 👑 元のコードの構造（state.assets）に100%適合させたひな形
+  const newAsset = {
+    id: "a_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
+    name: "新規資産",
+    type: type, // 選択された資産タイプ（cash, stock, land, building, other）
+    amount: 10000000, // 初期評価額1,000万円
+    landEvaluationType: "rosenka",
+    area: 100,           
+    rosenka: 100000,      
+    canSplit: true,
+    splitMode: "custom",
+    singleOwner: null,
+    customSplit: initialCustomSplit, // 端数調整済みの美しい％を配備
+    shokuboType: "none",
+    shokuboApplicableHeirs: []
+  };
+
+  // 種類に応じたデフォルト名
+  if (type === 'cash') newAsset.name = '定期預金';
+  else if (type === 'stock') newAsset.name = '株式（新規投資信託）';
+  else if (type === 'land') newAsset.name = '新規土地資産';
+  else if (type === 'building') newAsset.name = '新規建物資産';
+  else newAsset.name = 'その他資産・債務';
+
+  // 既存の部隊（state.assets）に突撃（追加）
+  state.assets.push(newAsset);
+  
+  // 宝均の全画面・計算を再駆動！
+  updateApp();
+}
+
+
 
     function addHeir() {
       const id = "h_" + Date.now();
@@ -2345,7 +2633,8 @@ else if (['reki3Year', 'reki7Year', 'seisanTotal', 'seisanYears', 'hokenAmount']
                     class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-7 pr-2.5 py-1 text-xs sm:text-sm text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors w-full">
                 </div>
               </div>
-              <div>
+			  
+  <div>
                 <label class="text-ceremony-gold-500 text-[10px] mb-0.5 block">続柄</label>
                 <select onchange="updateHeirField('${heir.id}', 'relation', this.value)"
                   class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs sm:text-sm text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors w-full">
@@ -2358,9 +2647,28 @@ else if (['reki3Year', 'reki7Year', 'seisanTotal', 'seisanYears', 'hokenAmount']
                 </select>
               </div>
             </div>
+            
+            ${heir.relation === 'child' ? `
+              <div class="w-full sm:w-32 shrink-0">
+                <label class="text-ceremony-gold-500 text-[10px] mb-0.5 block">年齢（相続開始時）</label>
+                <div class="relative flex items-center">
+                  <input type="number" min="0" max="120" value="${heir.age !== undefined ? heir.age : 20}" 
+                    onchange="updateHeirField('${heir.id}', 'age', parseInt(this.value) || 0)"
+                    class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs sm:text-sm text-ceremony-silver-100 font-bold focus:outline-none focus:border-ceremony-gold-500 transition-colors w-full text-center">
+                  <span class="absolute right-2 text-[10px] text-ceremony-silver-400 font-bold pointer-events-none">歳</span>
+                </div>
+                ${heir.age < 18 ? `
+                  <span class="text-[9px] text-emerald-400 font-bold block mt-1 tracking-tight">
+                    🛡️ 控除予定: ${formatYenToManText((18 - heir.age) * 100000)}万
+                  </span>
+                ` : ''}
+              </div>
+            ` : ''}
+
             <button onclick="removeHeir('${heir.id}')" class="text-ceremony-silver-400 hover:text-rose-400 p-1.5 rounded-lg transition-colors" title="削除">
               <i class="fa-regular fa-trash-can"></i>
             </button>
+			
           </div>
 
           <div class="space-y-2">
@@ -2823,7 +3131,7 @@ if (asset.type === 'cash') {
                 <option value="stock" ${asset.type === 'stock' ? 'selected' : ''}>株式・投資信託</option>
                 <option value="land" ${asset.type === 'land' ? 'selected' : ''}>不動産（土地）</option>
                 <option value="building" ${asset.type === 'building' ? 'selected' : ''}>不動産（建物）</option>
-                <option value="other" ${asset.type === 'other' ? 'selected' : ''}>その他資産</option>
+                <option value="other" ${asset.type === 'other' ? 'selected' : ''}>その他資産（動産・債務・葬儀費用など）</option>
               </select>
             </div>
             <button onclick="removeAsset('${asset.id}')" class="text-ceremony-silver-400 hover:text-rose-400 p-1.5 rounded-lg transition-colors" title="削除">
@@ -3048,13 +3356,20 @@ state.heirs.forEach((h, index) => {
           <td class="px-3 py-3 text-right font-medium text-ceremony-silver-300">
             <span>${formatYenToManText(h.taxableAmount)}万円</span>
           </td>
-          <td class="px-3 py-3 text-right font-black text-rose-400">
+		  
+		  
+<td class="px-3 py-3 text-right font-black text-rose-400">
             <span class="text-rose-300 block">${formatYenToManText(h.taxAmount)}万円</span>
             ${h.spouseExemptionApplied ? '<span class="text-[9px] text-emerald-400 block font-bold mt-0.5"><i class="fa-solid fa-gift"></i> 配偶者控除</span>' : ''}
             ${h.specialExemptionAppliedAmount > 0 ? `<span class="text-[9px] text-amber-400 block font-bold mt-0.5"><i class="fa-solid fa-house-shield"></i> 特例：-${formatYenToManText(h.specialExemptionAppliedAmount)}万</span>` : ''}
             ${h.giftCarrybackAmount > 0 ? `<span class="text-[9px] text-purple-400 block font-bold mt-0.5"><i class="fa-solid fa-gift"></i> 持ち戻し：+${formatYenToManText(h.giftCarrybackAmount)}万</span>` : ''}
+            
+            ${h.minorDeductionApplied > 0 ? `<span class="text-[9px] text-emerald-400 block font-bold mt-0.5"><i class="fa-solid fa-user-shield"></i> 未成年控除: -${formatYenToManText(h.minorDeductionApplied)}万</span>` : ''}
+            ${h.minorTransferDeduction > 0 ? `<span class="text-[9px] text-teal-400 block font-bold mt-0.5"><i class="fa-solid fa-people-arrows"></i> 未成年移転控除: -${formatYenToManText(h.minorTransferDeduction)}万</span>` : ''}
+            
             <span class="text-[9px] text-ceremony-silver-400 block">税率: ${Math.round(h.taxRate * 100)}%</span>
           </td>
+		  
         `;
         tbody.appendChild(tr);
       });
@@ -3377,7 +3692,7 @@ function openSaveLoadModal(mode) {
   
   if (mode === 'save') {
     title.innerHTML = `<i class="fa-solid fa-floppy-disk text-ceremony-gold-400"></i> 宝均の書（世界線の記録）`;
-    desc.textContent = "現在の相続人設定・資産構成を固定保存するスロットを選び、名前をつけて記録してください。";
+    desc.textContent = "現在の相続人設定・資産構成を固定保存するスロットを選び、名前をつけて記録してください。いろいろな相続パターンを試して比較してみましょう！";
   } else {
     title.innerHTML = `<i class="fa-solid fa-folder-open text-ceremony-silver-300"></i> 宝均の書（世界線の復元）`;
     desc.textContent = "以前に記録した世界線へ跳躍（復元）します。現在の未保存データは上書きされるのでご注意ください。";
@@ -3450,19 +3765,20 @@ function executeSaveSlot(slotNumber) {
   const now = new Date();
   const timestamp = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   
+  // 💡 【完全同期】年齢、生前贈与、生命保険、土地の特例など、全ての状態を漏らさずパッキング
   const dataToSave = {
     slotName: slotName,
     savedAt: timestamp,
-    heirs: state.heirs,
-    assets: state.assets,
+    heirs: JSON.parse(JSON.stringify(state.heirs)),   // ディープコピーで状態を完全隔離保存
+    assets: JSON.parse(JSON.stringify(state.assets)), // 資産タイプや小規模宅地特例も完全保存
     legalSpouseId: state.legalSpouseId,
     taxMode: state.taxMode
   };
   
-  // LocalStorageの独立したスロットへガチッと固定保存
+  // LocalStorageの独立したスロットへ固定保存
   localStorage.setItem(`gemkin_slot_${slotNumber}`, JSON.stringify(dataToSave));
   
-  showFeedback(`💾 【宝均の書 ${slotNumber === 1 ? '一' : slotNumber === 2 ? '二' : '三'}】に『${slotName}』として現在の世界線をしっかりと記録いたしました。`);
+  showFeedback(`💾 【宝均の書 ${slotNumber === 1 ? '一' : slotNumber === 2 ? '二' : '三'}】に『${slotName}』として全ての詳細設定をしっかりと記録いたしました。`);
   closeSaveLoadModal();
 }
 
@@ -3471,10 +3787,11 @@ function executeLoadSlot(slotNumber) {
   const savedData = JSON.parse(localStorage.getItem(`gemkin_slot_${slotNumber}`));
   if (!savedData) return;
   
-  // stateへデータを流し込んで復元
+  // 💡 【完全復元】stateへ全てのデータを流し込んで世界線を復元
   state.heirs = JSON.parse(JSON.stringify(savedData.heirs));
   state.assets = JSON.parse(JSON.stringify(savedData.assets));
   state.legalSpouseId = savedData.legalSpouseId;
+  
   if (savedData.taxMode) {
     state.taxMode = savedData.taxMode;
     // 課税モードのUIボタンの見た目も追従させる調停
@@ -3491,11 +3808,11 @@ function executeLoadSlot(slotNumber) {
     }
   }
   
-  // アプリ全体を再計算・再描画して瞬間跳躍
+  // 💡 読込後に資産構成比率の整合性をとり、アプリ全体（年齢控除や保険枠）を再駆動！
   recalculateHeirSharesFromAssets();
   updateApp();
   
-  showFeedback(`🔮 『宝均の書 ${slotNumber === 1 ? '一' : slotNumber === 2 ? '二' : '三'}』より、『${savedData.slotName}』の世界線へ瞬間跳躍いたしました！`);
+  showFeedback(`🔮 『宝均の書 ${slotNumber === 1 ? '一' : slotNumber === 2 ? '二' : '三'}』より、『${savedData.slotName}』の世界線へ完全復元跳躍いたしました！`);
   closeSaveLoadModal();
 }
 
@@ -3596,7 +3913,7 @@ function openAdviceModal() {
     `;
   }
 
-  // 💡 判定C：法律婚の配偶者がいるのに、その取得割合（share）が10%未満など極端に低い場合
+// 💡 判定C：法律婚の配偶者がいるのに、その取得割合（share）が10%未満など極端に低い場合
   const legalSpouse = state.heirs.find(h => h.id === state.legalSpouseId || h.relation === 'spouse_legal');
   if (legalSpouse && legalSpouse.share < 10) {
     adviceCount++;
@@ -3613,7 +3930,52 @@ function openAdviceModal() {
     `;
   }
 
-  // 💡 判定D：どれにも引っかからなかった場合（素晴らしい対策状況）
+  // 💡 【新設】判定D：生命保険金の非課税枠（500万×法定相続人）に未活用枠がある場合
+  const statutoryHeirsCountForHokenAdvice = state.heirs.filter(h => h.relation !== 'other').length;
+  const hokenDeductionLimitYen = 5000000 * Math.max(1, statutoryHeirsCountForHokenAdvice);
+  let totalHokenYen = 0;
+  state.heirs.forEach(h => { if (h.useHoken && h.hokenAmount) { totalHokenYen += (h.hokenAmount * 10000); } });
+
+  if (totalHokenYen < hokenDeductionLimitYen) {
+    adviceCount++;
+    const unusedLimitMan = Math.round((hokenDeductionLimitYen - totalHokenYen) / 10000);
+    container.innerHTML += `
+      <div class="bg-ceremony-purple-900/40 border border-ceremony-purple-800/80 rounded-2xl p-6 space-y-4 shadow-xl backdrop-blur-sm">
+        <div class="flex items-center gap-2 text-emerald-400 font-bold advice-card-title">
+          <i class="fa-solid fa-heart-pulse"></i> 生命保険金 非課税防壁の未活用枠を検知
+        </div>
+        <p class="text-ceremony-silver-200 advice-card-body">
+          現在の家族構成における生命保険金の非課税枠は合計 <strong class="text-white">${Math.round(hokenDeductionLimitYen / 100000000) > 0 ? (hokenDeductionLimitYen / 100000000) + '億' : ''}${Math.round((hokenDeductionLimitYen % 100000000) / 10000)}万円</strong> ですが、まだ <strong class="text-ceremony-gold-400 font-black">${unusedLimitMan}万円分</strong> が未活用です。現金のまま残すのではなく、一時払終身保険等に切り替えるだけで、この枠の分だけ相続税の課税遺産総額をダイレクトに引き下げることが可能です。
+        </p>
+        <span class="text-emerald-400 block bg-emerald-500/5 px-2 py-1 rounded border border-emerald-500/10 w-fit advice-card-hint">【軍師の献策】納税資金の確保と同時に、国からの課税を合法的に遮断せよ。</span>
+      </div>
+    `;
+  }
+
+  // 💡 【新設】判定E：未成年者控除の「扶養義務者への移転」が美しく発動している場合
+  let activeTransfers = [];
+  state.heirs.forEach(h => {
+    if (h.minorTransferDeduction && h.minorTransferDeduction > 0) {
+      activeTransfers.push(`<strong class="text-white">${h.name}殿 (-${formatYenToManText(h.minorTransferDeduction)}万)</strong>`);
+    }
+  });
+
+  if (activeTransfers.length > 0) {
+    adviceCount++;
+    container.innerHTML += `
+      <div class="bg-ceremony-purple-900/40 border border-teal-500/50 rounded-2xl p-6 space-y-4 shadow-xl shadow-teal-950/20 backdrop-blur-sm">
+        <div class="flex items-center gap-2 text-teal-400 font-bold advice-card-title">
+          <i class="fa-solid fa-people-arrows"></i> 未成年者控除の連動防壁が発動中
+        </div>
+        <p class="text-ceremony-silver-200 advice-card-body">
+          相続税法第19条の3が極めて美しく機能しております。18歳未満の未成年相続人から溢れ出た控除の光（余剰枠）が、扶養義務者である ${activeTransfers.join(' および ')} へ自動的に移転し、彼らの課税を相殺することに成功いたしました。
+        </p>
+        <span class="text-teal-400 block bg-teal-500/5 px-2 py-1 rounded border border-teal-500/10 w-fit advice-card-hint">【調停完了】家族の絆が税法上の強固な要塞となり、資産を守り抜いています。</span>
+      </div>
+    `;
+  }
+
+  // 💡 判定F：どれにも引っかからなかった場合（素晴らしい対策状況）
   if (adviceCount === 0) {
     container.innerHTML += `
       <div class="bg-ceremony-purple-900/40 border border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-xl backdrop-blur-sm col-span-1 md:col-span-2 max-w-xl mx-auto text-center">
