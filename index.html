@@ -2637,9 +2637,10 @@ else if (['reki3Year', 'reki7Year', 'seisanTotal', 'seisanYears', 'hokenAmount']
         card.className = "bg-ceremony-purple-900/20 border border-ceremony-purple-800/40 hover:border-ceremony-gold-500/30 rounded-xl p-4 transition-all space-y-3 relative overflow-hidden";
         card.style.borderLeft = `4px solid ${color}`;
 
-        card.innerHTML = `
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-2">
+card.innerHTML = `
+          <!-- 💡スマホ時は縦並び、sm以上で横並びへ調停し、右上に削除ボタンのスペースを確保 -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pr-8 sm:pr-0">
+            <div class="w-full sm:flex-grow grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
                 <label class="text-ceremony-gold-500 text-[10px] mb-0.5 block">お名前</label>
                 <div class="relative flex items-center">
@@ -2650,7 +2651,7 @@ else if (['reki3Year', 'reki7Year', 'seisanTotal', 'seisanYears', 'hokenAmount']
                 </div>
               </div>
 			  
-  <div>
+              <div>
                 <label class="text-ceremony-gold-500 text-[10px] mb-0.5 block">続柄</label>
                 <select onchange="updateHeirField('${heir.id}', 'relation', this.value)"
                   class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs sm:text-sm text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors w-full">
@@ -2681,7 +2682,8 @@ else if (['reki3Year', 'reki7Year', 'seisanTotal', 'seisanYears', 'hokenAmount']
               </div>
             ` : ''}
 
-            <button onclick="removeHeir('${heir.id}')" class="text-ceremony-silver-400 hover:text-rose-400 p-1.5 rounded-lg transition-colors" title="削除">
+            <!-- 💡スマホ時は右上、sm以上は並列に佇む絶対・相対ハイブリッド配置 -->
+            <button onclick="removeHeir('${heir.id}')" class="absolute top-3 right-3 sm:relative sm:top-auto sm:right-auto text-ceremony-silver-400 hover:text-rose-400 p-1.5 rounded-lg transition-colors" title="削除">
               <i class="fa-regular fa-trash-can"></i>
             </button>
 			
