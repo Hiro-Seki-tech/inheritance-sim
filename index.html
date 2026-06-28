@@ -746,11 +746,15 @@
 
 
 
-        <section id="section-heirs" class="silver-gradient-panel border-2 rounded-2xl p-5 shadow-2xl backdrop-blur-sm">
+<section id="section-heirs" class="silver-gradient-panel border-2 rounded-2xl p-5 shadow-2xl backdrop-blur-sm">
           <div class="flex items-center justify-between mb-4 pb-3 border-b border-ceremony-purple-800/60">
             <h3 class="text-base sm:text-lg font-bold text-ceremony-silver-100 flex items-center gap-2">
               <span class="text-ceremony-gold-500"><i class="fa-solid fa-users"></i></span> 1. 相続人の設定
+              <button onclick="toggleHelpPopover(event, 'heirs')" class="text-amber-400 hover:text-amber-300 text-base transition-all focus:outline-none ml-1.5" title="ヘルプを見る">
+                <i class="fa-solid fa-circle-question"></i>
+              </button>
             </h3>
+			
 			
 <div class="flex gap-2">
               <button onclick="resetToStatutoryShares()" class="text-xs text-ceremony-gold-500 hover:text-ceremony-gold-300 transition-colors flex items-center gap-1 bg-ceremony-gold-500/10 px-2.5 py-1.5 rounded-lg border border-ceremony-gold-500/20">
@@ -790,10 +794,13 @@
           <div id="heirs-container" class="space-y-4 max-h-[420px] overflow-y-auto pr-1"></div>
         </section>
 
-        <section id="section-assets" class="silver-gradient-panel border-2 rounded-2xl p-5 shadow-2xl backdrop-blur-sm hidden">
+<section id="section-assets" class="silver-gradient-panel border-2 rounded-2xl p-5 shadow-2xl backdrop-blur-sm hidden">
           <div class="flex items-center justify-between mb-4 pb-3 border-b border-ceremony-purple-800/60">
             <h3 class="text-base sm:text-lg font-bold text-ceremony-silver-100 flex items-center gap-2">
               <span class="text-ceremony-gold-500"><i class="fa-solid fa-coins"></i></span> 2. 資産の入力 & 取得者設定
+              <button onclick="toggleHelpPopover(event, 'assets')" class="text-amber-400 hover:text-amber-300 text-base transition-all focus:outline-none ml-1.5" title="ヘルプを見る">
+                <i class="fa-solid fa-circle-question"></i>
+              </button>
             </h3>
 			
  <div class="relative inline-block text-left" id="asset-dropdown-container">
@@ -828,6 +835,9 @@
           <div class="flex items-center mb-6 pb-3 border-b border-ceremony-purple-800/60">
             <h3 class="text-base sm:text-lg font-bold text-ceremony-silver-100 flex items-center gap-2">
               <span class="text-ceremony-gold-500"><i class="fa-solid fa-book-bookmark"></i></span> 3. 設定の保存／呼出
+              <button onclick="toggleHelpPopover(event, 'storage')" class="text-ceremony-gold-400 hover:text-ceremony-gold-300 transition-all focus:outline-none ml-2" title="ヘルプを見る">
+                <i class="fa-solid fa-circle-question text-xl"></i>
+              </button>
             </h3>
           </div>
 
@@ -2417,6 +2427,10 @@ function executeAddHeir(type) {
   const menu = document.getElementById('heir-dropdown-menu');
   if (menu) menu.classList.add('hidden');
 
+  // 既存の同じ続柄の人数をカウント
+  const currentCount = state.heirs.filter(h => h.relation === type).length;
+  const nextNumber = currentCount + 1;
+
   const newHeir = {
     id: "h_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
     name: "",
@@ -2434,12 +2448,42 @@ function executeAddHeir(type) {
     age: 20
   };
 
-  if (type === 'spouse_legal') { newHeir.name = '配偶者 (法律婚)'; newHeir.age = 50; }
-  else if (type === 'spouse_partner') { newHeir.name = '配偶者 (パートナー)'; newHeir.age = 50; }
-  else if (type === 'child') { newHeir.name = '子'; newHeir.age = 20; }
-  else if (type === 'parent') { newHeir.name = '親（直系尊属）'; newHeir.age = 75; }
-  else if (type === 'sibling') { newHeir.name = '兄弟姉妹'; newHeir.age = 60; }
-  else { newHeir.name = 'その他相続人'; newHeir.age = 30; }
+  // 🔮 カスカベ防衛隊仕様の動的お名前調停システム
+  if (type === 'spouse_legal') { 
+    newHeir.name = 'みさえ'; 
+    newHeir.age = 50; 
+  }
+  else if (type === 'spouse_partner') { 
+    newHeir.name = 'パートナー' + nextNumber; 
+    newHeir.age = 50; 
+  }
+  else if (type === 'child') { 
+    if (currentCount === 0) {
+      newHeir.name = 'しんのすけ';
+    } else if (currentCount === 1) {
+      newHeir.name = 'ひまわり';
+    } else {
+      // 3人目(インデックス2)のときは 'C'、4人目は 'D' となるようにアルファベットの文字コードから動的生成
+      const alphabetCode = 65 + currentCount; // 65は'A'の文字コード。2を足して67('C')からスタート
+      const letter = String.fromCharCode(alphabetCode);
+      newHeir.name = 'こども' + letter;
+    }
+    newHeir.age = 20; 
+  }
+  else if (type === 'parent') { 
+    const parentNames = ['お父さま', 'お母さま', '祖父', '祖母'];
+    newHeir.name = parentNames[currentCount] || ('親族' + nextNumber);
+    newHeir.age = 75; 
+  }
+  else if (type === 'sibling') { 
+    const siblingNames = ['お兄さま', 'お姉さま', '弟さま', '妹さま'];
+    newHeir.name = siblingNames[currentCount] || ('兄弟姉妹' + nextNumber);
+    newHeir.age = 60; 
+  }
+  else { 
+    newHeir.name = '親族の方' + nextNumber; 
+    newHeir.age = 30; 
+  }
 
   // 配列に格納
   state.heirs.push(newHeir);
@@ -4097,7 +4141,7 @@ function playSecondarySound(type) {
       </div>
 
       <!-- フッターライン -->
-      <div class="border-t border-ceremony-purple-800/60 pt-4 flex justify-end">
+<div class="border-t border-ceremony-purple-800/60 pt-4 flex justify-end">
         <button onclick="closeAdviceModal()" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-ceremony-gold-500 to-amber-500 hover:from-ceremony-gold-600 hover:to-amber-600 text-ceremony-purple-950 font-black text-sm rounded-xl transition-all shadow-lg shadow-ceremony-gold-500/10 text-center">
           アドバイスを確認して戻る
         </button>
@@ -4105,11 +4149,80 @@ function playSecondarySound(type) {
 
     </div>
   </div>
+
+  <div id="helpPopover" class="fixed z-[100] hidden bg-gradient-to-br from-slate-900 via-ceremony-purple-950 to-slate-900 border border-ceremony-gold-500/40 text-ceremony-silver-200 p-5 rounded-xl shadow-2xl max-w-sm md:max-w-md transition-all duration-200">
+    <div class="flex justify-between items-center border-b border-ceremony-purple-800 pb-2 mb-3">
+      <h4 id="helpPopoverTitle" class="text-sm font-black text-ceremony-gold-300 flex items-center gap-1.5"></h4>
+      <button onclick="closeHelpPopover(event)" class="text-ceremony-silver-400 hover:text-white text-xs bg-ceremony-purple-900/50 hover:bg-ceremony-purple-800 px-2 py-0.5 rounded border border-ceremony-purple-700/50 transition-colors">閉じる</button>
+    </div>
+    <p id="helpPopoverBody" class="text-xs sm:text-sm leading-relaxed text-ceremony-silver-300 font-medium whitespace-pre-line"></p>
+  </div>
+
+  <script>
+    // ヘルプ用ポップオーバーのデータ
+    const helpData = {
+      heirs: {
+        title: "👪 相続人となるメンバーを登録しよう！",
+        body: "亡くなった人が大切に想う人（配偶者、子供、親、兄弟など）を登録する場所です。\n\n「追加」ボタンからメンバーを増やすと、法律で決められた「みんなの基本的な分け前の目安（％）」が自動で計算されます。年齢を入れると、未成年の子供を優しく守る特別な控除等も自動で発動しますよ！まずは家族のお名前を入れてみましょう！"
+      },
+      assets: {
+        title: "💰 宝ものをみんなで均しく分け合おう！",
+        body: "たいせつな財産（貯金、おうちや土地、株など）を登録する場所です。\n\nそれぞれの財産を「だれに何％ずつ分けるか」を、スライダーや数字で自由に決めることができます。「この土地は長男に100%！」といった単独のプレゼントも思いのまま。みんなが笑顔になる最高の宝の分け方（宝均）を見つけてみましょう！"
+      },
+      storage: {
+        title: "🔮 考えた相続案を『宝均の書』にセーブしよう！",
+        body: "「配偶者に多めに分ける案」「子供たちで仲良くきれいに分ける案」など、一生懸命かんがえた大切な分け方のパターンを、このパソコンやスマホの中にそっと記録（セーブ）しておける機能です。\n\n別の案を思いついたら、いつでも「上書き保存」や「読出」をして、複数の相続プランを何度でもじっくり見比べることができますよ！"
+      }
+    };
+
+    function toggleHelpPopover(event, type) {
+      event.stopPropagation();
+      const popover = document.getElementById('helpPopover');
+      const titleEl = document.getElementById('helpPopoverTitle');
+      const bodyEl = document.getElementById('helpPopoverBody');
+      
+      if (!popover.classList.contains('hidden') && popover.dataset.currentType === type) {
+        popover.classList.add('hidden');
+        return;
+      }
+
+      titleEl.innerText = helpData[type].title;
+      bodyEl.innerText = helpData[type].body;
+      popover.dataset.currentType = type;
+
+      const rect = event.currentTarget.getBoundingClientRect();
+      
+      let left = window.scrollX + rect.left;
+      let top = window.scrollY + rect.bottom + 10;
+
+      if (left + 360 > window.innerWidth) {
+        left = window.innerWidth - 380;
+      }
+      if (left < 10) left = 10;
+
+      popover.style.left = left + 'px';
+      popover.style.top = top + 'px';
+      popover.classList.remove('hidden');
+    }
+
+    // ツールチップを閉じる関数（外側クリック時と干渉しないよう最前面の挙動を保証）
+    function closeHelpPopover(event) {
+      if (event) event.stopPropagation();
+      document.getElementById('helpPopover').classList.add('hidden');
+    }
+
+    // ツールチップ外のタップやクリックでも閉じる調停ロジック
+    window.addEventListener('click', function(e) {
+      const popover = document.getElementById('helpPopover');
+      if (!popover.classList.contains('hidden') && !popover.contains(e.target)) {
+        popover.classList.add('hidden');
+      }
+    });
+  </script>
   
-  <!-- 💡 追加：最下部にひっそりと佇む格調高きメインフッター -->
   <footer class="w-full py-6 mt-12 border-t border-ceremony-purple-900/40 bg-ceremony-purple-950/20 text-center select-none">
-    <p class="text-[10px] text-ceremony-silver-500 font-medium tracking-wider opacity-60 hover:opacity-90 transition-opacity">
-      © 2026 PLIP & Hiro-Seki-Tech & 投資運用のジェムキン (Gemkin FinTech Lab)
+    <p class="text-xs text-ceremony-silver-500 font-medium tracking-widest">
+      &copy; 2026 <span class="bg-gradient-to-r from-ceremony-gold-400 to-amber-400 -webkit-background-clip: text text-transparent font-black">宝均（Gem-Kin）</span> PREMIUM EDITION. ALL RIGHTS RESERVED.
     </p>
   </footer>
  
