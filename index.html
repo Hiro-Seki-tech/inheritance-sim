@@ -682,25 +682,30 @@
 
         <div class="flex items-center space-x-2">
 
-<!-- 💡 追加箇所：尽生へのさりげないリンクボタン（プラチナ＆ゴールド＋ポップアップ仕様） -->
-<div class="relative group inline-block">
-            <a href="https://hiro-seki-tech.github.io/asset-sim-public/" target="_blank" rel="noopener noreferrer" class="text-xs font-bold bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-ceremony-gold-400 hover:text-ceremony-gold-300 px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-black/40">
-              <i class="fa-solid fa-hourglass-half text-[10px] text-ceremony-gold-500"></i> 尽生
+          <!-- 👑 PLIPコアバースト付き 宝均用外部リンクボタン（上書き挿入部分） -->
+          <div class="relative group inline-block">
+            <a href="https://hiro-seki-tech.github.io/Produce-your-Life-with-IP/links" target="_blank" rel="noopener noreferrer" class="text-xs font-bold bg-zinc-900 hover:bg-zinc-800 border border-ceremony-gold-500/40 text-ceremony-gold-400 hover:text-ceremony-gold-300 px-3 py-1.5 rounded-xl transition-all flex items-center gap-2 shadow-md shadow-black/40 no-underline">
+              <span class="fa-layers fa-fw relative w-4 h-4 inline-block">
+                <i class="fa-solid fa-lightbulb plip-rainbow-text-bulb text-sm"></i>
+                <i class="fa-solid fa-bolt text-yellow-300 text-[10px] absolute -top-1 -right-1 drop-shadow-[0_0_3px_rgba(253,224,71,0.6)]"></i>
+              </span>
+              <span>リンク</span>
             </a>
             <span class="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 p-2 bg-purple-950 border border-ceremony-gold-500 text-ceremony-silver-200 text-[10px] font-normal leading-relaxed rounded-lg shadow-2xl transition-all opacity-0 pointer-events-none group-hover:opacity-100 z-50 text-left">
               <span class="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-[5px] border-x-transparent border-b-[6px] border-b-ceremony-gold-500"></span>
               <span class="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-[4px] border-x-transparent border-b-[5px] border-b-purple-950 z-10"></span>
               
-              <span class="font-bold text-ceremony-gold-400 block mb-0.5">尽生（じんせい）とは？</span>
-              自らの手で人生のキャッシュフローを整理し管理するためのシミュレータ。Die With Zero 判定機能付き。
+              <span class="font-bold text-ceremony-gold-400 block mb-0.5">Produce your Life with IP</span>
+          　   知的財産（IP）を集約した、人生をプロデュースするための特設リンク集へ跳躍します。
             </span>
           </div>
-          <!-- 💡 追加箇所ここまで -->
 
- <button onclick="openHelpModal()" class="text-xs font-bold bg-ceremony-purple-900/60 hover:bg-ceremony-purple-800 border border-ceremony-purple-700/60 text-ceremony-gold-400 hover:text-ceremony-gold-300 px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-black/30">
+          <button onclick="openHelpModal()" class="text-xs font-bold bg-ceremony-purple-900/60 hover:bg-ceremony-purple-800 border border-ceremony-purple-700/60 text-ceremony-gold-400 hover:text-ceremony-gold-300 px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-black/30">
             <i class="fa-solid fa-circle-question text-sm"></i> 使い方？
           </button>
         </div>
+		
+		
       </div>
     </div>
   </header>
