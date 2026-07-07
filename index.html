@@ -1143,9 +1143,9 @@
           <strong class="text-ceremony-gold-400 font-bold block flex items-center gap-1">💎 相続時精算課税制度</strong>
           <p class="text-ceremony-silver-400 pl-2">
             <span class="text-white font-medium">【どんなとき？】</span><br>
-            自宅の購入や事業の資金など、まとまった大金（最大2,500万円まで非課税）を今すぐ一気に譲りたい場合に適しています。<br>
+            自宅の購入や事業の資金など、まとまった大金（最大2,500万円まで贈与税は非課税。相続税には組み戻されます。）を今すぐ一気に譲りたい場合に適しています。このシミュレータでは、入力された「贈与総額」を「年数」で均等に分割して贈与したものとして、持ち戻し不要な非課税枠（110万円×年数）を簡易計算しています。<br>
             <span class="text-rose-400 font-medium">【注意】</span><br>
-            一度選ぶと暦年課税には戻せず、将来の相続時に、贈与された全額が相続財産に加算されて精算されます。
+            一度選ぶと暦年課税には戻せず、将来の相続時に、贈与された全額から持ち戻し不要な非課税枠を除いた金額が相続財産に加算されて精算されます。
           </p>
         </div>
       </div>
@@ -2822,7 +2822,7 @@ card.innerHTML = `
                 ` : `
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div>
-                      <label class="text-ceremony-gold-500 text-[10px] mb-1 block">③ この制度での贈与総額</label>
+                      <label class="text-ceremony-gold-500 text-[10px] mb-1 block">③ この制度での贈与総額（※毎年均等に贈与したと仮定）</label>
                       <div class="relative flex items-center">
                         <input type="number" min="0" value="${heir.seisanTotal || 0}"
                           onchange="updateHeirField('${heir.id}', 'seisanTotal', this.value)"
@@ -2832,7 +2832,7 @@ card.innerHTML = `
                       <span class="text-[9px] text-ceremony-silver-400 block mt-0.5">※2,500万円まで贈与税が非課税となる特例枠</span>
                     </div>
                     <div>
-                      <label class="text-ceremony-gold-500 text-[10px] mb-1 block">④ 贈与を行っていた年数</label>
+                      <label class="text-ceremony-gold-500 text-[10px] mb-1 block">④ 贈与した総年数（※基礎控除を適用する年数）</label>
                       <div class="relative flex items-center">
                         <input type="number" min="1" value="${heir.seisanYears || 1}"
                           onchange="updateHeirField('${heir.id}', 'seisanYears', this.value)"
