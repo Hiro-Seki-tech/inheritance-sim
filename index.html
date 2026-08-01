@@ -2758,6 +2758,25 @@ card.innerHTML = `
       updateApp();
     }
 
+
+    // SOL修正：金額入力中は再描画せず、Enterまたはフォーカス移動時に確定する。
+    function draftAssetAmount(id, value, allowNegative = false) {
+      const asset = state.assets.find(a => a.id === id);
+      if (!asset) return;
+      const hasMinus = allowNegative && String(value).includes('-');
+      let yen = parseManTextToYen(value);
+      if (hasMinus && yen > 0) yen = -yen;
+      asset.amount = Number.isFinite(yen) ? yen : 0;
+    }
+
+    function commitAssetAmount(id, input, allowNegative = false) {
+      draftAssetAmount(id, input.value, allowNegative);
+      const asset = state.assets.find(a => a.id === id);
+      if (!asset) return;
+      input.value = (asset.amount < 0 ? '-' : '') + formatYenToManText(Math.abs(asset.amount));
+      updateApp();
+    }
+
     function toggleShokuboHeir(assetId, heirId, isChecked) {
       const asset = state.assets.find(a => a.id === assetId);
       if (!asset) return;
@@ -2814,11 +2833,7 @@ if (asset.type === 'cash') {
             <div>
               <label class="text-[10px] text-ceremony-silver-400 block mb-1">金額</label>
               <div class="relative flex items-center">
-                <input type="text" value="${formatYenToManText(asset.amount)}" oninput="
-                  const yen = parseManTextToYen(this.value);
-                  updateAssetField('${asset.id}', 'amount', yen);
-                  this.value = formatYenToManText(yen);
-                " class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-2.5 pr-10 py-1.5 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 text-right">
+                <input type="text" value="${formatYenToManText(asset.amount)}" oninput="draftAssetAmount('${asset.id}', this.value)" onchange="commitAssetAmount('${asset.id}', this)" onkeydown="if(event.key === 'Enter') { event.preventDefault(); this.blur(); }" class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-2.5 pr-10 py-1.5 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 text-right">
                 <span class="absolute right-3 text-xs text-ceremony-silver-400 pointer-events-none">万円</span>
               </div>
             </div>
@@ -2834,11 +2849,7 @@ if (asset.type === 'cash') {
               <div>
                 <label class="text-[10px] text-ceremony-silver-400 block mb-1">評価額</label>
                 <div class="relative flex items-center">
-                  <input type="text" value="${formatYenToManText(asset.amount)}" oninput="
-                    const yen = parseManTextToYen(this.value);
-                    updateAssetField('${asset.id}', 'amount', yen);
-                    this.value = formatYenToManText(yen);
-                  " class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-2.5 pr-10 py-1.5 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 text-right">
+                  <input type="text" value="${formatYenToManText(asset.amount)}" oninput="draftAssetAmount('${asset.id}', this.value)" onchange="commitAssetAmount('${asset.id}', this)" onkeydown="if(event.key === 'Enter') { event.preventDefault(); this.blur(); }" class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-2.5 pr-10 py-1.5 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 text-right">
                   <span class="absolute right-3 text-xs text-ceremony-silver-400 pointer-events-none">万円</span>
                 </div>
               </div>
@@ -2909,11 +2920,7 @@ if (asset.type === 'cash') {
                 <div>
                   <label class="text-[10px] text-ceremony-silver-400 block mb-1">固定資産税評価額 / 倍率補正後の評価額</label>
                   <div class="relative flex items-center">
-                    <input type="text" id="land-amount-input-${asset.id}" value="${formatYenToManText(asset.amount || 0)}" oninput="
-                      const yen = parseManTextToYen(this.value);
-                      updateAssetField('${asset.id}', 'amount', yen);
-                      this.value = formatYenToManText(yen);
-                    " class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-2.5 pr-10 py-1.5 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 text-right">
+                    <input type="text" id="land-amount-input-${asset.id}" value="${formatYenToManText(asset.amount || 0)}" oninput="draftAssetAmount('${asset.id}', this.value)" onchange="commitAssetAmount('${asset.id}', this)" onkeydown="if(event.key === 'Enter') { event.preventDefault(); this.blur(); }" class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-2.5 pr-10 py-1.5 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 text-right">
                     <span class="absolute right-3 text-xs text-ceremony-silver-400 pointer-events-none">万円</span>
                   </div>
                 </div>
@@ -2962,11 +2969,7 @@ if (asset.type === 'cash') {
               <div>
                 <label class="text-[10px] text-ceremony-silver-400 block mb-1">固定資産税評価額</label>
                 <div class="relative flex items-center">
-                  <input type="text" value="${formatYenToManText(asset.amount)}" oninput="
-                    const yen = parseManTextToYen(this.value);
-                    updateAssetField('${asset.id}', 'amount', yen);
-                    this.value = formatYenToManText(yen);
-                  " class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-2.5 pr-10 py-1.5 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 text-right">
+                  <input type="text" value="${formatYenToManText(asset.amount)}" oninput="draftAssetAmount('${asset.id}', this.value)" onchange="commitAssetAmount('${asset.id}', this)" onkeydown="if(event.key === 'Enter') { event.preventDefault(); this.blur(); }" class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-2.5 pr-10 py-1.5 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 text-right">
                   <span class="absolute right-3 text-xs text-ceremony-silver-400 pointer-events-none">万円</span>
                 </div>
               </div>
@@ -2983,13 +2986,7 @@ if (asset.type === 'cash') {
               <div>
                 <label class="text-[10px] text-ceremony-silver-400 block mb-1">金額 ※債務・葬式費用はマイナス入力</label>
                 <div class="relative flex items-center">
-                  <input type="text" value="${formatYenToManText(asset.amount)}" oninput="
-                    let isNeg = this.value.includes('-');
-                    let yen = parseManTextToYen(this.value);
-                    if (isNeg && yen > 0) yen = -yen;
-                    updateAssetField('${asset.id}', 'amount', yen);
-                    this.value = (yen < 0 ? '-' : '') + formatYenToManText(Math.abs(yen));
-                  " class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-2.5 pr-10 py-1.5 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 text-right">
+                  <input type="text" value="${formatYenToManText(asset.amount)}" oninput="draftAssetAmount('${asset.id}', this.value, true)" onchange="commitAssetAmount('${asset.id}', this, true)" onkeydown="if(event.key === 'Enter') { event.preventDefault(); this.blur(); }" class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg pl-2.5 pr-10 py-1.5 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 text-right">
                   <span class="absolute right-3 text-xs text-ceremony-silver-400 pointer-events-none">万円</span>
                 </div>
               </div>
