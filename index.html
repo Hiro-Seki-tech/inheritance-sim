@@ -609,6 +609,10 @@
 			
           </div>
 
+          <div class="mb-3 px-3 py-2.5 rounded-xl bg-ceremony-gold-500/5 border border-ceremony-gold-500/20 text-[10px] sm:text-[11px] text-ceremony-silver-300 leading-relaxed">
+            <i class="fa-solid fa-lightbulb text-ceremony-gold-400 mr-1"></i>
+            取得者には、例として「みさえ（配偶者）」「しんのすけ（長男）」「ひまわり（長女）」を登録しています。ご家族に合わせて自由に追加・変更・削除してください。
+          </div>
           <div id="heirs-container" class="space-y-4 max-h-[420px] overflow-y-auto pr-1"></div>
         </section>
 
@@ -650,13 +654,18 @@
         </section>
 
 <section id="section-saveload" class="silver-gradient-panel border-2 rounded-2xl p-5 shadow-2xl backdrop-blur-sm hidden">
-          <div class="flex items-center mb-6 pb-3 border-b border-ceremony-purple-800/60">
+          <div class="flex items-center justify-between gap-3 mb-6 pb-3 border-b border-ceremony-purple-800/60">
             <h3 class="text-base sm:text-lg font-bold text-ceremony-silver-100 flex items-center gap-2">
               <span class="text-ceremony-gold-500"><i class="fa-solid fa-book-bookmark"></i></span> 3. 設定の保存／呼出
               <button onclick="toggleHelpPopover(event, 'storage')" class="text-ceremony-gold-400 hover:text-ceremony-gold-300 transition-all focus:outline-none ml-2" title="ヘルプを見る">
                 <i class="fa-solid fa-circle-question text-xl"></i>
               </button>
             </h3>
+            <button type="button" onclick="resetCurrentSettingsToDefaults()"
+              class="shrink-0 text-[10px] sm:text-xs text-ceremony-silver-400 hover:text-ceremony-silver-100 bg-ceremony-purple-950/40 hover:bg-ceremony-purple-900/70 border border-ceremony-purple-800/70 hover:border-ceremony-silver-400/40 px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+              title="現在の入力内容だけを初期状態へ戻します。宝均の書は削除しません。">
+              <i class="fa-solid fa-arrow-rotate-left"></i> 初期状態に戻す
+            </button>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl mx-auto py-4">
@@ -1116,14 +1125,14 @@ let state = {
       currentState: 'gold', // 👑 'gold', 'platinum', 'red' の3状態を集中管理
       hasInteracted: false, // 🔊 ユーザーが一度でもクリックしたかどうかの防壁
  heirs: [
-        { id: "h1", name: "配偶者", relation: "spouse_legal", spouseType: "legal", share: 50, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1, useHoken: false, hokenAmount: 0, age: 20 },
-        { id: "h2", name: "長男", relation: "child", spouseType: null, share: 25, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1, useHoken: false, hokenAmount: 0, age: 20 },
-        { id: "h3", name: "長女", relation: "child", spouseType: null, share: 25, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1, useHoken: false, hokenAmount: 0, age: 20 }
+        { id: "h1", name: "みさえ（配偶者）", relation: "spouse_legal", spouseType: "legal", share: 50, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1, useHoken: false, hokenAmount: 0, age: 20 },
+        { id: "h2", name: "しんのすけ（長男）", relation: "child", spouseType: null, share: 25, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1, useHoken: false, hokenAmount: 0, age: 20 },
+        { id: "h3", name: "ひまわり（長女）", relation: "child", spouseType: null, share: 25, useZoyo: false, zoyoMode: 'rekinen', reki3Year: 0, reki7Year: 0, seisanTotal: 0, seisanYears: 1, useHoken: false, hokenAmount: 0, age: 20 }
       ],
       assets: [
-        { id: "a1", name: "代々木の土地", type: "land", landEvaluationType: "fixedAsset", area: 120, rosenka: 450000, amount: 54000000, canSplit: true, splitMode: "custom", singleOwner: null, customSplit: {}, shokuboType: "none", shokuboApplicableHeirs: [] },
-        { id: "a2", name: "定期預金", type: "cash", amount: 35000000, canSplit: true, splitMode: "custom", singleOwner: null, customSplit: {} },
-        { id: "a3", name: "株式 (ジェムホールディングス)", type: "stock", nameStock: "ジェムHD", amount: 18000000, canSplit: true, splitMode: "custom", singleOwner: null, customSplit: {} }
+        { id: "a1", name: "自宅の土地", type: "land", landEvaluationType: "fixedAsset", area: 120, rosenka: 450000, amount: 54000000, canSplit: true, splitMode: "custom", singleOwner: null, customSplit: {}, shokuboType: "none", shokuboApplicableHeirs: [] },
+        { id: "a2", name: "生活用預金", type: "cash", amount: 35000000, canSplit: true, splitMode: "custom", singleOwner: null, customSplit: {} },
+        { id: "a3", name: "老後資金の投資信託", type: "stock", nameStock: "eMAXIS Slim 全世界株式（オール・カントリー）", amount: 18000000, canSplit: true, splitMode: "custom", singleOwner: null, customSplit: {} }
       ],
       activeChartTab: 'share'
     };
@@ -3000,16 +3009,24 @@ if (asset.type === 'cash') {
         card.innerHTML = `
           <div class="flex items-center justify-between gap-2">
             <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <input type="text" value="${asset.name}" onchange="updateAssetField('${asset.id}', 'name', this.value)"
-                class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs font-semibold text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors" placeholder="資産の名前">
-              <select onchange="updateAssetField('${asset.id}', 'type', this.value)"
-                class="bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors">
-                <option value="cash" ${asset.type === 'cash' ? 'selected' : ''}>現金・預金</option>
-                <option value="stock" ${asset.type === 'stock' ? 'selected' : ''}>株式・投資信託</option>
-                <option value="land" ${asset.type === 'land' ? 'selected' : ''}>不動産（土地）</option>
-                <option value="building" ${asset.type === 'building' ? 'selected' : ''}>不動産（建物）</option>
-                <option value="other" ${asset.type === 'other' ? 'selected' : ''}>その他資産（動産・債務・葬儀費用など）</option>
-              </select>
+              <div>
+                <label class="text-[10px] text-ceremony-silver-400 block mb-1">この資産の名前</label>
+                <input type="text" value="${asset.name}" onchange="updateAssetField('${asset.id}', 'name', this.value)"
+                  class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors" placeholder="例：生活用預金、自宅の土地">
+                <span class="text-[9px] text-ceremony-silver-500 block mt-1">一覧で見分けるための名前です</span>
+              </div>
+              <div>
+                <label class="text-[10px] text-ceremony-silver-400 block mb-1">資産の種類</label>
+                <select onchange="updateAssetField('${asset.id}', 'type', this.value)"
+                  class="w-full bg-ceremony-purple-950 border border-ceremony-purple-800 rounded-lg px-2.5 py-1.5 text-xs text-ceremony-silver-100 focus:outline-none focus:border-ceremony-gold-500 transition-colors">
+                  <option value="cash" ${asset.type === 'cash' ? 'selected' : ''}>現金・預金</option>
+                  <option value="stock" ${asset.type === 'stock' ? 'selected' : ''}>株式・投資信託</option>
+                  <option value="land" ${asset.type === 'land' ? 'selected' : ''}>不動産（土地）</option>
+                  <option value="building" ${asset.type === 'building' ? 'selected' : ''}>不動産（建物）</option>
+                  <option value="other" ${asset.type === 'other' ? 'selected' : ''}>その他資産（動産・債務・葬儀費用など）</option>
+                </select>
+                <span class="text-[9px] text-ceremony-silver-500 block mt-1">選択した種類に応じて入力欄が変わります</span>
+              </div>
             </div>
             <button onclick="removeAsset('${asset.id}')" class="text-ceremony-silver-400 hover:text-rose-400 p-1.5 rounded-lg transition-colors" title="削除">
               <i class="fa-regular fa-trash-can"></i>
@@ -3556,6 +3573,24 @@ secondaryBtn.addEventListener('click', () => {
         });
       }
     });
+
+// ==========================================================================
+// ↺ 現在の入力内容だけを初期状態へ戻す（宝均の書は保護）
+// ==========================================================================
+function resetCurrentSettingsToDefaults() {
+  const confirmed = window.confirm(
+    "現在の設定を初期状態へ戻しますか？\n\n" +
+    "・現在の入力内容を初期状態に戻します。\n" +
+    "・『宝均の書』に保存したデータは削除されません。"
+  );
+
+  if (!confirmed) return;
+
+  // 現在画面へ自動復元されるデータだけを削除する。
+  // gemkin_slot_1 ～ gemkin_slot_3（宝均の書）には一切触れない。
+  localStorage.removeItem('gemkin_primary_result');
+  window.location.reload();
+}
 
 // ==========================================================================
 // 💾 【宝均の書】3スロット・セーブ＆ロードシステム（ドラクエ風世界線記録陣）
