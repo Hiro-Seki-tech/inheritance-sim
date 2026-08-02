@@ -699,6 +699,41 @@
       };
     }
 
+    let inheritedAudioPlayer = null;
+
+    function resumeInheritedAudio() {
+      const handoff = primaryResult && primaryResult.audioHandoff;
+      if (!handoff || !handoff.active || !handoff.filename) return;
+
+      try {
+        if (inheritedAudioPlayer) {
+          inheritedAudioPlayer.pause();
+          inheritedAudioPlayer = null;
+        }
+
+        const safeFilename = String(handoff.filename).split('/').pop();
+        inheritedAudioPlayer = new Audio(`../music/${encodeURIComponent(safeFilename)}`);
+        inheritedAudioPlayer.volume = Number.isFinite(Number(handoff.volume))
+          ? Math.min(1, Math.max(0, Number(handoff.volume)))
+          : 0.35;
+        inheritedAudioPlayer.loop = Boolean(handoff.loop);
+
+        const resumePosition = Number(handoff.currentTime) || 0;
+        inheritedAudioPlayer.addEventListener('loadedmetadata', () => {
+          if (resumePosition > 0 && Number.isFinite(inheritedAudioPlayer.duration)) {
+            inheritedAudioPlayer.currentTime = Math.min(resumePosition, Math.max(0, inheritedAudioPlayer.duration - 0.1));
+          }
+          inheritedAudioPlayer.play().catch(error => {
+            console.log('引き継いだ音楽を再開できませんでした:', error);
+          });
+        }, { once: true });
+
+        inheritedAudioPlayer.load();
+      } catch (error) {
+        console.log('二次相続での音楽引継ぎに失敗しました:', error);
+      }
+    }
+
     function getFamilyDisplayData() {
       const heirs = Array.isArray(primaryResult.heirs) ? primaryResult.heirs : [];
       const primaryDecedentName = String(primaryResult.decedentName || '一次被相続人').trim() || '一次被相続人';
@@ -1150,6 +1185,7 @@ function formatYen(yen) {
       if (btnUnseal) {
         btnUnseal.addEventListener('click', () => {
           playScrollSound();
+          resumeInheritedAudio();
           
           btnUnseal.style.display = 'none';
           wingL.classList.add('scroll-open-left');
