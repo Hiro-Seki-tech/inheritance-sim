@@ -3598,8 +3598,34 @@ secondaryBtn.addEventListener('click', () => {
 
           localStorage.setItem('gemkin_primary_result', JSON.stringify(primaryResultData));
 
-          // 閃光が最大になったタイミング（0.8秒後）で別世界へ強制跳躍！
+          // 閃光が最大になったタイミング（0.8秒後）で、再生中の音楽情報を引き継いで別世界へ跳躍
           setTimeout(() => {
+            try {
+              const symbolFrame = document.getElementById('gemkin-sol-symbol-button');
+              const frameDocument = symbolFrame && symbolFrame.contentDocument;
+              const playingAudio = frameDocument && frameDocument.querySelector("audio[data-plip-managed-audio='true']");
+              const latestData = JSON.parse(localStorage.getItem('gemkin_primary_result')) || primaryResultData;
+
+              if (playingAudio && !playingAudio.paused && playingAudio.currentSrc) {
+                const sourceUrl = new URL(playingAudio.currentSrc, window.location.href);
+                const filename = decodeURIComponent(sourceUrl.pathname.split('/').pop() || '');
+                latestData.audioHandoff = {
+                  active: true,
+                  filename,
+                  currentTime: Number.isFinite(playingAudio.currentTime) ? playingAudio.currentTime : 0,
+                  volume: Number.isFinite(playingAudio.volume) ? playingAudio.volume : 0.35,
+                  loop: Boolean(playingAudio.loop),
+                  mode: /^song/i.test(filename) ? 'theme' : (/^bgm/i.test(filename) ? 'ambient' : 'audio')
+                };
+              } else {
+                latestData.audioHandoff = { active: false, mode: 'silent' };
+              }
+
+              localStorage.setItem('gemkin_primary_result', JSON.stringify(latestData));
+            } catch (audioHandoffError) {
+              console.log('二次相続への音楽引継ぎ情報を保存できませんでした:', audioHandoffError);
+            }
+
             window.location.href = './second-inheritance/index.html';
           }, 800);
         });
