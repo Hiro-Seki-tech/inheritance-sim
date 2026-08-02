@@ -488,21 +488,39 @@
         <h3 class="text-sm font-bold text-ceremony-gold-500 flex items-center gap-2 mb-3 border-b border-ceremony-purple-800/60 pb-2">
           <i class="fa-solid fa-download"></i> 一次相続からの連動財産データ
         </h3>
+        <div class="mb-3 p-3 rounded-xl bg-gradient-to-r from-emerald-950/70 via-black to-teal-950/70 border border-ceremony-gold-500/30 shadow-inner">
+          <div class="text-[10px] text-ceremony-silver-400 font-bold tracking-wider mb-2">この家族の二世代相続</div>
+          <div class="space-y-2 text-xs">
+            <div class="flex items-start gap-2">
+              <i class="fa-solid fa-person-cane text-ceremony-gold-400 mt-0.5 w-4 text-center"></i>
+              <div><span class="text-ceremony-silver-400">一次被相続人：</span><strong id="family-primary-decedent" class="text-white">一次被相続人</strong></div>
+            </div>
+            <div class="flex items-start gap-2">
+              <i class="fa-solid fa-person text-emerald-400 mt-0.5 w-4 text-center"></i>
+              <div><span class="text-ceremony-silver-400">二次相続の被相続人：</span><strong id="family-secondary-decedent" class="text-emerald-300">配偶者</strong></div>
+            </div>
+            <div class="flex items-start gap-2">
+              <i class="fa-solid fa-children text-cyan-300 mt-0.5 w-4 text-center"></i>
+              <div><span class="text-ceremony-silver-400">二次相続の相続人：</span><strong id="family-secondary-heirs" class="text-cyan-200">子どもたち</strong></div>
+            </div>
+          </div>
+          <p id="family-story-line" class="mt-2 pt-2 border-t border-emerald-900/50 text-[10px] text-ceremony-silver-400 leading-relaxed">一次相続から二次相続へ、一族の財産承継を試算します。</p>
+        </div>
         <div class="space-y-2.5 text-xs">
           <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-2.5 rounded-xl border border-ceremony-purple-900/50">
-            <span class="text-ceremony-silver-300">一次被相続人の遺産総額</span>
+            <span id="label-primary-estate" class="text-ceremony-silver-300">一次被相続人の遺産総額</span>
             <span id="display-total-estate" class="font-bold text-ceremony-silver-100 font-mono text-base">-- 万円</span>
           </div>
           <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-2.5 rounded-xl border border-ceremony-purple-800/60">
-            <span class="text-ceremony-silver-300">配偶者の一次実際の取得割合</span>
+            <span id="label-spouse-share" class="text-ceremony-silver-300">配偶者の一次実際の取得割合</span>
             <span id="display-spouse-share" class="font-bold text-ceremony-gold-400 font-mono text-base">-- %</span>
           </div>
           <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-2.5 rounded-xl border border-ceremony-purple-900/50">
-            <span class="text-ceremony-silver-300">配偶者の一次取得額</span>
+            <span id="label-spouse-acquisition" class="text-ceremony-silver-300">配偶者の一次取得額</span>
             <span id="display-spouse-acquisition" class="font-bold text-ceremony-gold-500 font-mono text-base">-- 万円</span>
           </div>
           <div class="flex justify-between items-center bg-ceremony-purple-950/60 p-2.5 rounded-xl border border-ceremony-purple-900/50">
-            <span class="text-ceremony-silver-300">子供の人数（固定）</span>
+            <span id="label-child-count" class="text-ceremony-silver-300">子供の人数（固定）</span>
             <span id="display-child-count" class="font-bold text-ceremony-silver-200 font-mono text-base">-- 名</span>
           </div>
         </div>
@@ -517,7 +535,7 @@
         
         <div>
           <label class="text-xs text-ceremony-silver-200 block mb-1 font-bold flex justify-between">
-            <span>配偶者自身の固有財産（手元資産）</span>
+            <span id="label-own-property">配偶者自身の固有財産（手元資産）</span>
             <span class="text-ceremony-gold-400" id="range-hint">目安: 最大5億円</span>
           </label>
           <div class="relative flex items-center mb-2">
@@ -551,7 +569,7 @@
 
         <div class="p-3 bg-ceremony-purple-950/60 border border-ceremony-purple-900 rounded-xl text-xs text-ceremony-silver-300 leading-relaxed flex items-start gap-2">
           <i class="fa-solid fa-circle-info text-ceremony-gold-500 mt-0.5 text-sm"></i>
-          <span>二次相続においては、配偶者の逝去に伴い、子供たちが法定相続分（均等分割）にて全遺産を取得するものとして自動試算します。</span>
+          <span id="secondary-rule-description">二次相続においては、配偶者の逝去に伴い、子供たちが法定相続分（均等分割）にて全遺産を取得するものとして自動試算します。</span>
         </div>
       </section>
     </div>
@@ -589,19 +607,19 @@
   <!-- 🛠 変更後（ここへ差し替え） -->
             <tbody class="font-mono text-base">
               <tr class="border-b border-purple-950/40" style="background: linear-gradient(90deg, rgba(79,70,229,0.07) 0%, rgba(0,0,0,0) 100%);">
-                <td class="px-5 py-4 font-sans font-bold" style="color: #c084fc;">一次相続</td>
+                <td id="table-p-phase" class="px-5 py-4 font-sans font-bold" style="color: #c084fc;">一次相続</td>
                 <td id="table-p-estate" class="px-5 py-4 text-right font-bold text-purple-200">-- 万円</td>
                 <td id="table-p-tax" class="px-5 py-4 text-right font-black !text-xl" style="color: #f472b6;">-- 万円</td>
                 <td id="table-p-c-tax" class="hidden"></td>
               </tr>
               <tr class="border-b border-emerald-950/40" style="background: linear-gradient(90deg, rgba(16,185,129,0.07) 0%, rgba(0,0,0,0) 100%);">
-                <td class="px-5 py-4 font-sans font-bold" style="color: #34d399;">二次相続</td>
+                <td id="table-s-phase" class="px-5 py-4 font-sans font-bold" style="color: #34d399;">二次相続</td>
                 <td id="table-s-estate" class="px-4 py-4 text-right font-bold text-emerald-200">-- 万円</td>
                 <td id="table-s-tax" class="px-5 py-4 text-right font-black !text-xl" style="color: #a7f3d0;">-- 万円</td>
                 <td id="table-s-c-tax" class="hidden"></td>
               </tr>
               <tr class="bg-[#05070c] text-lg font-bold">
-                <td class="px-5 py-4 font-sans text-ceremony-gold-400">子供の生涯トータル相続税 納税額</td>
+                <td id="table-grand-label" class="px-5 py-4 font-sans text-ceremony-gold-400">子供の生涯トータル相続税 納税額</td>
                 <td class="px-5 py-4 text-right text-slate-700 font-normal">-</td>
                 <td id="table-g-tax" class="px-5 py-4 text-right font-black !text-2xl" 
                     style="color: #f43f5e; text-shadow: 0 0 6px rgba(244, 63, 94, 0.6); filter: drop-shadow(0 0 2px rgba(244,63,94,0.3));">-- 万円</td>
@@ -627,7 +645,7 @@
           <i class="fa-solid fa-wand-magic-sparkles"></i> 宝均による資産配分最適化についての献策
         </h4>
         <div class="text-base text-ceremony-silver-200 leading-relaxed space-y-4">
-          <p class="text-lg">生涯トータル相続税の納税額を極小化する一次相続における配偶者の相続財産の取得割合は全体の <strong id="best-share-badge" class="text-ceremony-purple-950 bg-ceremony-gold-400 px-3 py-1 rounded text-xl font-black mx-1">-- ％</strong> にございます。</p>
+          <p id="advice-main-text" class="text-lg"><strong id="advice-spouse-name" class="text-emerald-300">配偶者</strong>の一次相続での取得割合を <strong id="best-share-badge" class="text-ceremony-purple-950 bg-ceremony-gold-400 px-3 py-1 rounded text-xl font-black mx-1">-- ％</strong> にすると、子どもたちの生涯トータル相続税を最小化できます。</p>
           
           <div class="p-5 bg-ceremony-purple-950/80 rounded-xl border border-ceremony-purple-900 space-y-2.5 font-mono text-base">
             <div class="flex justify-between">
@@ -667,11 +685,31 @@
     let primaryResult = JSON.parse(localStorage.getItem('gemkin_primary_result'));
     if (!primaryResult) {
       primaryResult = {
+        decedentName: 'ひろし（被相続人）',
         totalEstate: 107000000,       
         spouseActualShare: 50,         
         spouseAcquisition: 53500000,  
-        childCount: 2                 
+        childCount: 2,
+        legalSpouseId: 'h1',
+        heirs: [
+          { id: 'h1', name: 'みさえ（配偶者）', relation: 'spouse_legal' },
+          { id: 'h2', name: 'しんのすけ（長男）', relation: 'child' },
+          { id: 'h3', name: 'ひまわり（長女）', relation: 'child' }
+        ]
       };
+    }
+
+    function getFamilyDisplayData() {
+      const heirs = Array.isArray(primaryResult.heirs) ? primaryResult.heirs : [];
+      const primaryDecedentName = String(primaryResult.decedentName || '一次被相続人').trim() || '一次被相続人';
+      const spouse = heirs.find(h => h.id === primaryResult.legalSpouseId)
+        || heirs.find(h => h.relation === 'spouse_legal')
+        || heirs.find(h => h.relation === 'spouse');
+      const children = heirs.filter(h => h.relation === 'child');
+      const spouseName = spouse && String(spouse.name || '').trim() ? String(spouse.name).trim() : '配偶者';
+      const childNames = children.map(h => String(h.name || '').trim()).filter(Boolean);
+      const childLabel = childNames.length ? childNames.join('、') : '子どもたち';
+      return { primaryDecedentName, spouseName, childNames, childLabel };
     }
 
     const taxBrackets = [
@@ -847,6 +885,24 @@ function formatYen(yen) {
         }
       }
 
+// 家族名を一次相続から引き継ぎ、画面全体へ反映
+      const family = getFamilyDisplayData();
+      const childPossessive = family.childNames.length ? family.childLabel : '子どもたち';
+      document.getElementById('family-primary-decedent').innerText = family.primaryDecedentName;
+      document.getElementById('family-secondary-decedent').innerText = family.spouseName;
+      document.getElementById('family-secondary-heirs').innerText = family.childLabel;
+      document.getElementById('family-story-line').innerText = `${family.primaryDecedentName}から${family.spouseName}へ、そして${family.childLabel}へ。二世代にわたる財産承継を試算します。`;
+      document.getElementById('label-primary-estate').innerText = `${family.primaryDecedentName}の遺産総額`;
+      document.getElementById('label-spouse-share').innerText = `${family.spouseName}の一次取得割合`;
+      document.getElementById('label-spouse-acquisition').innerText = `${family.spouseName}の一次取得額`;
+      document.getElementById('label-child-count').innerText = `${childPossessive}の人数`;
+      document.getElementById('label-own-property').innerText = `${family.spouseName}自身の固有財産（手元資産）`;
+      document.getElementById('secondary-rule-description').innerText = `二次相続では、${family.spouseName}の逝去に伴い、${family.childLabel}が法定相続分（均等分割）で全遺産を取得するものとして自動試算します。`;
+      document.getElementById('table-p-phase').innerText = `一次相続（${family.primaryDecedentName}）`;
+      document.getElementById('table-s-phase').innerText = `二次相続（${family.spouseName}）`;
+      document.getElementById('table-grand-label').innerText = `${childPossessive}の生涯トータル相続税 納税額`;
+      document.getElementById('advice-spouse-name').innerText = family.spouseName;
+
 // 金額表示処理を新しいフォーマット関数へ完全同期
       document.getElementById('display-total-estate').innerText = formatYen(pTotalEstate);
       document.getElementById('display-spouse-share').innerText = Math.round(pSpouseShare) + " %";
@@ -876,7 +932,7 @@ function formatYen(yen) {
       document.getElementById('tax-saving-effect').innerText = formatYen(saving);
 
       const savingPerChild = Math.round(saving / childCount);
-      document.getElementById('tax-saving-per-child').innerText = "(子供1人あたり: " + formatYen(savingPerChild) + " 削減（目安）)";
+      document.getElementById('tax-saving-per-child').innerText = "(" + (family.childNames.length ? family.childLabel + "：1人あたり " : "子ども1人あたり: ") + formatYen(savingPerChild) + " 削減（目安）)";
 
 
       // 最適化献策セクションの二重黄金枠 ＆ 動的アドバイス標識のリアルタイム制御
