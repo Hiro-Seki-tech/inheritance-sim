@@ -609,9 +609,26 @@
 			
           </div>
 
+          <div class="mb-3 p-3.5 rounded-xl bg-ceremony-purple-950/45 border border-ceremony-gold-500/30 shadow-inner">
+            <label for="decedent-name-input" class="flex items-center gap-2 text-xs sm:text-sm font-bold text-ceremony-gold-400 mb-2">
+              <i class="fa-solid fa-user-shield text-ceremony-silver-300"></i>
+              財産を残す人（被相続人）
+            </label>
+            <div>
+              <input id="decedent-name-input" type="text" value="ひろし（被相続人）"
+                oninput="state.decedentName = this.value; updateDecedentSummaryLabel()"
+                placeholder="例：ひろし（被相続人）"
+                class="w-full bg-ceremony-purple-950/80 border border-ceremony-purple-700/60 rounded-lg px-3 py-2 text-sm text-ceremony-silver-100 font-bold focus:outline-none focus:border-ceremony-gold-500 focus:ring-1 focus:ring-ceremony-gold-500/30"
+                aria-describedby="decedent-name-help">
+            </div>
+            <p id="decedent-name-help" class="mt-1.5 text-[10px] sm:text-[11px] text-ceremony-silver-400 leading-relaxed">
+              この方の財産を、下に設定するご家族が相続するものとして試算します。
+            </p>
+          </div>
+
           <div class="mb-3 px-3 py-2.5 rounded-xl bg-ceremony-gold-500/5 border border-ceremony-gold-500/20 text-[10px] sm:text-[11px] text-ceremony-silver-300 leading-relaxed">
             <i class="fa-solid fa-lightbulb text-ceremony-gold-400 mr-1"></i>
-            取得者には、例として「みさえ（配偶者）」「しんのすけ（長男）」「ひまわり（長女）」を登録しています。ご家族に合わせて自由に追加・変更・削除してください。
+            初期例では「ひろし（被相続人）」の財産を、「みさえ（配偶者）」「しんのすけ（長男）」「ひまわり（長女）」が相続します。ご家族に合わせて自由に変更してください。
           </div>
           <div id="heirs-container" class="space-y-4 max-h-[420px] overflow-y-auto pr-1"></div>
         </section>
@@ -712,7 +729,7 @@
 
           <div class="grid grid-cols-2 gap-4 mb-4">
             <div class="bg-ceremony-purple-950/60 border border-ceremony-purple-800/50 p-3.5 rounded-xl">
-              <span class="text-ceremony-silver-400 text-[10px] block">遺産総額</span>
+              <span id="summary-total-estate-label" class="text-ceremony-silver-400 text-[10px] block">ひろしの遺産総額</span>
               <span id="summary-total-estate" class="text-lg sm:text-xl font-bold text-ceremony-silver-100">0円</span>
             </div>
             <div class="bg-ceremony-purple-950/60 border border-ceremony-purple-800/50 p-3.5 rounded-xl">
@@ -1120,6 +1137,7 @@
 
 
 let state = {
+      decedentName: 'ひろし（被相続人）',
       taxMode: 'standard',
       legalSpouseId: null,
       currentState: 'gold', // 👑 'gold', 'platinum', 'red' の3状態を集中管理
@@ -1489,9 +1507,14 @@ state.currentState = 'gold';       // 🌟 これを追記（初期はゴール�
 
     window.onload = function() {
       initAppOnLoad();
+      const initialDecedentInput = document.getElementById('decedent-name-input');
+      if (initialDecedentInput) initialDecedentInput.value = state.decedentName || 'ひろし（被相続人）';
       
       let returnData = JSON.parse(localStorage.getItem('gemkin_primary_result'));
       if (returnData && returnData.heirs) {
+        state.decedentName = returnData.decedentName || state.decedentName || 'ひろし（被相続人）';
+        const decedentInput = document.getElementById('decedent-name-input');
+        if (decedentInput) decedentInput.value = state.decedentName;
         state.heirs = JSON.parse(JSON.stringify(returnData.heirs));
         if (returnData.assets) state.assets = JSON.parse(JSON.stringify(returnData.assets));
         if (returnData.legalSpouseId) state.legalSpouseId = returnData.legalSpouseId;
@@ -1993,6 +2016,7 @@ function switchInputTab(tab) {
       // ==========================================================================
 
       const totalTax = state.heirs.reduce((sum, h) => sum + h.taxAmount, 0);
+      updateDecedentSummaryLabel();
       document.getElementById('summary-total-estate').textContent = formatJapaneseCurrency(totalEstate);
 	  
       document.getElementById('summary-deduction').textContent = formatJapaneseCurrency(deduction);
@@ -2132,6 +2156,13 @@ function resetToStatutoryShares() {
   // ✨Hiro殿の指摘通り、大切な演出文言をここに死守！
   showFeedback("📊 相続人設定および全資産の個別割合を法定相続分に同期初期化しました。");
 }
+
+    function updateDecedentSummaryLabel() {
+      const label = document.getElementById('summary-total-estate-label');
+      if (!label) return;
+      const name = (state.decedentName || '').trim() || '被相続人';
+      label.textContent = `${name}の遺産総額`;
+    }
 
     function calculateStatutoryShares(triggerUpdate = true) {
       const ratios = getStatutorySharesRatio();
@@ -3555,6 +3586,7 @@ secondaryBtn.addEventListener('click', () => {
           const childCount = state.heirs.filter(h => h.relation === 'child').length;
 
           const primaryResultData = {
+            decedentName: (state.decedentName || '').trim() || '一次被相続人',
             totalEstate: totalEstateYen,
             spouseActualShare: spouseSharePercent,
             spouseAcquisition: totalEstateYen * (spouseSharePercent / 100),
@@ -3681,6 +3713,7 @@ function executeSaveSlot(slotNumber) {
   const dataToSave = {
     slotName: slotName,
     savedAt: timestamp,
+    decedentName: (state.decedentName || '').trim() || '一次被相続人',
     heirs: JSON.parse(JSON.stringify(state.heirs)),   // ディープコピーで状態を完全隔離保存
     assets: JSON.parse(JSON.stringify(state.assets)), // 資産タイプや小規模宅地特例も完全保存
     legalSpouseId: state.legalSpouseId,
@@ -3700,6 +3733,9 @@ function executeLoadSlot(slotNumber) {
   if (!savedData) return;
   
   // 💡 【完全復元】stateへ全てのデータを流し込んで世界線を復元
+  state.decedentName = savedData.decedentName || 'ひろし（被相続人）';
+  const decedentInput = document.getElementById('decedent-name-input');
+  if (decedentInput) decedentInput.value = state.decedentName;
   state.heirs = JSON.parse(JSON.stringify(savedData.heirs));
   state.assets = JSON.parse(JSON.stringify(savedData.assets));
   state.legalSpouseId = savedData.legalSpouseId;
