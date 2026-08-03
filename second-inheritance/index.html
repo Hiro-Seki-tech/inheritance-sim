@@ -213,31 +213,43 @@
       width: 24px; height: 24px; border: 3px solid #fff7cc;
       box-shadow: 0 0 12px rgba(250,204,21,0.8);
     }
+
+
+    /* v23 継承の光・後半：一次相続側と同じ宝均玉から未来を開く */
+    #scroll-seal-overlay {
+      background: radial-gradient(circle at 50% 44%, rgba(16,185,129,.18), transparent 30%), radial-gradient(circle at center, #051b18 0%, #020617 58%, #000 100%) !important;
+      overflow: hidden;
+      transition: opacity .5s ease;
+    }
+    .continuation-stage { position:relative; width:min(900px,96vw); height:min(620px,92vh); display:flex; align-items:center; justify-content:center; }
+    .continuation-orb { position:absolute; left:50%; top:42%; width:clamp(150px,24vw,230px); aspect-ratio:1; transform:translate(-50%,-50%); border-radius:50%; border:5px solid #d4af37; display:grid; place-items:center; color:#fef3c7; font-family:'Noto Serif JP',serif; font-size:clamp(42px,7vw,76px); font-weight:900; letter-spacing:.06em; background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.22),transparent 17%),radial-gradient(circle at center,#143c2f 0%,#06170f 62%,#020604 100%); box-shadow:0 0 52px rgba(212,175,55,.58),inset 0 0 38px rgba(16,185,129,.3); animation:continuationBreathe 2.4s ease-in-out infinite; }
+    .continuation-orb.is-opening { animation:continuationBurst .9s ease-out forwards; }
+    @keyframes continuationBreathe { 0%,100%{transform:translate(-50%,-50%) scale(.96)} 50%{transform:translate(-50%,-50%) scale(1.03);box-shadow:0 0 72px rgba(212,175,55,.72),inset 0 0 44px rgba(16,185,129,.34)} }
+    @keyframes continuationBurst { 0%{transform:translate(-50%,-50%) scale(1)} 48%{transform:translate(-50%,-50%) scale(1.24);box-shadow:0 0 140px rgba(250,204,21,.96),0 0 190px rgba(16,185,129,.58)} 100%{transform:translate(-50%,-50%) scale(1.02)} }
+    .continuation-intro { position:absolute; top:8%; width:92%; text-align:center; color:#e2e8f0; font-size:clamp(13px,2vw,18px); font-weight:700; letter-spacing:.05em; }
+    .continuation-open-btn { position:absolute; left:50%; top:67%; transform:translateX(-50%); min-width:min(86vw,360px); padding:14px 22px; border-radius:999px; border:1px solid rgba(252,211,77,.7); background:linear-gradient(120deg,#a16207,#facc15,#fff4be,#facc15,#a16207); background-size:220% 100%; color:#07130d; font-weight:900; letter-spacing:.06em; box-shadow:0 0 28px rgba(250,204,21,.42); animation:shimmer-move 4s linear infinite; }
+    .continuation-children { position:absolute; left:50%; bottom:11%; transform:translateX(-50%); width:min(92%,760px); display:flex; flex-wrap:wrap; justify-content:center; gap:10px; }
+    .continuation-child { padding:10px 15px; border-radius:999px; border:1px solid rgba(103,232,249,.5); background:rgba(2,10,16,.8); color:#cffafe; font-size:clamp(14px,2.4vw,23px); font-weight:900; opacity:0; transform:translateY(22px) scale(.75); text-shadow:0 0 13px rgba(34,211,238,.72); }
+    .continuation-child.is-born { animation:continuationChildBorn .75s ease-out forwards; }
+    @keyframes continuationChildBorn { 0%{opacity:0;transform:translateY(22px) scale(.75);filter:blur(5px)} 65%{opacity:1;transform:translateY(-4px) scale(1.06);filter:blur(0)} 100%{opacity:1;transform:translateY(0) scale(1)} }
+    .continuation-message { position:absolute; left:50%; bottom:3%; transform:translateX(-50%); width:94%; text-align:center; color:#fff7cc; font-size:clamp(13px,2vw,18px); font-weight:800; letter-spacing:.06em; opacity:0; transition:opacity .35s ease; }
+    .continuation-message.is-visible { opacity:1; }
+    .continuation-particle { position:fixed; width:var(--size,5px); height:var(--size,5px); border-radius:50%; pointer-events:none; z-index:10003; background:radial-gradient(circle,#fff 0%,#fde68a 35%,#d4af37 72%,transparent 74%); box-shadow:0 0 10px #facc15; }
+    @media(max-width:640px){ .continuation-orb{top:39%}.continuation-open-btn{top:62%}.continuation-children{bottom:13%} }
+
 </style>
 </head>
 
 
 <body class="min-h-screen font-sans flex flex-col selection:bg-ceremony-purple-500/30 selection:text-ceremony-gold-400 text-base">
 
-  <div id="scroll-seal-overlay">
-    <div class="text-center space-y-6 max-w-md px-4">
-      <div class="flex items-center justify-center space-x-0 relative h-32 w-64 mx-auto">
-        <div id="scroll-wing-l" class="absolute w-1/2 h-full bg-gradient-to-r from-teal-950 to-emerald-900 border-2 border-ceremony-gold-500 rounded-l-xl left-0 origin-right"></div>
-        <div id="scroll-wing-r" class="absolute w-1/2 h-full bg-gradient-to-l from-teal-950 to-emerald-900 border-2 border-ceremony-gold-500 rounded-r-xl right-0 origin-left"></div>
-        
-        <button id="btn-unseal" class="pulse-seal absolute z-10 w-20 h-20 rounded-full bg-black border-2 border-ceremony-gold-500 flex flex-col items-center justify-center transition-transform hover:scale-110 active:scale-[0.93] focus:outline-none">
-          <i class="fa-solid fa-gavel text-ceremony-gold-400 text-xl mb-0.5"></i>
-          <span class="text-[9px] font-black text-white tracking-widest">解く</span>
-        </button>
-      </div>
-      
-      <div class="space-y-2">
-        <p class="text-xs tracking-[0.2em] font-bold text-ceremony-gold-400 font-mono">SECONDARY INHERITANCE MEDIATION</p>
-        <p class="text-sm text-ceremony-silver-200 font-medium leading-relaxed">
-          これより先は、一族の富を二重課税から守護する禁忌の領域。<br>
-          【相次相続の秘策】、開帳の覚悟はよろしいか？
-        </p>
-      </div>
+  <div id="scroll-seal-overlay" aria-label="継承の光・後半演出">
+    <div class="continuation-stage">
+      <div id="continuation-intro" class="continuation-intro">宝均に託された想いと財産が、次の世代へ受け継がれようとしています。</div>
+      <div id="continuation-orb" class="continuation-orb">宝均</div>
+      <button type="button" id="btn-unseal" class="continuation-open-btn">受け継がれる未来を開く</button>
+      <div id="continuation-children" class="continuation-children"></div>
+      <div id="continuation-message" class="continuation-message">想いは、次の世代へ。</div>
     </div>
   </div>
 
@@ -1250,33 +1262,76 @@ function formatYen(yen) {
       updateSimulation();
     });
 
-    // ⏳ 【時間差の軍略】巻物開帳トリガー制御
+    // 継承の光・後半：宝均玉をクリックして子供たちへ継承する
+    function createContinuationParticle(startX, startY, endX, endY, delay = 0, duration = 850) {
+      const particle = document.createElement('span');
+      particle.className = 'continuation-particle';
+      particle.style.setProperty('--size', `${3 + Math.random() * 5}px`);
+      particle.style.left = `${startX}px`;
+      particle.style.top = `${startY}px`;
+      document.body.appendChild(particle);
+      const curveX = (Math.random() - .5) * 150;
+      const curveY = (Math.random() - .5) * 120;
+      const animation = particle.animate([
+        { transform:'translate(-50%,-50%) scale(.3)', opacity:0 },
+        { transform:`translate(${curveX}px,${curveY}px) scale(1.2)`, opacity:1, offset:.32 },
+        { transform:`translate(${endX-startX}px,${endY-startY}px) scale(.2)`, opacity:0 }
+      ], { duration, delay, easing:'cubic-bezier(.4,0,.15,1)', fill:'forwards' });
+      animation.finished.finally(() => particle.remove());
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-      const btnUnseal = document.getElementById('btn-unseal');
-      const overlay = document.getElementById('scroll-seal-overlay');
-      const wingL = document.getElementById('scroll-wing-l');
-      const wingR = document.getElementById('scroll-wing-r');
-
       updateYearsHint(5);
+      updateSimulation();
 
-      if (btnUnseal) {
-        btnUnseal.addEventListener('click', () => {
-          playScrollSound();
-          resumeInheritedAudio();
-          
-          btnUnseal.style.display = 'none';
-          wingL.classList.add('scroll-open-left');
-          wingR.classList.add('scroll-open-right');
-          
+      const btnOpen = document.getElementById('btn-unseal');
+      const overlay = document.getElementById('scroll-seal-overlay');
+      const orb = document.getElementById('continuation-orb');
+      const childrenBox = document.getElementById('continuation-children');
+      const message = document.getElementById('continuation-message');
+      const family = getFamilyDisplayData();
+      let opening = false;
+
+      childrenBox.innerHTML = '';
+      (family.childNames.length ? family.childNames : ['子供たち']).forEach(name => {
+        const child = document.createElement('div');
+        child.className = 'continuation-child';
+        child.textContent = name;
+        childrenBox.appendChild(child);
+      });
+
+      btnOpen.addEventListener('click', () => {
+        if (opening) return;
+        opening = true;
+        btnOpen.disabled = true;
+        btnOpen.style.opacity = '0';
+        btnOpen.style.pointerEvents = 'none';
+
+        // このユーザー操作を音楽再開のきっかけにする
+        resumeInheritedAudio();
+        orb.classList.add('is-opening');
+
+        const orbRect = orb.getBoundingClientRect();
+        const startX = orbRect.left + orbRect.width / 2;
+        const startY = orbRect.top + orbRect.height / 2;
+        [...childrenBox.children].forEach((child,index) => {
+          const rect = child.getBoundingClientRect();
+          const endX = rect.left + rect.width / 2;
+          const endY = rect.top + rect.height / 2;
+          const count = window.innerWidth < 640 ? 16 : 25;
+          for (let i=0;i<count;i++) {
+            createContinuationParticle(startX,startY,endX+(Math.random()-.5)*rect.width,endY+(Math.random()-.5)*rect.height,Math.random()*280+index*120,650+Math.random()*420);
+          }
+          setTimeout(() => child.classList.add('is-born'), 420 + index*180);
+        });
+
+        setTimeout(() => message.classList.add('is-visible'), 900);
+        setTimeout(() => {
           overlay.style.opacity = '0';
           overlay.style.pointerEvents = 'none';
-
-          setTimeout(() => {
-            overlay.style.display = 'none';
-            updateSimulation();
-          }, 1200);
-        });
-      }
+          setTimeout(() => { overlay.style.display = 'none'; }, 520);
+        }, 2100);
+      });
     });
   </script>
 </body>
