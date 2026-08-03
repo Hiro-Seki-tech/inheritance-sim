@@ -529,16 +529,18 @@
 }
 .inheritance-parent-name.parent-one { left: 7%; top: 34%; }
 .inheritance-parent-name.parent-two { right: 7%; top: 34%; }
-.inheritance-parent-name.is-orbiting.parent-one { animation: parentOrbitOne 1.8s cubic-bezier(.45,.05,.2,1) forwards; }
-.inheritance-parent-name.is-orbiting.parent-two { animation: parentOrbitTwo 1.8s cubic-bezier(.45,.05,.2,1) forwards; }
-@keyframes parentOrbitOne {
+.inheritance-parent-name.is-orbiting.parent-one { animation: parentApproachOne 1.65s cubic-bezier(.38,.05,.18,1) forwards; }
+.inheritance-parent-name.is-orbiting.parent-two { animation: parentApproachTwo 1.65s cubic-bezier(.38,.05,.18,1) forwards; }
+@keyframes parentApproachOne {
   0% { transform: translate(0,0) scale(1); opacity:1; }
-  45% { transform: translate(34vw,-15vh) scale(.92); }
-  72% { transform: translate(40vw,8vh) scale(.78); opacity:.9; }
-  100% { transform: translate(38vw,5vh) scale(.25); opacity:0; filter: blur(5px); }
+  72% { transform: translate(calc(43vw - 115px), 5vh) scale(.9); opacity:1; }
+  100% { transform: translate(calc(43vw - 115px), 5vh) scale(.28); opacity:0; filter: blur(5px); }
 }
-@keyframes parentOrbitTwo {
+@keyframes parentApproachTwo {
   0% { transform: translate(0,0) scale(1); opacity:1; }
+  72% { transform: translate(calc(-43vw + 115px), 5vh) scale(.9); opacity:1; }
+  100% { transform: translate(calc(-43vw + 115px), 5vh) scale(.28); opacity:0; filter: blur(5px); }
+}
   45% { transform: translate(-34vw,15vh) scale(.92); }
   72% { transform: translate(-40vw,-8vh) scale(.78); opacity:.9; }
   100% { transform: translate(-38vw,-5vh) scale(.25); opacity:0; filter: blur(5px); }
@@ -600,13 +602,16 @@
   .inheritance-parent-name.parent-two { right: 4%; top: 55%; }
   .inheritance-orb { top: 42%; }
   .secondary-tooltip { right: -4px; }
-  @keyframes parentOrbitOne {
+  @keyframes parentApproachOne {
     0% { transform: translate(0,0) scale(1); opacity:1; }
-    55% { transform: translate(40vw,9vh) scale(.82); }
-    100% { transform: translate(43vw,10vh) scale(.2); opacity:0; filter: blur(5px); }
+    72% { transform: translate(39vw,17vh) scale(.86); opacity:1; }
+    100% { transform: translate(42vw,18vh) scale(.24); opacity:0; filter: blur(5px); }
   }
-  @keyframes parentOrbitTwo {
+  @keyframes parentApproachTwo {
     0% { transform: translate(0,0) scale(1); opacity:1; }
+    72% { transform: translate(-39vw,-13vh) scale(.86); opacity:1; }
+    100% { transform: translate(-42vw,-14vh) scale(.24); opacity:0; filter: blur(5px); }
+  }
     55% { transform: translate(-40vw,-11vh) scale(.82); }
     100% { transform: translate(-43vw,-10vh) scale(.2); opacity:0; filter: blur(5px); }
   }
@@ -3894,6 +3899,7 @@ const runSecondaryInheritanceTransition = (() => {
               console.log('二次相続への音楽引継ぎ情報を保存できませんでした:', audioHandoffError);
             }
 
+            primaryResultData.inheritanceTransitionStage = 'parents_absorbed';
             localStorage.setItem('gemkin_primary_result', JSON.stringify(primaryResultData));
           }
 
@@ -3981,13 +3987,8 @@ const runSecondaryInheritanceTransition = (() => {
             parentOne.textContent = family.decedentName;
             parentTwo.textContent = family.spouseName;
             childrenBox.innerHTML = '';
-            (family.childNames.length ? family.childNames : ['子供たち']).forEach(name => {
-              const child = document.createElement('div');
-              child.className = 'inheritance-child-name';
-              child.textContent = name;
-              childrenBox.appendChild(child);
-            });
-            caption.textContent = `${family.decedentName}と${family.spouseName}から、次の世代へ。`;
+            childrenBox.style.display = 'none';
+            caption.textContent = `${family.decedentName}と${family.spouseName}。二人の名前を、次の世代へ託します。`;
 
             overlay.classList.add('is-active');
             overlay.setAttribute('aria-hidden', 'false');
@@ -3996,9 +3997,11 @@ const runSecondaryInheritanceTransition = (() => {
             const skipHandler = () => navigateNow();
             skip.addEventListener('click', skipHandler, { once: true });
 
-            requestAnimationFrame(() => {
+            // 最初の約1秒は静止し、名前を読める時間を確保する
+            setTimeout(() => {
               parentOne.classList.add('is-orbiting');
               parentTwo.classList.add('is-orbiting');
+              caption.textContent = '二人の想いと財産が、宝均へ託されます。';
 
               setTimeout(() => {
                 const orbRect = orb.getBoundingClientRect();
@@ -4006,27 +4009,18 @@ const runSecondaryInheritanceTransition = (() => {
                 const centerY = orbRect.top + orbRect.height / 2;
                 particleBurstFromElementToPoint(parentOne, centerX, centerY, window.innerWidth < 640 ? 24 : 38);
                 particleBurstFromElementToPoint(parentTwo, centerX, centerY, window.innerWidth < 640 ? 24 : 38);
-              }, 650);
-
-              setTimeout(() => orb.classList.add('is-awake'), 1850);
+              }, 760);
 
               setTimeout(() => {
-                const orbRect = orb.getBoundingClientRect();
-                const centerX = orbRect.left + orbRect.width / 2;
-                const centerY = orbRect.top + orbRect.height / 2;
-                const childElements = [...childrenBox.children];
-                childElements.forEach((child, index) => {
-                  particleBurstFromPointToElement(centerX, centerY, child, window.innerWidth < 640 ? 16 : 24);
-                  setTimeout(() => child.classList.add('is-born'), 180 + index * 150);
-                });
-                caption.textContent = '二世代にわたる財産承継を計算しています…';
-              }, 2450);
+                orb.classList.add('is-awake');
+                caption.textContent = '受け継がれる未来へ。';
+              }, 1460);
+            }, 1000);
 
-              navigationTimer = setTimeout(() => {
-                overlay.classList.add('is-fading');
-                setTimeout(navigateNow, 280);
-              }, 4200);
-            });
+            navigationTimer = setTimeout(() => {
+              // 同じ宝均玉が次画面へ続いて見えるよう、暗転させず直接遷移する
+              navigateNow();
+            }, 3200);
           };
         })();
 
