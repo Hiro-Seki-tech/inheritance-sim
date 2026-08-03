@@ -943,14 +943,25 @@ function formatYen(yen) {
       // ⚔️ 経過年数の調停
       const elapsedYears = parseInt(document.getElementById('input-elapsed-years').value) || 5;
 
-      const pTotalEstate = primaryResult.totalEstate;
-      const pSpouseShare = primaryResult.spouseActualShare;
-      const pSpouseAcquisition = pTotalEstate * (pSpouseShare / 100);
-      const childCount = primaryResult.childCount;
+      const pTotalEstate = Number(primaryResult.totalEstate) || 0;
+      const pSpouseShare = Number(primaryResult.spouseActualShare) || 0;
+      const pSpouseAcquisition = Number.isFinite(Number(primaryResult.spouseAcquisition))
+        ? Number(primaryResult.spouseAcquisition)
+        : pTotalEstate * (pSpouseShare / 100);
+      const childCount = Math.max(1, Number(primaryResult.childCount) || 1);
 
-      const pTaxResult = calculateInheritanceTax(pTotalEstate, childCount, true, pSpouseShare);
-      const pTotalTax = pTaxResult.finalTax;
-      const pSpouseFinalTax = pTaxResult.spouseFinalTax; // 一次で配偶者が支払った生税額
+      // 現在設定されている一次相続については、本体で確定した税額をそのまま使用する。
+      // 古い一次相続データに確定値がない場合だけ、従来の簡易計算へフォールバックする。
+      const inheritedPrimaryTax = primaryResult.primaryTaxResult || null;
+      const fallbackPTaxResult = inheritedPrimaryTax
+        ? null
+        : calculateInheritanceTax(pTotalEstate, childCount, true, pSpouseShare);
+      const pTotalTax = inheritedPrimaryTax
+        ? Number(inheritedPrimaryTax.childrenTotalTax || 0)
+        : fallbackPTaxResult.finalTax;
+      const pSpouseFinalTax = inheritedPrimaryTax
+        ? Number(inheritedPrimaryTax.spouseFinalTax || 0)
+        : fallbackPTaxResult.spouseFinalTax;
 
       // ⚔️ 相次相続控除（掃除相続）の動的減算回路
       let soujiKoujo = 0;
