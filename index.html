@@ -529,21 +529,15 @@
 }
 .inheritance-parent-name.parent-one { left: 7%; top: 34%; }
 .inheritance-parent-name.parent-two { right: 7%; top: 34%; }
-.inheritance-parent-name.is-orbiting.parent-one { animation: parentApproachOne 1.65s cubic-bezier(.38,.05,.18,1) forwards; }
-.inheritance-parent-name.is-orbiting.parent-two { animation: parentApproachTwo 1.65s cubic-bezier(.38,.05,.18,1) forwards; }
-@keyframes parentApproachOne {
-  0% { transform: translate(0,0) scale(1); opacity:1; }
-  72% { transform: translate(calc(43vw - 115px), 5vh) scale(.9); opacity:1; }
-  100% { transform: translate(calc(43vw - 115px), 5vh) scale(.28); opacity:0; filter: blur(5px); }
+.inheritance-parent-name.is-orbiting.parent-one,
+.inheritance-parent-name.is-orbiting.parent-two {
+  animation: parentApproachCenter 2.2s cubic-bezier(.32,.08,.18,1) forwards;
 }
-@keyframes parentApproachTwo {
-  0% { transform: translate(0,0) scale(1); opacity:1; }
-  72% { transform: translate(calc(-43vw + 115px), 5vh) scale(.9); opacity:1; }
-  100% { transform: translate(calc(-43vw + 115px), 5vh) scale(.28); opacity:0; filter: blur(5px); }
-}
-  45% { transform: translate(-34vw,15vh) scale(.92); }
-  72% { transform: translate(-40vw,-8vh) scale(.78); opacity:.9; }
-  100% { transform: translate(-38vw,-5vh) scale(.25); opacity:0; filter: blur(5px); }
+@keyframes parentApproachCenter {
+  0% { transform: translate(0,0) scale(1); opacity:1; filter: blur(0); }
+  68% { transform: translate(var(--approach-x), var(--approach-y)) scale(.92); opacity:1; filter: blur(0); }
+  84% { transform: translate(var(--approach-x), var(--approach-y)) scale(.72); opacity:.82; filter: blur(1px); }
+  100% { transform: translate(var(--approach-x), var(--approach-y)) scale(.22); opacity:0; filter: blur(7px); }
 }
 .inheritance-children {
   position: absolute;
@@ -602,19 +596,6 @@
   .inheritance-parent-name.parent-two { right: 4%; top: 55%; }
   .inheritance-orb { top: 42%; }
   .secondary-tooltip { right: -4px; }
-  @keyframes parentApproachOne {
-    0% { transform: translate(0,0) scale(1); opacity:1; }
-    72% { transform: translate(39vw,17vh) scale(.86); opacity:1; }
-    100% { transform: translate(42vw,18vh) scale(.24); opacity:0; filter: blur(5px); }
-  }
-  @keyframes parentApproachTwo {
-    0% { transform: translate(0,0) scale(1); opacity:1; }
-    72% { transform: translate(-39vw,-13vh) scale(.86); opacity:1; }
-    100% { transform: translate(-42vw,-14vh) scale(.24); opacity:0; filter: blur(5px); }
-  }
-    55% { transform: translate(-40vw,-11vh) scale(.82); }
-    100% { transform: translate(-43vw,-10vh) scale(.2); opacity:0; filter: blur(5px); }
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   .inheritance-orb,
@@ -3999,28 +3980,40 @@ const runSecondaryInheritanceTransition = (() => {
 
             // 最初の約1秒は静止し、名前を読める時間を確保する
             setTimeout(() => {
+              const orbRect = orb.getBoundingClientRect();
+              const centerX = orbRect.left + orbRect.width / 2;
+              const centerY = orbRect.top + orbRect.height / 2;
+
+              // 画面幅の概算ではなく、各名前の現在位置から宝均玉の中央までを実測する。
+              // これにより、左右の名前は交差せず、中央でぴたりと止まって溶ける。
+              [parentOne, parentTwo].forEach(parent => {
+                const rect = parent.getBoundingClientRect();
+                const parentCenterX = rect.left + rect.width / 2;
+                const parentCenterY = rect.top + rect.height / 2;
+                parent.style.setProperty('--approach-x', `${centerX - parentCenterX}px`);
+                parent.style.setProperty('--approach-y', `${centerY - parentCenterY}px`);
+              });
+
               parentOne.classList.add('is-orbiting');
               parentTwo.classList.add('is-orbiting');
-              caption.textContent = '二人の想いと財産が、宝均へ託されます。';
+              caption.textContent = '二人の想いと財産が、ゆっくり宝均へ託されます。';
 
+              // 名前が宝均玉の中央へ到達したところで、文字を金色の粒子へ溶かす。
               setTimeout(() => {
-                const orbRect = orb.getBoundingClientRect();
-                const centerX = orbRect.left + orbRect.width / 2;
-                const centerY = orbRect.top + orbRect.height / 2;
-                particleBurstFromElementToPoint(parentOne, centerX, centerY, window.innerWidth < 640 ? 24 : 38);
-                particleBurstFromElementToPoint(parentTwo, centerX, centerY, window.innerWidth < 640 ? 24 : 38);
-              }, 760);
+                particleBurstFromElementToPoint(parentOne, centerX, centerY, window.innerWidth < 640 ? 28 : 44);
+                particleBurstFromElementToPoint(parentTwo, centerX, centerY, window.innerWidth < 640 ? 28 : 44);
+              }, 1580);
 
               setTimeout(() => {
                 orb.classList.add('is-awake');
                 caption.textContent = '受け継がれる未来へ。';
-              }, 1460);
+              }, 2260);
             }, 1000);
 
             navigationTimer = setTimeout(() => {
               // 同じ宝均玉が次画面へ続いて見えるよう、暗転させず直接遷移する
               navigateNow();
-            }, 3200);
+            }, 3950);
           };
         })();
 
