@@ -3843,15 +3843,49 @@ const runSecondaryInheritanceTransition = (() => {
 
             const totalEstateYen = parseYen(totalEstateText);
             const spouseHeir = state.heirs.find(h => h.id === state.legalSpouseId);
-            const spouseSharePercent = spouseHeir ? spouseHeir.share : 0;
-            const childCount = state.heirs.filter(h => h.relation === 'child').length;
+            const childHeirs = state.heirs.filter(h => h.relation === 'child');
+            const childCount = childHeirs.length;
+
+            // 一次相続側で確定した実額・確定税額を、そのまま二次相続へ渡す。
+            // 二次相続側で簡易再計算すると、小規模宅地等の特例や各種控除が失われるため。
+            const spouseAcquisitionYen = spouseHeir
+              ? Number(spouseHeir.actualAcquisition || 0)
+              : 0;
+            const spouseSharePercent = totalEstateYen > 0
+              ? (spouseAcquisitionYen / totalEstateYen) * 100
+              : 0;
+            const spouseFinalTaxYen = spouseHeir
+              ? Number(spouseHeir.taxAmount || 0)
+              : 0;
+            const childrenTotalTaxYen = childHeirs.reduce(
+              (sum, heir) => sum + Number(heir.taxAmount || 0),
+              0
+            );
+            const primaryTotalTaxYen = state.heirs.reduce(
+              (sum, heir) => sum + Number(heir.taxAmount || 0),
+              0
+            );
 
             const primaryResultData = {
               decedentName: (state.decedentName || '').trim() || '一次被相続人',
               totalEstate: totalEstateYen,
               spouseActualShare: spouseSharePercent,
-              spouseAcquisition: totalEstateYen * (spouseSharePercent / 100),
+              spouseAcquisition: spouseAcquisitionYen,
               childCount: Math.max(1, childCount),
+              primaryTaxResult: {
+                totalTax: primaryTotalTaxYen,
+                spouseFinalTax: spouseFinalTaxYen,
+                childrenTotalTax: childrenTotalTaxYen,
+                perHeir: state.heirs.map(heir => ({
+                  id: heir.id,
+                  name: heir.name,
+                  relation: heir.relation,
+                  actualAcquisition: Number(heir.actualAcquisition || 0),
+                  taxableAmount: Number(heir.taxableAmount || 0),
+                  taxAmount: Number(heir.taxAmount || 0),
+                  specialExemptionAppliedAmount: Number(heir.specialExemptionAppliedAmount || 0)
+                }))
+              },
               heirs: JSON.parse(JSON.stringify(state.heirs)),
               assets: JSON.parse(JSON.stringify(state.assets)),
               legalSpouseId: state.legalSpouseId
