@@ -169,7 +169,51 @@
     }
 
 
-  </style>
+  
+
+    /* v22: 重要説明と編集可能エリアを明確化 */
+    #simulation-description {
+      color: #fff7cc !important;
+      font-weight: 800;
+      line-height: 1.65;
+      text-shadow: 0 1px 0 #000, 0 0 10px rgba(250, 204, 21, 0.28);
+    }
+    #simulation-catchcopy {
+      color: #d1fae5;
+      font-weight: 700;
+      line-height: 1.55;
+    }
+    #secondary-input-section {
+      background: linear-gradient(145deg, #071b2d 0%, #0b2540 48%, #06121f 100%) !important;
+      border: 2px solid rgba(56, 189, 248, 0.72) !important;
+      box-shadow: 0 0 24px rgba(14, 165, 233, 0.16), inset 0 0 22px rgba(14, 165, 233, 0.08) !important;
+    }
+    #secondary-input-section input[type="number"] {
+      background: #0b1f33 !important;
+      border: 2px solid rgba(125, 211, 252, 0.9) !important;
+      color: #f0f9ff !important;
+      box-shadow: inset 0 0 12px rgba(14, 165, 233, 0.14), 0 0 0 1px rgba(255,255,255,0.04) !important;
+    }
+    #secondary-input-section input[type="number"]:focus {
+      border-color: #facc15 !important;
+      box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.16), inset 0 0 12px rgba(14, 165, 233, 0.14) !important;
+    }
+    #secondary-input-section input[type="range"] {
+      height: 10px !important;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #38bdf8 0%, #0ea5e9 50%, #164e63 100%) !important;
+      border: 1px solid rgba(186, 230, 253, 0.7);
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.75), 0 0 10px rgba(14,165,233,0.2);
+    }
+    #secondary-input-section input[type="range"]::-webkit-slider-thumb {
+      width: 24px; height: 24px; border: 3px solid #fff7cc;
+      box-shadow: 0 0 12px rgba(250,204,21,0.8);
+    }
+    #secondary-input-section input[type="range"]::-moz-range-thumb {
+      width: 24px; height: 24px; border: 3px solid #fff7cc;
+      box-shadow: 0 0 12px rgba(250,204,21,0.8);
+    }
+</style>
 </head>
 
 
@@ -467,7 +511,8 @@
         </h1>
 
 
-        <p class="text-sm text-ceremony-silver-400 mt-1">一次被相続人 ＆ 配偶者逝去時の子供たちの最終納税額シミュレーション（2026年版）</p>
+        <p id="simulation-description" class="text-sm mt-2">一次被相続人 ＆ 配偶者逝去時の子供たちの最終納税額シミュレーション（2026年版）</p>
+        <p id="simulation-catchcopy" class="text-xs mt-1">二世代にわたる一族の資産承継を最適化し、生涯トータルの相続税負担を見える化します。</p>
       </div>
       <div>
         <button id="btn-return" class="text-base font-bold bg-ceremony-purple-900/60 hover:bg-ceremony-purple-800 border border-ceremony-gold-500/40 text-ceremony-gold-400 px-5 py-3 rounded-xl transition-all inline-flex items-center gap-2 shadow-lg hover:shadow-ceremony-gold-500/10">
@@ -528,10 +573,15 @@
 
 
 
-<section class="bg-ceremony-purple-900/20 border border-ceremony-purple-800/40 rounded-2xl p-4 backdrop-blur-sm shadow-xl space-y-4">
-        <h3 class="text-sm font-bold text-ceremony-gold-500 flex items-center gap-2 border-b border-ceremony-purple-800/60 pb-2">
-          <i class="fa-solid fa-sliders"></i> 二次相続 固有変数調整
-        </h3>
+<section id="secondary-input-section" class="rounded-2xl p-4 backdrop-blur-sm shadow-xl space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-sky-400/30 pb-2">
+          <h3 class="text-sm font-bold text-sky-200 flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square text-sky-300"></i> 二次相続 固有変数調整
+          </h3>
+          <span class="text-[10px] font-black tracking-wider px-2.5 py-1 rounded-full border border-sky-300/60 bg-sky-950/70 text-sky-200">
+            <i class="fa-solid fa-hand-pointer mr-1"></i>ここは入力・調整できます
+          </span>
+        </div>
         
         <div>
           <label class="text-xs text-ceremony-silver-200 block mb-1 font-bold flex justify-between">
@@ -734,6 +784,29 @@
       }
     }
 
+    function saveAudioHandoffForPrimary() {
+      try {
+        const latestData = JSON.parse(localStorage.getItem('gemkin_primary_result')) || primaryResult || {};
+        if (inheritedAudioPlayer && !inheritedAudioPlayer.paused && inheritedAudioPlayer.currentSrc) {
+          const sourceUrl = new URL(inheritedAudioPlayer.currentSrc, window.location.href);
+          const filename = decodeURIComponent(sourceUrl.pathname.split('/').pop() || '');
+          latestData.audioHandoff = {
+            active: true,
+            filename,
+            currentTime: Number.isFinite(inheritedAudioPlayer.currentTime) ? inheritedAudioPlayer.currentTime : 0,
+            volume: Number.isFinite(inheritedAudioPlayer.volume) ? inheritedAudioPlayer.volume : 0.35,
+            loop: Boolean(inheritedAudioPlayer.loop),
+            mode: /^song/i.test(filename) ? 'theme' : (/^bgm/i.test(filename) ? 'ambient' : 'audio')
+          };
+        } else if (!latestData.audioHandoff || latestData.audioHandoff.mode === 'silent') {
+          latestData.audioHandoff = { active: false, mode: 'silent' };
+        }
+        localStorage.setItem('gemkin_primary_result', JSON.stringify(latestData));
+      } catch (error) {
+        console.log('一次相続への音楽引継ぎ情報を保存できませんでした:', error);
+      }
+    }
+
     function getFamilyDisplayData() {
       const heirs = Array.isArray(primaryResult.heirs) ? primaryResult.heirs : [];
       const primaryDecedentName = String(primaryResult.decedentName || '一次被相続人').trim() || '一次被相続人';
@@ -923,6 +996,8 @@ function formatYen(yen) {
 // 家族名を一次相続から引き継ぎ、画面全体へ反映
       const family = getFamilyDisplayData();
       const childPossessive = family.childNames.length ? family.childLabel : '子どもたち';
+      const childrenWithNames = family.childNames.length ? `子供たち（${family.childLabel}）` : '子供たち';
+      document.getElementById('simulation-description').innerText = `${family.primaryDecedentName} ＆ ${family.spouseName}逝去時の${childrenWithNames}の最終納税額シミュレーション（2026年版）`;
       document.getElementById('family-primary-decedent').innerText = family.primaryDecedentName;
       document.getElementById('family-secondary-decedent').innerText = family.spouseName;
       document.getElementById('family-secondary-heirs').innerText = family.childLabel;
@@ -930,11 +1005,11 @@ function formatYen(yen) {
       document.getElementById('label-primary-estate').innerText = `${family.primaryDecedentName}の遺産総額`;
       document.getElementById('label-spouse-share').innerText = `${family.spouseName}の一次取得割合`;
       document.getElementById('label-spouse-acquisition').innerText = `${family.spouseName}の一次取得額`;
-      document.getElementById('label-child-count').innerText = `${childPossessive}の人数`;
+      document.getElementById('label-child-count').innerText = `${childrenWithNames}の人数`;
       document.getElementById('label-own-property').innerText = `${family.spouseName}自身の固有財産（手元資産）`;
       document.getElementById('secondary-rule-description').innerText = `二次相続では、${family.spouseName}の逝去に伴い、${family.childLabel}が法定相続分（均等分割）で全遺産を取得するものとして自動試算します。`;
-      document.getElementById('table-p-phase').innerText = `一次相続（${family.primaryDecedentName}）`;
-      document.getElementById('table-s-phase').innerText = `二次相続（${family.spouseName}）`;
+      document.getElementById('table-p-phase').innerText = `一次相続（${family.primaryDecedentName}逝去時）`;
+      document.getElementById('table-s-phase').innerText = `二次相続（${family.spouseName}逝去時）`;
       document.getElementById('table-grand-label').innerText = `${childPossessive}の生涯トータル相続税 納税額`;
       document.getElementById('advice-spouse-name').innerText = family.spouseName;
 
@@ -1015,6 +1090,7 @@ function formatYen(yen) {
 
     // ⚔️ 維持帰還の調停：本番サーバーの直下の本体（../index.html）へ完全連動
     document.getElementById('btn-return').addEventListener('click', () => {
+      saveAudioHandoffForPrimary();
       window.location.href = "../index.html";
     });
 
@@ -1101,6 +1177,7 @@ function formatYen(yen) {
           }
 
           localStorage.setItem('gemkin_primary_result', JSON.stringify(savedData));
+          saveAudioHandoffForPrimary();
           
           alert("📊 二次相続調停完了！\n一族の総税額を最小化するため、配偶者の取得割合を【 " + bestShare + " % 】に設定。\n\nユーザが構築した相続人構成を100%維持したまま、本体の一次相続シミュレータへ帰還いたします！");
           window.location.href = "../index.html";
