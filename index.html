@@ -632,6 +632,119 @@
 
   </style>
 
+
+
+  <!-- SOL: 宝均の軌跡 共通モーダル用スタイル -->
+  <style>
+    #gemkin-history-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 200000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(2, 6, 23, 0.82);
+      backdrop-filter: blur(8px);
+    }
+    #gemkin-history-modal.is-open { display: flex; }
+    .gemkin-history-dialog {
+      width: min(720px, 100%);
+      max-height: min(85vh, 760px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(212, 175, 55, 0.7);
+      border-radius: 22px;
+      background: linear-gradient(145deg, rgba(46, 16, 101, 0.98), rgba(12, 5, 20, 0.99));
+      color: #e2e8f0;
+      box-shadow: 0 28px 80px rgba(0,0,0,.72), 0 0 38px rgba(212,175,55,.2);
+    }
+    .gemkin-history-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(212,175,55,.3);
+      background: rgba(12,5,20,.72);
+    }
+    .gemkin-history-title {
+      color: #fde68a;
+      font-size: clamp(18px, 4vw, 24px);
+      font-weight: 900;
+      letter-spacing: .05em;
+    }
+    .gemkin-history-close {
+      width: 38px;
+      height: 38px;
+      flex: 0 0 auto;
+      border: 1px solid rgba(226,232,240,.22);
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      color: #e2e8f0;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+    .gemkin-history-close:hover,
+    .gemkin-history-close:focus-visible {
+      color: #fde68a;
+      border-color: rgba(212,175,55,.7);
+      background: rgba(212,175,55,.12);
+      outline: none;
+    }
+    .gemkin-history-body {
+      overflow-y: auto;
+      padding: 6px 20px 22px;
+      overscroll-behavior: contain;
+    }
+    .gemkin-history-entry {
+      padding: 17px 2px;
+      border-bottom: 1px solid rgba(148,163,184,.18);
+    }
+    .gemkin-history-entry:last-child { border-bottom: 0; }
+    .gemkin-history-version {
+      color: #fde68a;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: .03em;
+    }
+    .gemkin-history-date {
+      margin-left: 8px;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .gemkin-history-entry ul {
+      margin: 9px 0 0;
+      padding-left: 1.25rem;
+      color: #cbd5e1;
+      font-size: 13px;
+      line-height: 1.75;
+    }
+    .gemkin-history-button {
+      color: #fde68a;
+      font-weight: 800;
+      text-decoration: none;
+      transition: color .2s ease, text-shadow .2s ease;
+    }
+    .gemkin-history-button:hover,
+    .gemkin-history-button:focus-visible {
+      color: #fff7d6;
+      text-shadow: 0 0 10px rgba(250,204,21,.55);
+      outline: none;
+    }
+    @media (max-width: 640px) {
+      #gemkin-history-modal { padding: 10px; }
+      .gemkin-history-dialog { max-height: 88vh; border-radius: 17px; }
+      .gemkin-history-header { padding: 15px 15px; }
+      .gemkin-history-body { padding: 4px 15px 18px; }
+      .gemkin-history-entry ul { font-size: 12px; }
+    }
+  </style>
+
 </head>
 <body class="bg-ceremony-purple-950 text-ceremony-silver-100 min-h-screen font-sans flex flex-col selection:bg-ceremony-purple-500 selection:text-white">
 
@@ -4565,8 +4678,131 @@ function playSecondarySound(type) {
     <p class="text-xs text-ceremony-silver-500 font-medium tracking-widest">
       &copy; 2026  PLIP & Hiro-Seki-Tech & 投資運用のジェムキン (Gemkin FinTech Lab).<br class="sm:hidden"> 無断転載及びハルシネーションはお断り申し上げます。
     </p>
+    <div class="mt-3 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[11px] sm:text-xs text-ceremony-silver-400 tracking-wide">
+      <span>Version 139</span>
+      <span aria-hidden="true">｜</span>
+      <span>2026.08.06</span>
+      <span aria-hidden="true">｜</span>
+      <button type="button" id="gemkin-history-open" class="gemkin-history-button" aria-haspopup="dialog" aria-controls="gemkin-history-modal">
+        💎 宝均の軌跡
+      </button>
+    </div>
   </footer>
  
   
+
+  <!-- SOL: 宝均の軌跡モーダル -->
+  <div id="gemkin-history-modal" role="dialog" aria-modal="true" aria-labelledby="gemkin-history-title" aria-hidden="true">
+    <div class="gemkin-history-dialog" role="document">
+      <div class="gemkin-history-header">
+        <h2 id="gemkin-history-title" class="gemkin-history-title">💎 宝均の軌跡</h2>
+        <button type="button" id="gemkin-history-close" class="gemkin-history-close" aria-label="宝均の軌跡を閉じる">×</button>
+      </div>
+      <div class="gemkin-history-body">
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 139</span><span class="gemkin-history-date">2026.08.06</span></div>
+          <ul><li>「💎 宝均の軌跡」を追加</li><li>作品の成長記録を宝均の中に残す仕組みを開始</li></ul>
+        </article>
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 138</span><span class="gemkin-history-date">2026.08.02</span></div>
+          <ul><li>一次相続の確定税額を二次相続へ正しく引き継ぐよう改善</li><li>一次・二次相続画面の相続税額を統一</li></ul>
+        </article>
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 137</span><span class="gemkin-history-date">2026.08.02</span></div>
+          <ul><li>被相続人の名前を入力できるように改善</li><li>入力した名前を二次相続画面にも引き継ぐよう対応</li></ul>
+        </article>
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 136</span><span class="gemkin-history-date">2026.08.02</span></div>
+          <ul><li>相続人名に配偶者・長男などの属性を表示</li><li>一次相続から二次相続へ家族の名前を連携</li></ul>
+        </article>
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 135</span><span class="gemkin-history-date">2026.08.02</span></div>
+          <ul><li>二次相続への移行演出を刷新</li><li>夫婦の名前が宝均玉へ溶け、次世代の名前が生まれる演出を追加</li></ul>
+        </article>
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 134</span><span class="gemkin-history-date">2026.08.02</span></div>
+          <ul><li>資産カードの初期値と説明表示を改善</li><li>土地・預金・株式・投資信託などの入力を分かりやすく整理</li></ul>
+        </article>
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 133</span><span class="gemkin-history-date">2026.08.01</span></div>
+          <ul><li>外部ページから戻った際に資産情報が崩れる問題を改善</li><li>ブラウザ内保存データの扱いを見直し</li></ul>
+        </article>
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 132</span><span class="gemkin-history-date">2026.08.01</span></div>
+          <ul><li>資産額を連続入力しやすい操作へ改善</li><li>数値入力時の使いやすさを向上</li></ul>
+        </article>
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 131</span><span class="gemkin-history-date">2026.07.25</span></div>
+          <ul><li>宝均の外国語版主題歌を完成</li><li>海外版への展開準備を進める</li></ul>
+        </article>
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 130</span><span class="gemkin-history-date">2026.07.24</span></div>
+          <ul><li>外国語版の音楽制作を開始</li><li>宝均の世界観を多言語でも伝える構想を具体化</li></ul>
+        </article>
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 126</span><span class="gemkin-history-date">2026.07.16</span></div>
+          <ul><li>宝均のBGMを大幅に改良</li><li>作品の荘厳さと相続の重みを表す音楽へ調整</li></ul>
+        </article>
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 124</span><span class="gemkin-history-date">2026.07.15</span></div>
+          <ul><li>宝均の主題歌歌詞を完成</li><li>「歌詞こそ作品のオリジナリティ」という制作方針を確立</li></ul>
+        </article>
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 115</span><span class="gemkin-history-date">2026.06.21</span></div>
+          <ul><li>二次相続へ移る演出の構想を開始</li><li>尽生から資産データを引き継ぐ連携を検討</li></ul>
+        </article>
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 110</span><span class="gemkin-history-date">2026.06.20</span></div>
+          <ul><li>二次相続シミュレータを組み込み</li><li>一次相続後の次世代まで試算できる作品へ進化</li></ul>
+        </article>
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 105</span><span class="gemkin-history-date">2026.06.19</span></div>
+          <ul><li>生前贈与と各種特例を組み込み</li><li>相続前から対策を比較できるよう拡張</li></ul>
+        </article>
+        <article class="gemkin-history-entry">
+          <div><span class="gemkin-history-version">Version 100</span><span class="gemkin-history-date">2026.06.13</span></div>
+          <ul><li>相続シミュレータ「宝均」の制作開始</li><li>CFOジェムキンとの共同開発が始まる</li></ul>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const modal = document.getElementById('gemkin-history-modal');
+      const openButton = document.getElementById('gemkin-history-open');
+      const closeButton = document.getElementById('gemkin-history-close');
+      if (!modal || !openButton || !closeButton) return;
+
+      let previousFocus = null;
+      let previousOverflow = '';
+
+      const openHistory = () => {
+        previousFocus = document.activeElement;
+        previousOverflow = document.body.style.overflow;
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        closeButton.focus();
+      };
+
+      const closeHistory = () => {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = previousOverflow;
+        if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
+      };
+
+      openButton.addEventListener('click', openHistory);
+      closeButton.addEventListener('click', closeHistory);
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) closeHistory();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && modal.classList.contains('is-open')) closeHistory();
+      });
+    })();
+  </script>
+
 </body>
 </html>
